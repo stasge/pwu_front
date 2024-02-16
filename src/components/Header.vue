@@ -37,7 +37,6 @@
 
     &:hover {
         transform: translateY(-5px);
-        letter-spacing: 1px;
     }
 }
 
