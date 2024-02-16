@@ -41,7 +41,7 @@
 }
 
 .blur {
-    filter: blur(20px);
+    filter: blur(15px);
     background: #1d202f;
     bottom: -30px;
 }
