@@ -58,6 +58,8 @@ a {
     0px -4px 10px rgba(255,255,255,0.3);
 
     &.btn-sm {
+        font-family: "Roboto", sans-serif;
+        font-weight: 700;
         background: url('@/assets/images/btn-bg-sm.svg') no-repeat; 
         font-size: 14px;
         width: 202px;
