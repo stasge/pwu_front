@@ -3,12 +3,13 @@
 </script>
 
 <template>
-    <div class="header flex flex-column align-items-center justify-content-center h-screen">
+    <div class="header flex flex-column align-items-center justify-content-center h-screen relative">
         <div class="logo flex flex-column w-max align-self-end">
             <h1>PW</h1>
             <h1>Ukraine</h1>
         </div>
-        <a class="play btn flex align-items-center justify-content-center">Грати</a>
+        <a class="play btn">Грати</a>
+        <div class="blur w-full h-5rem absolute"></div>
     </div>
 </template>
 
@@ -17,29 +18,32 @@
     font-family: "IM Fell DW Pica", serif;
     font-weight: 400;
     font-style: normal;
+    background: url('@/assets/images/header-bg.jpg') no-repeat left top / cover;
 }
 .logo {
     color: #FFF;
     text-align: center;
     font-size: 50px;
+    transform: translateX(-50%);
+
+    @media (max-width: 1640px) {
+        transform: translateX(-20%);
+    }
 }
 
 .play {
-    border: none;
-    background: url('@/assets/images/btn-bg.svg') no-repeat;
-    color: #FFF;
     position: relative;
-    width: 360px;
-    height: 80px;
-    font-size: 28px;
-    text-transform: uppercase;
-    position: relative;
-    top: 10rem;
-    transition: all .5s;
-    cursor: pointer;
+    top: 7rem;
 
     &:hover {
         transform: translateY(-5px);
+        letter-spacing: 1px;
     }
+}
+
+.blur {
+    filter: blur(20px);
+    background: #1d202f;
+    bottom: -30px;
 }
 </style>

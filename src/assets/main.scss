@@ -14,25 +14,53 @@
     justify-content: space-between;
     align-items: center;
     min-height: 100vh;
-    background: rgba(26,30,43,255) url('@/assets/images/header-bg.jpg') no-repeat left top / cover;
+    background: linear-gradient(180deg, #16171b 20%, rgba(39, 50, 68, 1.51) 100%);
 }
 
 .container {
-    max-width: 1410px;
+    max-width: 1370px;
     width: 100%;
 }
 
 h2,
 h3,
 p,
-span {
+span,
+li {
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
 
+a {
+    text-decoration: none;
+    color: #FFF;
+}
+
 .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: "Rubik Mono One", monospace;
     font-weight: 400;
     font-style: normal;
+    border: none;
+    background: url('@/assets/images/btn-bg.svg') no-repeat;
+    color: #FFF;
+    position: relative;
+    width: 360px;
+    height: 80px;
+    font-size: 28px;
+    text-transform: uppercase;
+    transition: all .5s;
+    cursor: pointer;
+    text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
+    0px -4px 10px rgba(255,255,255,0.3);
+
+    &.btn-sm {
+        background: url('@/assets/images/btn-bg-sm.svg') no-repeat; 
+        font-size: 14px;
+        width: 202px;
+        height: 58px;
+    }
 }
