@@ -37,12 +37,11 @@
 
     &:hover {
         transform: translateY(-5px);
-        letter-spacing: 1px;
     }
 }
 
 .blur {
-    filter: blur(20px);
+    filter: blur(15px);
     background: #1d202f;
     bottom: -30px;
 }

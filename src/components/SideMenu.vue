@@ -8,9 +8,11 @@
             <div class="rhombus">
                 <span>PWU</span>
             </div>
-            <div class="server-state__content flex flex-column justify-content-center">
-                <h3>PW Ukraine - 1.3.7</h3>
-                <p>Статус: <span style="color: green;">Online</span></p>
+            <div class="server-state__content flex flex-column justify-content-center align-items-end">
+                <div class="flex flex-column align-items-start w-max">
+                    <h3>PW Ukraine - 1.3.7</h3>
+                    <p>Статус: <span style="color: green;">Online</span></p>
+                </div>
             </div>
         </div>
         <ul class="side-menu flex flex-column gap-3 mt-6">
@@ -56,7 +58,6 @@
             width: 100%;
             border-bottom-left-radius: 35px;
             border-top-left-radius: 35px;
-            text-align: end;
             padding: 10px 20px;
             background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%);
         }
