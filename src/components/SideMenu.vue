@@ -3,15 +3,15 @@
 </script>
 
 <template>
-    <div class="flex flex-column" style="transform: translateY(-10%);">
+    <div class="flex flex-column relative z-2" style="transform: translateY(-10%);">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span>PWU</span>
             </div>
             <div class="server-state__content flex flex-column justify-content-center align-items-end">
                 <div class="flex flex-column align-items-start w-max">
-                    <h3>PW Ukraine - 1.3.7</h3>
-                    <p>Статус: <span style="color: green;">Online</span></p>
+                    <h3>PW Ukraine - 1.3.6</h3>
+                    <p>Статус: <span style="color: red;">Offline</span></p>
                 </div>
             </div>
         </div>
