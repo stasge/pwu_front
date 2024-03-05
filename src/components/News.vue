@@ -10,7 +10,7 @@ const isInViewport = (element: HTMLDivElement) => {
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&
-    rect.bottom <= viewportHeight && 
+    (rect.bottom - (rect.height / 2)) <= viewportHeight && 
     rect.right <= window.innerWidth
   );
 };
