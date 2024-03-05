@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import Register from '@/components/modals/register.vue';
+import Login from '@/components/modals/login.vue';
+
+const registerRef = ref<InstanceType<typeof Register> | null>(null)
+const loginRef = ref<InstanceType<typeof Login> | null>(null)
 
 </script>
 
@@ -8,7 +14,7 @@
         <p class="join-fight__text mt-3">Переписуючи основи</p>
     </div>
     <div class="steps mt-6 mb-8">
-        <div class="steps__item">
+        <div class="steps__item" @click="registerRef?.showDia">
             <h3>Реєстрація</h3>
             <p>Для подальшої гри необхідний ігровий обліковий запис</p>
         </div>
@@ -21,6 +27,8 @@
             <p>Пориньте в захоплюючі битви нового світу</p>
         </div>
     </div>
+    <Register ref="registerRef" @openLogin="loginRef?.showDia"/>
+    <Login ref="loginRef" @openRegistration="registerRef?.showDia"/>
 </template>
 
 <style scoped lang="scss">
