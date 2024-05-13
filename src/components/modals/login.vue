@@ -1,12 +1,16 @@
 <script setup lang='ts'>
 import Modal from '@/components/base/modal.vue'
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useUserStore } from '@/stores/userStore';
 import { fetchPost } from '@/utils/fetchApi';
 import useVuelidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import { reactive, ref } from 'vue';
+import { useToast } from 'vue-toastification';
 
 const emit = defineEmits(['openRegistration'])
+const toast = useToast();
+const {wrapAsyncCall} = useAsyncCallWrapper()
 const userStore = useUserStore()
 const showed = ref(false)
 const passwordHidden = ref(true)
@@ -30,11 +34,16 @@ const login = async () => {
     if (!await v$.value.$validate()) {
         return
     }
-    try {
-        userStore.loginUser(form.username, form.pass)
-    } catch (error) {
-        throw error
-    }
+    await wrapAsyncCall(async () => {
+        await userStore.loginUser(form.username, form.pass)
+        showed.value = false
+    }, 
+    (e) => {
+        if (e.status === 401) {
+            toast.error("Невірний логін або пароль")
+        }
+        return true
+    }, 'Ви успішно увішли до облікого запису')
 }
 
 defineExpose({showDia})

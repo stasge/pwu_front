@@ -37,17 +37,16 @@ const register = async () => {
 
     await wrapAsyncCall(async () => {
         await fetchPost('signup', form)
-            showed.value = false
-            form.username = form.email = form.pass = ''
-        }, 
-        (e) => {
-            if (e.status === 409) {
-                toast.error("Користувач з таким email вже існує")
-            }
-            return true
-        }, 
-        'Ви успішно зареєструвалися'
-    )
+        showed.value = false
+        form.username = form.email = form.pass = ''
+    }, 
+    (e) => {
+        if (e.status === 409) {
+            toast.error("Користувач з таким email вже існує")
+        }
+        return true
+    }, 
+    'Ви успішно зареєструвалися')
 }
 defineExpose({showDia})
 </script>

@@ -9,7 +9,7 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   function logoutUser() {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("pwu_token");
     // useMitt().emit("logout", user.value.id);
     // router.push({name: 'main'})
 }
