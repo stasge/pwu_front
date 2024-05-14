@@ -91,6 +91,12 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
         cursor: pointer;
         transition: all .3s;
         width: clamp(300px, 28vw , 450px);
+        min-width: 300px;
+        min-height: 120px;
+
+        @media (max-width: 768px) {
+            animation: none;
+        }
 
         &:hover {
             transform: scale(1.05);
