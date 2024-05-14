@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="flex flex-column relative z-2" style="transform: translateY(-10%);">
+    <div class="side-menu flex flex-column relative z-2 w-full" style="transform: translateY(-10%);max-width: 253px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span>PWU</span>
@@ -15,7 +15,7 @@
                 </div>
             </div>
         </div>
-        <ul class="side-menu flex flex-column gap-3 mt-6">
+        <ul class="side-menu__list flex flex-column gap-3 mt-6">
             <li class="side-menu__item">
                 <a href="#">Почати гру</a>
             </li>
@@ -34,14 +34,21 @@
 
 <style scoped lang="scss">
     .side-menu {
-        list-style: none;
-        position: relative;
-        z-index: 2;
-        
+
+        @media (max-width: 768px) {
+            display: none !important;
+        }
+
+        &__list {
+            list-style: none;
+            position: relative;
+            z-index: 2;
+        }
+
         &__item {
             padding: 15px 30px;
             background: rgba(93, 119, 144, 0.1);
-            font-size: 22px;
+            font-size: 137.5%; /* 22/16 */
             transition: all .3s;
             cursor: pointer;
 

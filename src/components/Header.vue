@@ -4,7 +4,7 @@
 
 <template>
     <div class="header flex flex-column align-items-center justify-content-center h-screen relative">
-        <div class="logo flex flex-column w-max align-self-end">
+        <div class="logo flex flex-column w-max align-self-end relative z-2">
             <h1>PW</h1>
             <h1>Ukraine</h1>
         </div>
@@ -28,7 +28,7 @@
 .logo {
     color: #FFF;
     text-align: center;
-    font-size: 50px;
+    font-size: 312.5%; /* 50/16 */
     transform: translateX(-50%);
 
     @media (max-width: 1640px) {

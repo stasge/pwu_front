@@ -14,7 +14,7 @@
         height: 130px;
         background: #171d2b;
         color: #FFF;
-        font-size: 14px;
+        font-size: 87.5%; /* 14/16 */
         text-transform: capitalize;
     }
 </style>

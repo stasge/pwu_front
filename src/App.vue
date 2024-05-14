@@ -19,7 +19,7 @@ header {
 
 nav {
   width: 100%;
-  font-size: 12px;
+  font-size: 75%; /* 12/16 */
   text-align: center;
   margin-top: 2rem;
 }
@@ -62,7 +62,7 @@ nav a:first-of-type {
   nav {
     text-align: left;
     margin-left: -1rem;
-    font-size: 1rem;
+    font-size: 100%; /* 16/16 */
 
     padding: 1rem 0;
     margin-top: 1rem;

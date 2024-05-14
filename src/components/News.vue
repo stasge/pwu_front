@@ -10,7 +10,7 @@ const isInViewport = (element: HTMLDivElement) => {
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&
-    (rect.bottom - (rect.height / 2)) <= viewportHeight && 
+    (rect.bottom - (rect.height - 100)) <= viewportHeight && 
     rect.right <= window.innerWidth
   );
 };
@@ -29,10 +29,6 @@ const handleScroll = () => {
   items.value.forEach((element: HTMLDivElement) => {
     if (isInViewport(element)) {
       element.classList.add('fade-in');
-      element.classList.remove('fade-out');
-    } else {
-      element.classList.remove('fade-in');
-      element.classList.add('fade-out');
     }
   });
   lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
@@ -42,7 +38,7 @@ const handleScroll = () => {
 <template>
     <div class="news flex flex-column gap-8 relative z-2">
         <div v-for="item of 3" class="news__item flex gap-5">
-            <div class="flex flex-column align-items-center relative w-max">
+            <div class="flex flex-column align-items-center justify-content-end relative w-max">
                 <img class="news__item-img" src="@/assets/images/header-bg.jpg" alt="">
                 <a href="#" class="news__item-btn btn btn-sm">Детальніше</a>
             </div>
@@ -63,10 +59,16 @@ const handleScroll = () => {
 
         &__item {
             max-width: 970px;
-            background: rgba(93,119,144, 0.1);
             opacity: 0;
             transition: all 0.4s ease-in-out;
-            transform: translateX(-30px);
+            background: rgba(93,119,144, 0.1);
+
+            @media (max-width: 1024px) {
+                background: none;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            // transform: translateX(-30px);
 
             &.fade-in {
                 opacity: 1;
@@ -90,14 +92,18 @@ const handleScroll = () => {
 
             &-content {
                 color: #fff;
+
+                @media (max-width: 1024px) {
+                    max-width: 288px;
+                }
             }
 
             &-title {
-                font-size: 30px;
+                font-size: 187.5%; /* 30/16 */
             }
 
             &-text {
-                font-size: 20px;
+                font-size: 125%; /* 20/16 */
                 line-height: 26px;
             }
         }

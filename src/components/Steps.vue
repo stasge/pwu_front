@@ -60,47 +60,49 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
     }
 
     &__title {
-        font-size: 40px;
+        font-size: 250%; /* 40/16 */
     }
 
     &__text {
-        font-size: 20px;
+        font-size: 125%; /* 20/16 */
     }
 }
 
 .steps {
-    display: grid;
-    grid-template-columns: repeat(3, 450px);
-    grid-template-rows: 188px;
+    display: flex;
+    justify-content: center;
+    row-gap: clamp(10px, 3vw, 20px);
+
+    @media (max-width: 1024px) {
+        flex-wrap: wrap;
+    }
 
     &__item {
         position: relative;
-        background: url('@/assets/images/step-bg.svg') no-repeat;
+        background: url('@/assets/images/step-bg.svg') no-repeat center / contain;
         animation: steps-anim 2.5s infinite;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        height: clamp(120px, 12vw, 188px);
         text-align: center;
         color: #FFF;
         cursor: pointer;
         transition: all .3s;
+        width: clamp(300px, 28vw , 450px);
 
         &:hover {
             transform: scale(1.05);
         }
 
         h3 {
-            font-size: 30px;
+            font-size: 187.5%; /* 30/16 */
         }
         p {
             max-width: 60%;
             margin-top: 15px;
-            font-size: 18px;
-        }
-
-        &:first-child {
-            left: 50px;
+            font-size: 112.5%; /* 18/16 */
         }
 
         &:nth-child(2) {
@@ -108,7 +110,6 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
         }
 
         &:last-child {
-            right: 50px;
             animation-delay: .6s;
         }
     }
@@ -116,10 +117,10 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
 
 @keyframes steps-anim {
     0% {
-        background: url('@/assets/images/step-bg-light.svg') no-repeat;
+        background: url('@/assets/images/step-bg-light.svg') no-repeat center / contain;
     }
     100% {
-        background: url('@/assets/images/step-bg.svg') no-repeat;
+        background: url('@/assets/images/step-bg.svg') no-repeat center / contain;
     }
 }
 </style>
