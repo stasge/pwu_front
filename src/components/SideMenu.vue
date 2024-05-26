@@ -1,5 +1,18 @@
 <script setup lang="ts">
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
+import { fetchGet } from '@/utils/fetchApi';
+import { onMounted, ref } from 'vue';
 
+const {wrapAsyncCall} = useAsyncCallWrapper()
+const serverStatusCode = ref<number>()
+
+
+onMounted(async () => {
+    await wrapAsyncCall( async () => {
+        const {status_code} = await fetchGet('online')
+        serverStatusCode.value = status_code
+    })
+})
 </script>
 
 <template>
@@ -11,7 +24,8 @@
             <div class="server-state__content flex flex-column justify-content-center align-items-end">
                 <div class="flex flex-column align-items-start w-max">
                     <h3>PW Ukraine - 1.3.6</h3>
-                    <p>Статус: <span style="color: red;">Offline</span></p>
+                    <p v-if="serverStatusCode === 200">Статус: <span style="color: #16db65;">Online</span></p>
+                    <p v-else>Статус: <span style="color: red;">Offline</span></p>
                 </div>
             </div>
         </div>
