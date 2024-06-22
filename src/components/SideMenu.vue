@@ -2,7 +2,13 @@
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 import { onMounted, ref } from 'vue';
+import Login from '@/components/modals/login.vue';
+import Register from '@/components/modals/register.vue';
+import { useUserStore } from '@/stores/userStore';
 
+const loginRef = ref<InstanceType<typeof Login> | null>(null)
+const registerRef = ref<InstanceType<typeof Register> | null>(null)
+const userStore = useUserStore()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const serverStatusCode = ref<number>()
 
@@ -36,14 +42,22 @@ onMounted(async () => {
             <li class="side-menu__item">
                 <a href="#">Про сервер</a>
             </li>
-            <li class="side-menu__item">
+            <li v-if="userStore.isLoggedIn" class="side-menu__item">
                 <router-link :to="{name: 'profile'}">Особистий кабінет</router-link>
+            </li>
+            <li v-else class="side-menu__item" @click="loginRef?.showDia()">
+                <span>Вхід / Реєстрація</span>
             </li>
             <li class="side-menu__item">
                 <a href="#">Форум</a>
             </li>
+            <li v-if="userStore.isLoggedIn" @click="userStore.logoutUser()" class="side-menu__item">
+                <span>Вийти</span>
+            </li>
         </ul>
     </div>
+    <Login ref="loginRef" @openRegistration="registerRef?.showDia"/>
+    <Register ref="registerRef" @openLogin="loginRef?.showDia"/>
 </template>
 
 <style scoped lang="scss">
@@ -64,6 +78,7 @@ onMounted(async () => {
             background: rgba(93, 119, 144, 0.1);
             font-size: 137.5%; /* 22/16 */
             transition: all .3s;
+            color: #fff;
             cursor: pointer;
 
             &:hover {
