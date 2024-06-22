@@ -7,6 +7,7 @@ import { useVuelidate } from '@vuelidate/core'
 import {type RegisterData} from '@/models/register-data'
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useToast } from 'vue-toastification';
+import { useUserStore } from '@/stores/userStore';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const emit = defineEmits(['openLogin'])
@@ -36,9 +37,12 @@ const register = async () => {
     }
 
     await wrapAsyncCall(async () => {
-        await fetchPost('signup', form)
+        const {data} = await fetchPost('signup', form)
         showed.value = false
         form.username = form.email = form.pass = ''
+        localStorage.setItem("pwu_token", data.access_token);
+        localStorage.setItem("pwu_refresh_token", data.refresh_token);
+        useUserStore().loadUser()
     }, 
     (e) => {
         if (e.status === 409) {

@@ -37,7 +37,7 @@ onMounted(async () => {
                 <a href="#">Про сервер</a>
             </li>
             <li class="side-menu__item">
-                <a href="#">Особистий кабінет</a>
+                <router-link :to="{name: 'profile'}">Особистий кабінет</router-link>
             </li>
             <li class="side-menu__item">
                 <a href="#">Форум</a>

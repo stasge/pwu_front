@@ -16,9 +16,6 @@ export function useAsyncCallWrapper() {
             });
 
         } catch (e: any) {
-            if (import.meta.env.DEV) {
-                console.log(e);
-            }
             if (!errorHandler || !errorHandler(e)) {
                 toast.error("Серверна помилка")
             }
