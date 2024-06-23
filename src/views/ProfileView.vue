@@ -8,7 +8,6 @@ import SideMenu from '@/components/SideMenu.vue'
         <div class="container">
             <div class="px-5 flex justify-content-between py-8">
                 <router-view></router-view>
-                <SideMenu class="translate-y-0	"/>
             </div>
         </div>
         <Footer />

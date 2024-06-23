@@ -12,15 +12,19 @@ export const useUserStore = defineStore('userStore', () => {
   const isLoggedIn = computed(() => !!user.value)
   
   async  function loadUser() {
-      const resp = await fetchGet('user/getUser')
-      user.value = resp?.data || null
+      try {
+        const resp = await fetchGet('user/getUser')
+        user.value = resp?.data
+      } catch (error) {
+        user.value = null
+      }
   }
   
   async function loginUser(username: string, password: string) {
-    const {data} = await fetchPost("signin", { username, pass: password });
-    localStorage.setItem("pwu_token", data.access_token);
-    localStorage.setItem("pwu_refresh_token", data.refresh_token);
-    user.value = data.user
+    const resp = await fetchPost("signin", { username, pass: password });
+    localStorage.setItem("pwu_token", resp?.data.access_token);
+    localStorage.setItem("pwu_refresh_token", resp?.data.refresh_token);
+    user.value = resp?.data?.user
   }
 
   function logoutUser() {
@@ -34,6 +38,7 @@ export const useUserStore = defineStore('userStore', () => {
     loginUser, 
     logoutUser, 
     loadUser, 
-    isLoggedIn
+    isLoggedIn,
+    user
   }
 })

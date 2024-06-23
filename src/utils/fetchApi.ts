@@ -6,16 +6,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 
 
 export const fetchPost = (uri: string, body: any) => {
-    return ofetch(uri, {baseURL, method: 'POST', body, onRequest: addToken}).catch(async (error) => {
-        const refresh = localStorage.getItem('pwu_refresh_token')
-        if (error.status === 401 && refresh) {
-            await refreshToken(refresh).then(
-                () => {
-                    fetchPost(uri, body)
-                },
-            )
-        }
-    })
+    return ofetch(uri, {baseURL, method: 'POST', body, onRequest: addToken})
 }
 
 export const fetchGet = (uri: string, data: any = {}) => {
@@ -25,29 +16,19 @@ export const fetchGet = (uri: string, data: any = {}) => {
             params[key] = value;
         }
     }
-    return ofetch(uri, {baseURL, method: 'GET', params, onRequest: addToken}).catch(async (error) => {
-        const refresh = localStorage.getItem('pwu_refresh_token')
-        if (error.status === 401 && refresh) {
-            await refreshToken(refresh).then(
-                () => {
-                    fetchGet(uri, data)
-                },
-            )
-        }
-    })
+    return ofetch(uri, {baseURL, method: 'GET', params, onRequest: addToken})
 }
 
-const addToken = ({request, options}: {request: Http2ServerRequest, options: any}) => {
-    const token = localStorage.getItem("pwu_token");
-    if (token) {
-        options.headers = {...(options.headers ?? {}), "Auth": `${token}`};
-    }
-}
-
-const refreshToken = async (refresh: string) => {
+const addToken = async ({request, options}: {request: Http2ServerRequest, options: any}) => {
     const userStore = useUserStore()
-    const {data: accessToken} = await ofetch('refresh', {baseURL, method: 'GET', headers: {'Auth': refresh}}).catch(error => userStore.logoutUser())
+    let accessToken = localStorage.getItem("pwu_token")
+    const refreshToken = localStorage.getItem("pwu_refresh_token")
+    if (!accessToken && refreshToken) {
+        const {data: token} = await ofetch('refresh', {baseURL, method: 'GET', headers: {'Auth': refreshToken}}).catch(error => userStore.logoutUser())
+        accessToken = token
+        localStorage.setItem('pwu_token', token)
+    }
     if (accessToken) {
-        localStorage.setItem('pwu_token', accessToken)
+        options.headers = {...(options.headers ?? {}), "Auth": `${accessToken}`};
     }
 }

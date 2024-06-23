@@ -74,12 +74,19 @@ onMounted(async () => {
         }
 
         &__item {
-            padding: 15px 30px;
             background: rgba(93, 119, 144, 0.1);
             font-size: 137.5%; /* 22/16 */
             transition: all .3s;
             color: #fff;
             cursor: pointer;
+
+            a, 
+            span {
+                padding: 15px 30px;
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
 
             &:hover {
                 background: rgba(93, 119, 144, 0.2);

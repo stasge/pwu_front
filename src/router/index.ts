@@ -38,13 +38,11 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
   const userStore = useUserStore()
   const toast = useToast()
+  await userStore.loadUser();
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     toast.error("Потрібно авторизуватися")
     return {name: 'home'}
   }
-
-  await userStore.loadUser();
-
 })
 
 export default router
