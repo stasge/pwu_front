@@ -12,8 +12,8 @@ export const useUserStore = defineStore('userStore', () => {
   const isLoggedIn = computed(() => !!user.value)
   
   async  function loadUser() {
-    const {data: userData} = await fetchGet('user/getUser')
-    user.value = userData
+      const resp = await fetchGet('user/getUser')
+      user.value = resp?.data || null
   }
   
   async function loginUser(username: string, password: string) {
@@ -30,18 +30,10 @@ export const useUserStore = defineStore('userStore', () => {
     router.push({name: 'home'})
   }
 
-  async function refresh() {
-    const {data: token} = await fetchGet('refresh')
-
-    if (token) {
-      localStorage.setItem('pwu_token', token)
-    }
-  }
-
   return { 
     loginUser, 
     logoutUser, 
-    refresh, 
     loadUser, 
-    isLoggedIn }
+    isLoggedIn
+  }
 })

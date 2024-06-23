@@ -6,7 +6,16 @@ const baseURL = import.meta.env.VITE_API_URL;
 
 
 export const fetchPost = (uri: string, body: any) => {
-    return handleRequest('POST', uri, body)
+    return ofetch(uri, {baseURL, method: 'POST', body, onRequest: addToken}).catch(async (error) => {
+        const refresh = localStorage.getItem('pwu_refresh_token')
+        if (error.status === 401 && refresh) {
+            await refreshToken(refresh).then(
+                () => {
+                    fetchPost(uri, body)
+                },
+            )
+        }
+    })
 }
 
 export const fetchGet = (uri: string, data: any = {}) => {
@@ -16,7 +25,16 @@ export const fetchGet = (uri: string, data: any = {}) => {
             params[key] = value;
         }
     }
-    return handleRequest('GET', uri, data)
+    return ofetch(uri, {baseURL, method: 'GET', params, onRequest: addToken}).catch(async (error) => {
+        const refresh = localStorage.getItem('pwu_refresh_token')
+        if (error.status === 401 && refresh) {
+            await refreshToken(refresh).then(
+                () => {
+                    fetchGet(uri, data)
+                },
+            )
+        }
+    })
 }
 
 const addToken = ({request, options}: {request: Http2ServerRequest, options: any}) => {
@@ -26,17 +44,10 @@ const addToken = ({request, options}: {request: Http2ServerRequest, options: any
     }
 }
 
-type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-
-const handleRequest = async (method: Method, uri: string, options = {}, attemptRefresh = true): Promise<any> => {
-    // if GET pass params, if POST/PUT/PATCH pass body 
-    // TODO refactor
-    const optionsName = ['POST', 'PUT', 'PATCH'].includes(method) ? 'body' : 'params'
-
-    return ofetch(uri, {baseURL, method, [optionsName]: options, onRequest: addToken}).catch(error => {
-        if (error.status === 401 && attemptRefresh) {
-            useUserStore().refresh()
-            return handleRequest(method, uri, options, false)
-        } 
-    })
+const refreshToken = async (refresh: string) => {
+    const userStore = useUserStore()
+    const {data: accessToken} = await ofetch('refresh', {baseURL, method: 'GET', headers: {'Auth': refresh}}).catch(error => userStore.logoutUser())
+    if (accessToken) {
+        localStorage.setItem('pwu_token', accessToken)
+    }
 }
