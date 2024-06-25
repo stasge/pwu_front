@@ -5,7 +5,10 @@
 <template>
     <div class="footer w-full flex flex-column align-items-center justify-content-center gap-2">
         <p>2024 Perfect World Ukraine - Ігровий сервер</p>
-        <span>Усі права належать правовласникам.</span>
+        <div class="flex gap-2">
+            <span>Усі права належать правовласникам.</span>
+            <router-link :to="{name: 'terms'}" class="underline">Користувацька угода</router-link>
+        </div>
     </div>
 </template>
 

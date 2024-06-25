@@ -12,6 +12,8 @@ const userStore = useUserStore()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const serverStatusCode = ref<number>()
 
+const props = defineProps<{translateY: string}>()
+
 
 onMounted(async () => {
     await wrapAsyncCall( async () => {
@@ -22,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="side-menu flex flex-column relative z-2 w-full" style="transform: translateY(-10%);max-width: 253px;">
+    <div class="side-menu flex flex-column relative z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span>PWU</span>
@@ -37,7 +39,7 @@ onMounted(async () => {
         </div>
         <ul class="side-menu__list flex flex-column gap-3 mt-6">
             <li class="side-menu__item">
-                <a href="#">Почати гру</a>
+                <router-link :to="{name: 'home'}">Головна</router-link>
             </li>
             <li class="side-menu__item">
                 <a href="#">Про сервер</a>

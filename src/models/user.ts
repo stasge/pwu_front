@@ -17,4 +17,5 @@ export interface GameUser {
     is_deleted: boolean;
     created_at: string;
     edited_at: string;
+    deletion_date: string;
 }

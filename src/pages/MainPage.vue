@@ -6,7 +6,7 @@ import Steps from '@/components/Steps.vue'
 <template>
     <div class="content flex gap-5 justify-content-between">
         <News />
-        <SideMenu />
+        <SideMenu :translateY="'-10%'"/>
     </div>
     <Steps />
 </template>

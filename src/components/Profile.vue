@@ -2,7 +2,6 @@
 import { useUserStore } from '@/stores/userStore';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchPost } from '@/utils/fetchApi';
-import SideMenu from '@/components/SideMenu.vue'
 import Modal from '@/components/base/modal.vue'
 import { reactive, ref } from 'vue';
 import { required } from '@vuelidate/validators';
@@ -10,6 +9,7 @@ import CryptoJS from 'crypto-js';
 import useVuelidate from '@vuelidate/core';
 import { format } from 'date-fns';
 import { useToast } from 'vue-toastification';
+import { calculateTimeLeft } from '@/utils/dateUtils.ts'
 
 const userStore = useUserStore()
 const { wrapAsyncCall } = useAsyncCallWrapper()
@@ -29,9 +29,9 @@ const rules = {
 const v$ = useVuelidate(rules, form)
 
 const addGameUser = async () => {
-    // if (!await v$.value.$validate()) {
-    //     return
-    // }
+    if (!await v$.value.$validate()) {
+        return
+    }
     const data = {
         username: form.username,
         pass: hashedPass()
@@ -39,7 +39,7 @@ const addGameUser = async () => {
     wrapAsyncCall(async () => {
         await fetchPost('user/addGameUser', data)
         userStore.loadUser()
-        Object.keys(form).forEach(key => form[key] = '')
+        resetForm()
         showed.value = false
     },
     (e) => {
@@ -48,6 +48,11 @@ const addGameUser = async () => {
         }
         return true
     }, 'Ігровий акаунт успішно створено')
+}
+
+const resetForm = () => {
+    form.username = form.pass = ''
+    v$.value.$reset()
 }
 
 const deleteGameAcc = async (id: number) => {
@@ -70,9 +75,14 @@ const hashedPass = () => {
 
     return pass_output
 };
+
+const show = () => {
+    resetForm()
+    showed.value = true
+}
 </script>
 <template>
-    <div class="profile flex gap-3 justify-content-between w-full">
+    <div class="profile flex gap-5 justify-content-between w-full">
         <div class="profile__left">
             <h1 class="profile__title">Особистий кабінет</h1>
             <div class="flex gap-3 mt-3 align-items-center">
@@ -130,33 +140,43 @@ const hashedPass = () => {
                 <p>{{ userStore.user?.game_user.length }}</p>
             </div>
         </div>
-        <div class="profile__right flex flex-column align-items-center justify-content-between">
+        <div class="profile__right flex flex-column align-items-center justify-content-between flex-grow-1">
             <div v-if="!userStore.user?.game_user.length" class="flex flex-column align-items-center justify-content-center">
                 <h2>У вас ще немає жодного ігрового акаунту</h2>
             </div>
-            <div v-else>
+            <div v-else class="w-full">
                 <div class="flex flex-column align-items-center justify-content-center">
                     <h2>Ваші ігрові акаунти</h2>
-                    <div class="game-acc__wrapper">
-                        <div v-for="(user, index) of userStore.user.game_user" class="game-acc__item flex gap-3 align-items-center">
-                            <p>{{ index + 1 }}.</p>
-                            <p>{{ user.username }}</p>
-                            <p>{{ format(user.created_at, 'dd-MM-yyyy HH:mm') }}</p>
-                            <svg v-if="!user.is_deleted" @click="deleteGameAcc(user.id)" class="cursor-pointer" width="16" height="16" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16.9 8H3.09996C2.49996 8 1.99996 8.5 2.09996 9.1L3.69996 22.2C3.79996 23.2 4.69996 23.9 5.69996 23.9H14.2C15.2 23.9 16.1 23.2 16.2 22.2L17.8 9.1C17.9 8.5 17.5 8 16.9 8Z" fill="#FF0000"/>
-                                <path d="M18 2H13C13 0.9 12.1 0 11 0H9C7.9 0 7 0.9 7 2H2C0.9 2 0 2.9 0 4V5C0 5.6 0.4 6 1 6H19C19.6 6 20 5.6 20 5V4C20 2.9 19.1 2 18 2Z" fill="#FF0000"/>
-                            </svg>
-                            <svg v-else @click="recoverGameAcc(user.id)" class="cursor-pointer" width="16" height="13" viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M0.499984 12.625H0.902328L1.65233 11.4062C2.45311 10.1289 3.40623 8.95313 4.61327 8.41406C5.56639 7.98828 6.43748 7.67578 7.99998 7.63281V10.75L15.5 5.75L7.99998 0.75V3.88672C5.53905 3.99609 3.77733 4.69531 2.40233 6.08203C0.359359 8.14063 0.499984 10.7305 0.499984 11.3828C0.50389 11.7305 0.499984 12.2305 0.499984 12.625Z" fill="#008000"/>
-                            </svg>
-
+                    <div class="w-full">
+                        <div class="game-acc__header">
+                            <p>#</p>
+                            <p>Логін</p>
+                            <p>Дата створення</p>
+                            <p>Час до видалення</p>
+                            <p>Дія</p>
+                        </div>
+                        <div class="game-acc__wrapper">
+                            <div v-for="(user, index) of userStore.user.game_user" class="game-acc__item">
+                                <p>{{ index + 1 }}.</p>
+                                <p>{{ user.username }}</p>
+                                <p>{{ format(user.created_at, 'dd-MM-yyyy HH:mm') }}</p>
+                                <p>{{ calculateTimeLeft(user.deletion_date) }}</p>
+                                <div class="ml-auto">
+                                    <svg v-if="!user.is_deleted" @click="deleteGameAcc(user.id)" class="cursor-pointer" width="16" height="16" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16.9 8H3.09996C2.49996 8 1.99996 8.5 2.09996 9.1L3.69996 22.2C3.79996 23.2 4.69996 23.9 5.69996 23.9H14.2C15.2 23.9 16.1 23.2 16.2 22.2L17.8 9.1C17.9 8.5 17.5 8 16.9 8Z" fill="#FF0000"/>
+                                        <path d="M18 2H13C13 0.9 12.1 0 11 0H9C7.9 0 7 0.9 7 2H2C0.9 2 0 2.9 0 4V5C0 5.6 0.4 6 1 6H19C19.6 6 20 5.6 20 5V4C20 2.9 19.1 2 18 2Z" fill="#FF0000"/>
+                                    </svg>
+                                    <svg v-else @click="recoverGameAcc(user.id)" class="cursor-pointer" width="16" height="13" viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0.499984 12.625H0.902328L1.65233 11.4062C2.45311 10.1289 3.40623 8.95313 4.61327 8.41406C5.56639 7.98828 6.43748 7.67578 7.99998 7.63281V10.75L15.5 5.75L7.99998 0.75V3.88672C5.53905 3.99609 3.77733 4.69531 2.40233 6.08203C0.359359 8.14063 0.499984 10.7305 0.499984 11.3828C0.50389 11.7305 0.499984 12.2305 0.499984 12.625Z" fill="#008000"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
             </div>
                 </div>
-            <button class="btn btn-sm mt-3" @click="showed = true">Створити</button>
+            <button class="btn btn-sm mt-3" @click="show()">Створити</button>
         </div>
-        <SideMenu/>
     </div>
     <Modal v-model:showed="showed">
         <template #header>
@@ -211,12 +231,48 @@ const hashedPass = () => {
         margin-top: 20px;
         max-height: 240px;
         overflow-y: auto;
+        padding-right: 10px;
+        position: relative;
+        left: 10px;
+    }
+
+    &__header {
+        display: grid;
+        grid-template-columns: 5% 30% 30% 30% 5%;
+        padding: 20px 20px 0 20px;
+        align-items: end;
+
+        & > * {
+            text-align: center;
+        }
     }
     
     &__item {
+        display: grid;
+        grid-template-columns: 5% 30% 30% 30% 5%;
         padding: 20px;
         background: rgba($color: #000000, $alpha: 0.4);
         border-radius: 10px;
+
+        & > * {
+            text-align: center;
+        }
     }
+
+}
+::-webkit-scrollbar {
+   width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: #3d4c60;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #e26f0f;
 }
 </style>
