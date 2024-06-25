@@ -6,7 +6,7 @@ const props = defineProps<{showed: boolean}>()
 const emit = defineEmits(['update:showed'])
 
 function closeModal(e: Event) {
-    if (!modalRef.value?.contains(e.target as Node)) {
+    if (modalRef.value && !modalRef.value?.contains(e.target as Node)) {
         emit('update:showed', false)
     }
 }
