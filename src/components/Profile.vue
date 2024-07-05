@@ -9,7 +9,7 @@ import CryptoJS from 'crypto-js';
 import useVuelidate from '@vuelidate/core';
 import { format } from 'date-fns';
 import { useToast } from 'vue-toastification';
-import { calculateTimeLeft } from '@/utils/dateUtils.ts'
+import {calculateTimeLeft} from '@/utils/dateUtils.ts'
 
 const userStore = useUserStore()
 const { wrapAsyncCall } = useAsyncCallWrapper()

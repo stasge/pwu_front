@@ -1,5 +1,4 @@
 import { useUserStore } from "@/stores/userStore";
-import type { Http2ServerRequest } from "http2";
 import { ofetch } from "ofetch";
 
 const baseURL = import.meta.env.VITE_API_URL;
@@ -19,7 +18,7 @@ export const fetchGet = (uri: string, data: any = {}) => {
     return ofetch(uri, {baseURL, method: 'GET', params, onRequest: addToken})
 }
 
-const addToken = async ({request, options}: {request: Http2ServerRequest, options: any}) => {
+const addToken = async ({request, options}: {request: any, options: any}) => {
     const userStore = useUserStore()
     let accessToken = localStorage.getItem("pwu_token")
     const refreshToken = localStorage.getItem("pwu_refresh_token")
