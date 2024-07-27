@@ -5,6 +5,14 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+                target: "http://46.33.36.151:21191",
+                changeOrigin: true
+            }
+    }
+  },
   plugins: [
     vue(),
   ],
