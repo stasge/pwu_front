@@ -51,7 +51,7 @@ onMounted(async () => {
                 <span>Вхід / Реєстрація</span>
             </li>
             <li class="side-menu__item">
-                <a href="#">Форум</a>
+                <router-link :to="{name: 'forum'}">Форум</router-link>
             </li>
             <li v-if="userStore.isLoggedIn" @click="userStore.logoutUser()" class="side-menu__item">
                 <span>Вийти</span>

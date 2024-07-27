@@ -108,11 +108,4 @@ const handleScroll = () => {
             }
         }
     }
-
-    .badges {
-
-        &__item {
-
-        }
-    }
 </style>
