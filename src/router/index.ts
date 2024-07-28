@@ -43,8 +43,8 @@ const router = createRouter({
           component: Forum
         },
         {
-          path: '/page/units',
-          name: 'units',
+          path: '/page/topics/:topic_id',
+          name: 'topics',
           component: ForumUnits
         },
         {

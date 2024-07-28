@@ -82,6 +82,16 @@ a {
     }
 }
 
+.p-button {
+    border: none !important;
+    background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%) !important;
+    font-family: inherit;
+
+    &:hover {
+        border: none !important;
+    }
+}
+
 .overflow-hidden {
     overflow: hidden;
 }
@@ -144,4 +154,28 @@ a {
 .p-select-option.p-select-option-selected.p-focus,
 .p-select-option.p-select-option-selected {
     background: rgba($color: #e26f0f, $alpha: 0.4) !important;
+}
+
+
+.p-dialog {
+    background: linear-gradient(180deg, #16171b 20%, rgba(39, 50, 68, 1.51) 100%) !important;
+    position: relative;
+    z-index: 101;
+    color: #FFF !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 10px;
+    width: 500px;
+    cursor: default;
+
+    @media (max-width: 550px) {
+        width: 90%;
+    }
+
+    svg {
+        stroke: #FFF;
+    }
+
+    span {
+        color: #FFF;
+    }
 }

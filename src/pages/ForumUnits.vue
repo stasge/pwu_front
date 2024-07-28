@@ -1,10 +1,15 @@
 <script setup lang='ts'>
-import { useUserStore } from '@/stores/userStore';
-import { format } from 'date-fns';
 import Paginator from 'primevue/paginator';
+import { onMounted } from 'vue';
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
+import {fetchGet} from '@/utils/fetchApi'
 
-
-const userStore = useUserStore()
+const {wrapAsyncCall} = useAsyncCallWrapper()
+onMounted(() => {
+    wrapAsyncCall(async () => {
+        const {data: units} = await fetchGet('/forum/getSub')
+    })
+})
 
 </script>
 <template>

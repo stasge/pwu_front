@@ -1,8 +1,9 @@
 import './assets/main.scss'
+import "vue-toastification/dist/index.css";
+import 'primeicons/primeicons.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import "vue-toastification/dist/index.css";
 import Toast from "vue-toastification";
 import App from './App.vue'
 import router from './router'
