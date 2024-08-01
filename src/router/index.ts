@@ -7,8 +7,8 @@ import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'vue-toastification'
 import Terms from '@/pages/Terms.vue'
 import Forum from '@/pages/Forum.vue'
-import ForumUnits from '@/pages/ForumUnits.vue'
-import ForumArticle from '@/pages/ForumArticle.vue'
+import ForumThemes from '@/pages/ForumThemes.vue'
+import ForumSeparateTheme from '@/pages/ForumSeparateTheme.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,17 +40,20 @@ const router = createRouter({
         {
           path: '/page/forum',
           name: 'forum',
-          component: Forum
+          component: Forum,
+          meta: {requiresAuth: true}
         },
         {
-          path: '/page/topics/:topic_id',
-          name: 'topics',
-          component: ForumUnits
+          path: '/page/themes/:cat_id/:sub_id',
+          name: 'themes',
+          component: ForumThemes,
+          meta: {requiresAuth: true}
         },
         {
-          path: '/page/article',
-          name: 'article',
-          component: ForumArticle
+          path: '/page/separate-theme/:theme_id/:cat_id',
+          name: 'separate-theme',
+          component: ForumSeparateTheme,
+          meta: {requiresAuth: true}
         },
       ]
     },

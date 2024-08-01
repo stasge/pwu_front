@@ -12,11 +12,12 @@ import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import type { IForumCategory } from '@/models/forum';
 
 
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
-const mainSections = ref<IForumMainSection | null>(null)
+const categories = ref<IForumCategory[]>()
 const isCreateDiaShown = ref(false)
 
 const createForm = reactive({
@@ -36,8 +37,8 @@ onMounted(async () => {
 })
 
 const loadSections = async () => {
-    const {data: _sections} = await fetchGet('/forum/getMain')
-    mainSections.value = _sections
+    const {data: _categories} = await fetchGet('/forum/getMain')
+    categories.value = _categories
 }
 
 const createMainSection = async () => {
@@ -57,12 +58,12 @@ const createMainSection = async () => {
             <div class="forum__container w-full flex flex-column gap-2">
                 <h1 class="forum__title mb-6 text-center">Форум</h1>
                 <Button icon="pi pi-plus" aria-label="Save" @click="isCreateDiaShown = true" />
-                <Accordion v-for="section of mainSections" class="forum__accordion" :value="mainSections">
+                <Accordion v-for="category of categories" class="forum__accordion" :value="categories">
                     <AccordionPanel>
-                        <AccordionHeader><h2>{{ section.name }}</h2></AccordionHeader>
+                        <AccordionHeader><h2>{{ category.name }}</h2></AccordionHeader>
                         <AccordionContent>
-                            <div v-for="t of section.topic" class="forum__unit mt-3">
-                                <RouterLink :to="{name: 'topics', params: {topic_id: t.id}}" class="text-xl">{{ t.name }}</RouterLink>
+                            <div v-for="t of category.topic" class="forum__unit mt-3">
+                                <RouterLink :to="{name: 'themes', params: {cat_id: category.id, sub_id: t.id}}" class="text-xl">{{ t.name }}</RouterLink>
                                 <div class="flex gap-3 mt-3">
                                     <span>Теми: <b>{{ t.themes }}</b></span>
                                     <span>Повідомлення: <b>{{ t.messages }}</b></span>

@@ -1,13 +1,22 @@
 <script setup lang='ts'>
 import Paginator from 'primevue/paginator';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
-import {fetchGet} from '@/utils/fetchApi'
+import {fetchPost} from '@/utils/fetchApi'
+import type { IForumSubCategory, IForumTheme } from '@/models/forum';
+import { useRoute } from 'vue-router'
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
+const route = useRoute()
+
+const themes = ref<IForumTheme[]>()
+const subCategory = ref<IForumSubCategory>()
 onMounted(() => {
     wrapAsyncCall(async () => {
-        const {data: units} = await fetchGet('/forum/getSub')
+        const {data: _themes} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
+        const {data: _subCategories} = await fetchPost('/forum/getSub', {id_main: +route.params.cat_id})
+        themes.value = _themes
+        subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id)
     })
 })
 
@@ -17,7 +26,7 @@ onMounted(() => {
         <div class="units__inner">
             <div class="units__container">
                 <div class="flex flex-column align-items-center justify-content-center">
-                    <h1>Гайди і F.A.Q</h1>
+                    <h1>{{ subCategory?.name }}</h1>
                     <div class="w-full mt-5">
                         <div class="game-acc__header">
                             <p>Заголовок</p>
@@ -26,13 +35,13 @@ onMounted(() => {
                             <p>Переглядів</p>
                             <p>Оновлено</p>
                         </div>
-                        <RouterLink :to="{name: 'article'}" class="game-acc__wrapper">
-                            <div v-for="unit of 6" class="game-acc__item">
-                                <p>Дуже цікавий заголовок для цікавої теми на цікавому форумі</p>
-                                <p>20.04.1997</p>
-                                <p>{{ 10 }}</p>
-                                <p>{{ 33 }}</p>
-                                <p>20.07.2077</p>
+                        <RouterLink v-for="theme of themes" :to="{name: 'separate-theme', params: {theme_id: theme.id, cat_id: route.params.cat_id}}" class="game-acc__wrapper">
+                            <div class="game-acc__item">
+                                <p>{{ theme.name }}</p>
+                                <p>{{ theme.created_at }}</p>
+                                <p>{{ theme.messages_count }}</p>
+                                <p>{{ theme.views_count }}</p>
+                                <p>{{ theme.edited_at }}</p>
                             </div>
                         </RouterLink>
                     </div>

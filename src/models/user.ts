@@ -6,6 +6,7 @@ export interface User {
     created_at: string;
     edited_at: string;
     is_verified: boolean;
+    role: number;
     game_user: GameUser[];
 }
 

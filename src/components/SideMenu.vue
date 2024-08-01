@@ -24,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="side-menu flex flex-column relative z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
+    <div class="side-menu flex flex-column sticky top-0 align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span>PWU</span>
@@ -64,6 +64,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
     .side-menu {
+        scroll-margin-top: 100px;
 
         @media (max-width: 768px) {
             display: none !important;
