@@ -11,11 +11,14 @@ import router from './router'
 import PrimeVue from "primevue/config"
 import Aura from '@primevue/themes/aura';
 import {LoadingPlugin} from "vue-loading-overlay";
-
+import Tooltip from 'primevue/tooltip';
+import ConfirmationService from 'primevue/confirmationservice';
 
 
 const app = createApp(App)
 
+app.use(ConfirmationService);
+app.directive('tooltip', Tooltip);
 app.use(createPinia())
 app.use(router)
 app.use(Toast, {});

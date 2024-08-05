@@ -181,3 +181,21 @@ a {
         color: #FFF;
     }
 }
+
+.p-confirmpopup {
+    background: linear-gradient(180deg, #16171b 20%, rgb(39, 50, 68) 100%) !important;
+    color: #FFF !important;
+    border: 1px solid #e26f0f !important;
+
+    .p-confirmpopup-icon {
+        color: #e26f0f !important;
+    }
+
+    .p-button {
+        background: #e26f0f !important;
+    }
+    
+    span {
+        color: #FFF !important;
+    }
+}

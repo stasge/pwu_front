@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import ConfirmPopup from 'primevue/confirmpopup';
 </script>
 
 <template>
     <RouterView />
+    <ConfirmPopup></ConfirmPopup>
 </template>
 
 <style scoped>

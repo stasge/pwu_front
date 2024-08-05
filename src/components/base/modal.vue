@@ -3,11 +3,12 @@ import { ref } from 'vue';
 
 const modalRef = ref<HTMLElement | null>(null)
 const props = defineProps<{showed: boolean}>()
-const emit = defineEmits(['update:showed'])
+const emit = defineEmits(['update:showed', 'closeDia'])
 
 function closeModal(e: Event) {
     if (modalRef.value && !modalRef.value?.contains(e.target as Node)) {
         emit('update:showed', false)
+        emit('closeDia')
     }
 }
 
@@ -17,7 +18,7 @@ function closeModal(e: Event) {
         <div v-if="showed" @click="closeModal" class="back-mask w-screen h-screen flex align-items-center justify-content-center cursor-pointer">
             <div ref="modalRef" class="modal py-5 px-6 flex flex-column align-items-center justify-content-between">
                 <div class="absolute cursor-pointer" style="top: 20px;right: 20px;">
-                    <svg @click="emit('update:showed', false)" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg @click="emit('update:showed', false), emit('closeDia')" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.999978 1L18 19" stroke="white" stroke-width="2"/>
                         <path d="M18.2496 1.00007L1.24963 19.5002" stroke="white" stroke-width="2"/>
                     </svg>

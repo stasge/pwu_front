@@ -4,31 +4,23 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
+import ForumMainCat from '@/components/modals/forumMainCat.vue'
+import ForumSubCat from '@/components/modals/forumSubCat.vue'
 
-import {onMounted, reactive, ref} from 'vue'
+
+import {onMounted, ref} from 'vue'
 import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
-import { required } from '@vuelidate/validators';
-import useVuelidate from '@vuelidate/core';
 import type { IForumCategory } from '@/models/forum';
+import {useUserStore} from '@/stores/userStore'
+import { useConfirm } from "primevue/useconfirm";
 
-
-
+const confirm = useConfirm();
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const categories = ref<IForumCategory[]>()
-const isCreateDiaShown = ref(false)
-
-const createForm = reactive({
-    name: ''
-})
-
-const rules = {
-    name: {required},
-}
-
-const v$ = useVuelidate(rules, createForm)
+const {isAdmin} = useUserStore()
+const forumMainCatRef = ref()
+const forumSubCatRef = ref()
 
 onMounted(async () => {
     wrapAsyncCall(async () => {
@@ -41,15 +33,38 @@ const loadSections = async () => {
     categories.value = _categories
 }
 
-const createMainSection = async () => {
-    if (!await v$.value.$validate()) {
-        return
-    }
-    wrapAsyncCall( async () => {
-        await fetchPost('forum/addMain', createForm)
+
+const deleteMain = (id: number) => {
+    wrapAsyncCall(async () => {
+        await fetchPost('/forum/deleteMain', {id})
         await loadSections()
-        isCreateDiaShown.value = false
-    }, null, 'Розділ успішно створено')
+    })
+}
+
+const deleteSub = (id: number) => {
+    wrapAsyncCall(async () => {
+        await fetchPost('/forum/deleteSub', {id})
+        await loadSections()
+    })
+}
+
+const confirmRemoval = (event: Event, id: number, message: string, action: (id: number) => void) => {
+    confirm.require({
+        target: event.currentTarget as HTMLElement,
+        message,
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Ні',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Так'
+        },
+        accept: () => {
+            action(id)
+        },
+    });
 }
 </script>
 <template>
@@ -57,16 +72,27 @@ const createMainSection = async () => {
         <div class="forum__inner">
             <div class="forum__container w-full flex flex-column gap-2">
                 <h1 class="forum__title mb-6 text-center">Форум</h1>
-                <Button icon="pi pi-plus" aria-label="Save" @click="isCreateDiaShown = true" />
+                <Button v-if="isAdmin" v-tooltip="'Створити головну категорію'" icon="pi pi-plus" @click="forumMainCatRef.showDia()" />
                 <Accordion v-for="category of categories" class="forum__accordion" :value="categories">
                     <AccordionPanel>
-                        <AccordionHeader><h2>{{ category.name }}</h2></AccordionHeader>
+                        <AccordionHeader>
+                            <h2>{{ category.name }}</h2>
+                            <Button v-if="isAdmin" v-tooltip="'Створити розділ'" class="ml-auto mr-2" icon="pi pi-plus" @click="forumSubCatRef.showDia(null, category.id)" />
+                            <Button v-if="isAdmin" v-tooltip="'Редагувати головну категорію'" class="mr-2" icon="pi pi-pencil" @click="forumMainCatRef.showDia(category)" />
+                            <Button v-if="isAdmin" v-tooltip="'Видалити головну категорію'" class="mr-3" icon="pi pi-trash" @click="confirmRemoval($event, category.id, 'Ви впевнені, що хочете видалити цю категорію?', deleteMain)" />
+                        </AccordionHeader>
                         <AccordionContent>
-                            <div v-for="t of category.topic" class="forum__unit mt-3">
-                                <RouterLink :to="{name: 'themes', params: {cat_id: category.id, sub_id: t.id}}" class="text-xl">{{ t.name }}</RouterLink>
-                                <div class="flex gap-3 mt-3">
-                                    <span>Теми: <b>{{ t.themes }}</b></span>
-                                    <span>Повідомлення: <b>{{ t.messages }}</b></span>
+                            <div v-for="t of category.topic" class="forum__unit flex justify-content-between mt-3">
+                                <div>
+                                    <RouterLink :to="{name: 'themes', params: {cat_id: category.id, sub_id: t.id}}" class="text-xl">{{ t.name }}</RouterLink>
+                                    <div class="flex gap-3 mt-3">
+                                        <span>Теми: <b>{{ t.themes }}</b></span>
+                                        <span>Повідомлення: <b>{{ t.messages }}</b></span>
+                                    </div>
+                                </div>
+                                <div class="flex align-items-center">
+                                    <Button v-if="isAdmin" v-tooltip="'Редагувати розділ'" class="mr-2" icon="pi pi-pencil" @click="forumSubCatRef.showDia(t)" />
+                                    <Button v-if="isAdmin" v-tooltip="'Видалити розділ'" class="mr-3" icon="pi pi-trash" @click="confirmRemoval($event, t.id, 'Ви впевнені, що хочете видалити цей розділ?', deleteSub)" />
                                 </div>
                             </div>
                         </AccordionContent>
@@ -75,21 +101,9 @@ const createMainSection = async () => {
             </div>
         </div>
     </div>
-    <Dialog v-model:visible="isCreateDiaShown" modal header="Створення основного розділу">
-        <div class="flex flex-column items-center gap-4 mb-4">
-            <label for="username" class="font-semibold w-24">Назва</label>
-            <InputText 
-                id="username" 
-                class="flex-auto" 
-                :invalid="v$.name.$error"            
-                v-model="createForm.name" 
-            />
-        </div>
-        <div class="flex justify-end gap-2">
-            <Button type="button" label="Відмінити" severity="secondary" @click="isCreateDiaShown = false"></Button>
-            <Button type="button" label="Зберегти" @click="createMainSection"></Button>
-        </div>
-    </Dialog>
+    <ForumMainCat ref="forumMainCatRef" @mainCatCreated="loadSections"/>
+    <ForumSubCat ref="forumSubCatRef" @subCatCreated="loadSections"/>
+    
 </template>
 <style scoped lang='scss'>
 .forum {
@@ -123,5 +137,9 @@ const createMainSection = async () => {
 
 .p-accordionpanel {
     border: none !important;
+}
+
+.p-button {
+    background: #e26f0f !important;
 }
 </style>

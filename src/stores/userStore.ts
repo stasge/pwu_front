@@ -19,6 +19,7 @@ export const useUserStore = defineStore('userStore', () => {
   const user = ref<User | null>(null)
   const router = useRouter()
 
+  const isAdmin = computed(() => user.value?.role === 1)
   const isLoggedIn = computed(() => !!user.value)
 
   async function loadUser() {
@@ -54,6 +55,7 @@ export const useUserStore = defineStore('userStore', () => {
     loadUser,
     getRoleName,
     isLoggedIn,
-    user
+    user,
+    isAdmin
   }
 })
