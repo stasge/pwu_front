@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import Textarea from 'primevue/textarea';
+import Button from 'primevue/button';
 
 import { onMounted, reactive, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
@@ -8,10 +9,12 @@ import type { IForumCategory, IForumComment, IForumTheme } from '@/models/forum'
 import { useRoute } from 'vue-router'
 import { format } from 'date-fns'
 import { useUserStore } from '@/stores/userStore'
+import { useConfirm } from 'primevue/useconfirm';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
-const {getRoleName} = useUserStore()
+const {getRoleName, isAdmin} = useUserStore()
+const confirm = useConfirm();
 
 const comments = ref<IForumComment[]>()
 const theme = ref<IForumTheme>()
@@ -50,6 +53,32 @@ const createComment = async () => {
 const resetForm = () => {
     createCommentForm.text = ''
 }
+
+const confirmRemoval = (event: Event, id: number, message: string, action: (id: number) => void) => {
+    confirm.require({
+        target: event.currentTarget as HTMLElement,
+        message,
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Ні',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Так'
+        },
+        accept: () => {
+            action(id)
+        },
+    });
+}
+
+const deleteComment = (id: number) => {
+    wrapAsyncCall(async () => {
+        await fetchPost('/forum/deleteMessage', {id})
+        await loadComments()
+    })
+}
 </script>
 <template>
     <div class="article flex-grow-1	">
@@ -81,10 +110,24 @@ const resetForm = () => {
                             <h3 class="writer__name ">{{ comment.user.username }}</h3>
                             <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
                         </div>
-                        <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
-                            <p>{{ comment.text }}</p>
-                            <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
+                            <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
+                                <p>{{ comment.text }}</p>
+                                <div class="flex justify-content-between align-items-end">
+                                    <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
+                                    <Button 
+                                        v-if="isAdmin" 
+                                        v-tooltip="'Видалити коментар'" 
+                                        icon="pi pi-trash" 
+                                        @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" 
+                                        class="danger"
+                                    />
+                                </div>
+                            </div>
+                            <div>
                         </div>
+                    </div>
+                    <div v-if="!comments?.length">
+                        <p>Коментарі відсутні</p>
                     </div>
                     <div class="comments__textarea mt-5">
                         <h2 class="mb-3">Залишити коментар</h2>

@@ -199,3 +199,15 @@ a {
         color: #FFF !important;
     }
 }
+
+.p-button {
+    background: #e26f0f !important;
+
+    &.danger {
+        background: red !important;
+    }
+
+    &.success {
+        background: green !important;
+    }
+}

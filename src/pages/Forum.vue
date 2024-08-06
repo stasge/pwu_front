@@ -21,6 +21,7 @@ const categories = ref<IForumCategory[]>()
 const {isAdmin} = useUserStore()
 const forumMainCatRef = ref()
 const forumSubCatRef = ref()
+const openAccordions = ref<number[]>([])
 
 onMounted(async () => {
     wrapAsyncCall(async () => {
@@ -66,20 +67,46 @@ const confirmRemoval = (event: Event, id: number, message: string, action: (id: 
         },
     });
 }
+
+const toggleAccordion = (categoryId: number) => {
+    if (openAccordions.value.includes(categoryId)) {
+        openAccordions.value = openAccordions.value.filter(id => id !== categoryId);
+    } else {
+        openAccordions.value.push(categoryId);
+    }
+}
 </script>
 <template>
     <div class="forum w-full">
         <div class="forum__inner">
             <div class="forum__container w-full flex flex-column gap-2">
                 <h1 class="forum__title mb-6 text-center">Форум</h1>
-                <Button v-if="isAdmin" v-tooltip="'Створити головну категорію'" icon="pi pi-plus" @click="forumMainCatRef.showDia()" />
-                <Accordion v-for="category of categories" class="forum__accordion" :value="categories">
+                <Button 
+                    v-if="isAdmin" 
+                    v-tooltip="'Створити головну категорію'" 
+                    icon="pi pi-plus" 
+                    @click="forumMainCatRef.showDia()" 
+                    class="success"
+                />
+                <Accordion v-for="category of categories" :key="category.id" class="forum__accordion" :value="openAccordions.includes(category.id) ? category.id : null" @input="toggleAccordion(category.id)">
                     <AccordionPanel>
                         <AccordionHeader>
                             <h2>{{ category.name }}</h2>
-                            <Button v-if="isAdmin" v-tooltip="'Створити розділ'" class="ml-auto mr-2" icon="pi pi-plus" @click="forumSubCatRef.showDia(null, category.id)" />
-                            <Button v-if="isAdmin" v-tooltip="'Редагувати головну категорію'" class="mr-2" icon="pi pi-pencil" @click="forumMainCatRef.showDia(category)" />
-                            <Button v-if="isAdmin" v-tooltip="'Видалити головну категорію'" class="mr-3" icon="pi pi-trash" @click="confirmRemoval($event, category.id, 'Ви впевнені, що хочете видалити цю категорію?', deleteMain)" />
+                            <Button 
+                                v-if="isAdmin" 
+                                v-tooltip="'Створити розділ'" 
+                                class="ml-auto mr-2 success" 
+                                icon="pi pi-plus" 
+                                @click.stop="forumSubCatRef.showDia(null, category.id)" 
+                            />
+                            <Button v-if="isAdmin" v-tooltip="'Редагувати головну категорію'" class="mr-2" icon="pi pi-pencil" @click.stop="forumMainCatRef.showDia(category)" />
+                            <Button 
+                                v-if="isAdmin" 
+                                v-tooltip="'Видалити головну категорію'" 
+                                class="mr-3 danger" 
+                                icon="pi pi-trash" 
+                                @click="confirmRemoval($event, category.id, 'Ви впевнені, що хочете видалити цю категорію?', deleteMain)" 
+                            />
                         </AccordionHeader>
                         <AccordionContent>
                             <div v-for="t of category.topic" class="forum__unit flex justify-content-between mt-3">
@@ -92,7 +119,13 @@ const confirmRemoval = (event: Event, id: number, message: string, action: (id: 
                                 </div>
                                 <div class="flex align-items-center">
                                     <Button v-if="isAdmin" v-tooltip="'Редагувати розділ'" class="mr-2" icon="pi pi-pencil" @click="forumSubCatRef.showDia(t)" />
-                                    <Button v-if="isAdmin" v-tooltip="'Видалити розділ'" class="mr-3" icon="pi pi-trash" @click="confirmRemoval($event, t.id, 'Ви впевнені, що хочете видалити цей розділ?', deleteSub)" />
+                                    <Button 
+                                        v-if="isAdmin" 
+                                        v-tooltip="'Видалити розділ'" 
+                                        class="mr-3 danger" 
+                                        icon="pi pi-trash" 
+                                        @click="confirmRemoval($event, t.id, 'Ви впевнені, що хочете видалити цей розділ?', deleteSub)"
+                                    />
                                 </div>
                             </div>
                         </AccordionContent>
@@ -139,7 +172,5 @@ const confirmRemoval = (event: Event, id: number, message: string, action: (id: 
     border: none !important;
 }
 
-.p-button {
-    background: #e26f0f !important;
-}
+
 </style>
