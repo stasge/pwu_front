@@ -85,7 +85,7 @@ defineExpose({
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id ? 'Редагувати' : 'Створити' }}</button>
+                <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id_main ? 'Редагувати' : 'Створити' }}</button>
             </form>
         </template>
     </Modal>

@@ -1,24 +1,41 @@
 <script setup lang='ts'>
 import Paginator from 'primevue/paginator';
+import Button from 'primevue/button';
+
 import { onMounted, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
 import type { IForumSubCategory, IForumTheme } from '@/models/forum';
 import { useRoute } from 'vue-router'
+import {useUserStore} from '@/stores/userStore'
+import {useConfirmRemoval} from '@/composables/useConfirmRemoval'
 
+const {confirmRemoval} = useConfirmRemoval()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
+const {isAdmin} = useUserStore()
 
 const themes = ref<IForumTheme[]>()
 const subCategory = ref<IForumSubCategory>()
 onMounted(() => {
     wrapAsyncCall(async () => {
-        const {data: _themes} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
-        const {data: _subCategories} = await fetchPost('/forum/getSub', {id_main: +route.params.cat_id})
-        themes.value = _themes
-        subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id)
+        await loadThemes()
     })
 })
+
+const deleteTheme = (id: number) => {
+    wrapAsyncCall(async () => {
+        await fetchPost('/forum/deleteTheme', {id})
+        await loadThemes()
+    })
+}
+
+const loadThemes = async () => {
+    const {data: _themes} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
+    const {data: _subCategories} = await fetchPost('/forum/getSub', {id_main: +route.params.cat_id})
+    themes.value = _themes
+    subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id)
+}
 
 </script>
 <template>
@@ -34,16 +51,33 @@ onMounted(() => {
                             <p>Відповідей</p>
                             <p>Переглядів</p>
                             <p>Оновлено</p>
+                            <p>Дії</p>
                         </div>
-                        <RouterLink v-for="theme of themes" :to="{name: 'separate-theme', params: {theme_id: theme.id, cat_id: route.params.cat_id}}" class="game-acc__wrapper">
+                        <div v-for="theme of themes" class="game-acc__wrapper">
                             <div class="game-acc__item">
-                                <p>{{ theme.name }}</p>
+                                <RouterLink :to="{name: 'separate-theme', params: {theme_id: theme.id, cat_id: route.params.cat_id}}" class="text-trim" v-tooltip.top="theme.name">{{ theme.name }}</RouterLink>
                                 <p>{{ theme.created_at }}</p>
                                 <p>{{ theme.messages_count }}</p>
                                 <p>{{ theme.views_count }}</p>
                                 <p>{{ theme.edited_at }}</p>
+                                <div class="flex justify-content-end gap-2">
+                                    <Button 
+                                        v-if="isAdmin" 
+                                        v-tooltip="'Редагувати тему'" 
+                                        class="primary" 
+                                        icon="pi pi-pencil"
+                                        @click="$router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
+                                    />
+                                    <Button 
+                                        v-if="isAdmin" 
+                                        v-tooltip="'Видалити тему'" 
+                                        class="danger" 
+                                        icon="pi pi-trash" 
+                                        @click="confirmRemoval($event, theme.id, 'Ви впевнені, що хочете видалити цю тему?', deleteTheme)"
+                                    />
+                                </div>
                             </div>
-                        </RouterLink>
+                        </div>
                     </div>
                     <Paginator 
                         :rows="10" 
@@ -72,7 +106,7 @@ onMounted(() => {
 
     &__header {
         display: grid;
-        grid-template-columns: 50% 15% 10% 10% 15%;
+        grid-template-columns: 35% 15% 10% 10% 15% 15%;
         padding: 20px;
         align-items: end;
         background: linear-gradient(225deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(45deg, #3d4c60 0%, rgba(21, 26, 33, 0.34) 65.59%, rgba(0, 0, 0, 0) 100%);
@@ -85,13 +119,14 @@ onMounted(() => {
 
     &__item {
         display: grid;
-        grid-template-columns: 50% 15% 10% 10% 15%;
+        grid-template-columns: 35% 15% 10% 10% 15% 15%;
         padding: 20px;
         background: rgba($color: #000000, $alpha: 0.4);
         border-radius: 10px;
 
         &>* {
             text-align: center;
+            max-width: 330px;
         }
     }
 

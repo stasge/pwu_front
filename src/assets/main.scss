@@ -204,10 +204,95 @@ a {
     background: #e26f0f !important;
 
     &.danger {
-        background: red !important;
+        background: #d62828 !important;
     }
 
     &.success {
-        background: green !important;
+        background: #e26f0f !important;
     }
+
+    &.primary {
+        background: #2f6690 !important;
+    }
+}
+
+.text-trim {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+figure {
+    width: 100%;
+}   
+
+oembed {
+    display: block;
+    width: 100%;
+    height: 500px;
+}
+
+.ck-editor {
+    span,
+    p,
+    h2,
+    h3,
+    h4 {
+        text-shadow: none !important;
+    }
+
+    & > * {
+        color: #000;
+    }
+    // color: #FFF;
+
+    // svg {
+    //     path {
+    //         stroke: #FFF;
+    //         fill: #FFF !important;
+    //     }
+    // }
+
+    // .ck-button:not(.ck-disabled):hover, a.ck-button:not(.ck-disabled):hover {
+    //     background: none !important;
+    //     opacity: 0.8 !important;
+    //     cursor: pointer;
+    // }
+
+    // .ck-dropdown__panel,
+    // .ck-list,
+    // .ck-list button {
+    //     background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%) !important;
+    // }
+    
+    // .ck-toolbar__items {
+    //     span {
+    //         color: #FFF !important;
+    //     }
+    // }
+
+    // .ck-dropdown__panel {
+    //     background: black !important;
+    // }
+
+    // .ck-toolbar {
+    //     background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%) !important;
+    // }
+
+    .ck-content {
+        min-height: 400px;
+        // background: none !important;
+    }
+
+    // .ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    //     border-color: #e26f0f !important;
+    // }
+
+    // .ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+    //     border: 1px solid #e26f0f !important;
+    // }
+
+    // .ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
+    //     border: 1px solid #e26f0f !important;
+    // }
 }

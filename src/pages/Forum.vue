@@ -13,9 +13,9 @@ import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import type { IForumCategory } from '@/models/forum';
 import {useUserStore} from '@/stores/userStore'
-import { useConfirm } from "primevue/useconfirm";
+import {useConfirmRemoval} from '@/composables/useConfirmRemoval'
 
-const confirm = useConfirm();
+const {confirmRemoval} = useConfirmRemoval()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const categories = ref<IForumCategory[]>()
 const {isAdmin} = useUserStore()
@@ -49,25 +49,6 @@ const deleteSub = (id: number) => {
     })
 }
 
-const confirmRemoval = (event: Event, id: number, message: string, action: (id: number) => void) => {
-    confirm.require({
-        target: event.currentTarget as HTMLElement,
-        message,
-        icon: 'pi pi-exclamation-triangle',
-        rejectProps: {
-            label: 'Ні',
-            severity: 'secondary',
-            outlined: true
-        },
-        acceptProps: {
-            label: 'Так'
-        },
-        accept: () => {
-            action(id)
-        },
-    });
-}
-
 const toggleAccordion = (categoryId: number) => {
     if (openAccordions.value.includes(categoryId)) {
         openAccordions.value = openAccordions.value.filter(id => id !== categoryId);
@@ -99,7 +80,13 @@ const toggleAccordion = (categoryId: number) => {
                                 icon="pi pi-plus" 
                                 @click.stop="forumSubCatRef.showDia(null, category.id)" 
                             />
-                            <Button v-if="isAdmin" v-tooltip="'Редагувати головну категорію'" class="mr-2" icon="pi pi-pencil" @click.stop="forumMainCatRef.showDia(category)" />
+                            <Button 
+                                v-if="isAdmin" 
+                                v-tooltip="'Редагувати головну категорію'" 
+                                class="mr-2 primary" 
+                                icon="pi pi-pencil" 
+                                @click.stop="forumMainCatRef.showDia(category)" 
+                            />
                             <Button 
                                 v-if="isAdmin" 
                                 v-tooltip="'Видалити головну категорію'" 
@@ -118,7 +105,23 @@ const toggleAccordion = (categoryId: number) => {
                                     </div>
                                 </div>
                                 <div class="flex align-items-center">
-                                    <Button v-if="isAdmin" v-tooltip="'Редагувати розділ'" class="mr-2" icon="pi pi-pencil" @click="forumSubCatRef.showDia(t)" />
+                                    <RouterLink :to="{name: 'theme-creation', params: {id_main: t.id}}">
+                                        <Button
+                                            v-if="isAdmin" 
+                                            v-tooltip="'Стврорити тему у цьому розділі'" 
+                                            class="mr-2 success" 
+                                            icon="pi pi-plus" 
+                                        >
+
+                                        </Button>
+                                    </RouterLink>
+                                    <Button 
+                                        v-if="isAdmin" 
+                                        v-tooltip="'Редагувати розділ'" 
+                                        class="mr-2 primary" 
+                                        icon="pi pi-pencil" 
+                                        @click="forumSubCatRef.showDia(t)" 
+                                    />
                                     <Button 
                                         v-if="isAdmin" 
                                         v-tooltip="'Видалити розділ'" 
