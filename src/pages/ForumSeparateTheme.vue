@@ -162,6 +162,7 @@ const deleteComment = (id: number) => {
         video
     ) {
         width: 100%;
+        height: auto;
     }
 }
 

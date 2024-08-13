@@ -4,7 +4,7 @@ import { fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useRoute, useRouter } from 'vue-router';
 import InputText from 'primevue/inputtext';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed  } from 'ckeditor5';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter   } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
@@ -19,8 +19,8 @@ const form = reactive({
 });
 
 const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed ],
-    toolbar: [ 'heading', 'bold', 'italic', 'alignment',  '|','numberedList', 'bulletedList', '|', 'undo', 'redo', 'mediaEmbed' ],
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter  ],
+    toolbar: [ 'heading', 'bold', 'italic', 'alignment',  '|','numberedList', 'bulletedList', '|', 'undo', 'redo', 'mediaEmbed', 'imageUpload' ],
     mediaEmbed: {
        previewsInData: true
     }
