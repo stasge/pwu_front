@@ -34,7 +34,7 @@ const addGameUser = async () => {
     }
     const data = {
         username: form.username,
-        pass: hashedPass()
+        pass: form.pass
     }
     wrapAsyncCall(async () => {
         await fetchPost('user/addGameUser', data)
@@ -67,14 +67,6 @@ const recoverGameAcc = async (id: number) => {
         userStore.loadUser()
     }, null, 'Ігровий акаунт відновленно')
 }
-
-const hashedPass = () => {
-    const combined = (form.username).toLowerCase() + form.pass;
-    const md5hash = CryptoJS.MD5(combined);
-    const pass_output = CryptoJS.enc.Base64.stringify(md5hash);
-
-    return pass_output
-};
 
 const show = () => {
     resetForm()
