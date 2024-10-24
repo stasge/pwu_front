@@ -8,6 +8,8 @@ import {type RegisterData} from '@/models/register-data'
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useToast } from 'vue-toastification';
 import { useUserStore } from '@/stores/userStore';
+import Checkbox from 'primevue/checkbox';
+import { RouterLink } from 'vue-router';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const emit = defineEmits(['openLogin'])
@@ -15,17 +17,20 @@ const toast = useToast();
 const showed = ref(false)
 const passwordHidden = ref(true)
 const repeatPasswordHidden = ref(true)
+const requiredTrue = (value: boolean) => value === true
 const form = reactive<RegisterData>({
     username: '',
     pass: '',
     email: '',
-    repeat_pass: ''
+    repeat_pass: '',
+    rules: false
 })
 const rules = {
     username: {required},
     pass: {required},
     email: {email, required},
-    repeat_pass: {required, sameAs: (val: string) => val === form.pass}
+    repeat_pass: {required, sameAs: (val: string) => val === form.pass},
+    rules: {requiredTrue}
 }
 
 const v$ = useVuelidate(rules, form)
@@ -37,6 +42,7 @@ function showDia() {
 
 const resetForm = () => {
     form.username = form.email = form.pass = form.repeat_pass = ''
+    form.rules = false
     passwordHidden.value = repeatPasswordHidden.value = true
 }
 
@@ -125,6 +131,11 @@ defineExpose({showDia})
                             <img v-show="!repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/hide-pass.svg" alt="">
                         </div>
                     </div>
+                </div>
+                <div class="field w-full">
+                    <Checkbox v-model="form.rules" :binary="true" :invalid="v$.rules.$error" />
+                    <span class="ml-2">Погоджуюсь з </span>
+                    <router-link :to="{name: 'terms'}" class="underline">користувацькою угодою</router-link>
                 </div>
                 <div class="flex gap-1">
                     <span>Вже зареєструвалися?</span>
