@@ -74,8 +74,8 @@ const show = () => {
 }
 </script>
 <template>
-    <div class="profile flex gap-5 justify-content-between w-full">
-        <div class="profile__left">
+    <div class="profile flex gap-5 justify-content-between w-full flex-wrap">
+        <div class="profile__left w-full">
             <h1 class="profile__title">Особистий кабінет</h1>
             <div class="flex gap-3 mt-3 align-items-center">
                 <h3>Ваш email:</h3>
@@ -208,7 +208,7 @@ const show = () => {
 
     &__left,
     &__right {
-        padding: 40px;
+        padding: clamp(0px, 5vw, 40px);
         background: rgba(93, 119, 144, 0.2);
         border-radius: 10px;
     }
