@@ -9,6 +9,14 @@
             <span>Усі права належать правовласникам.</span>
             <router-link :to="{name: 'terms'}" class="underline">Користувацька угода</router-link>
         </div>
+        <div class="flex align-items-center gap-3">
+            <a href="https://discord.gg/352NCEuX" target="_blank">
+                <i class="pi pi-discord"></i>
+            </a>
+            <a href="#" @click.prevent="">
+                <i class="pi pi-telegram"></i>
+            </a>
+        </div>
     </div>
 </template>
 
