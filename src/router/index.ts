@@ -42,19 +42,16 @@ const router = createRouter({
           path: '/page/forum',
           name: 'forum',
           component: Forum,
-          meta: {requiresAuth: true}
         },
         {
           path: '/page/themes/:cat_id/:sub_id',
           name: 'themes',
           component: ForumThemes,
-          meta: {requiresAuth: true}
         },
         {
           path: '/page/separate-theme/:theme_id/:cat_id',
           name: 'separate-theme',
           component: ForumSeparateTheme,
-          meta: {requiresAuth: true}
         },
         {
           path: '/page/theme-creation/:id_main/:id?',

@@ -10,16 +10,21 @@ import { useRoute } from 'vue-router'
 import { format } from 'date-fns'
 import { useUserStore } from '@/stores/userStore'
 import { useConfirm } from 'primevue/useconfirm';
+import EmojiPicker from '@/components/EmojiPicker.vue';
+import { useToast } from 'vue-toastification';
+import type { Emoji } from '@/models/emoji';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
 const {getRoleName, isAdmin} = useUserStore()
 const confirm = useConfirm();
+const toast = useToast();
 
 const comments = ref<IForumComment[]>()
 const theme = ref<IForumTheme>()
 const category = ref<IForumCategory>()
 const themeId = ref(+route.params.theme_id)
+const showEmojiPicker = ref(false)
 
 const createCommentForm = reactive({
     text: ''
@@ -35,8 +40,8 @@ onMounted(() => {
 })
 
 const loadComments = async () => {
-    const {data: _comments} = await fetchPost('/forum/getMessage', {id_theme: themeId.value, page: 1, limit: 100})
-    comments.value = _comments
+    const {data} = await fetchPost('/forum/getMessage', {id_theme: themeId.value, page: 1, limit: 100})
+    comments.value = data.messages
 }
 
 const createComment = async () => {
@@ -47,7 +52,14 @@ const createComment = async () => {
         })
         await loadComments()
         resetForm()
-    }, null, 'Коментар успішно додано')
+        showEmojiPicker.value = false
+    },
+    (err) => {
+        if (err.status === 401) {
+            toast.error('Потрібно авторизуватися')
+        }
+        return true
+    }, 'Коментар успішно додано')
 }
 
 const resetForm = () => {
@@ -73,11 +85,19 @@ const confirmRemoval = (event: Event, id: number, message: string, action: (id: 
     });
 }
 
+const addEmoji = (emoji: Emoji) => {
+    createCommentForm.text = createCommentForm.text + emoji.i
+}
+
 const deleteComment = (id: number) => {
     wrapAsyncCall(async () => {
         await fetchPost('/forum/deleteMessage', {id})
         await loadComments()
     })
+}
+
+const toggleEmojiPicker = () => {
+    showEmojiPicker.value = !showEmojiPicker.value
 }
 </script>
 <template>
@@ -100,7 +120,7 @@ const deleteComment = (id: number) => {
                 </div>
                 <div class="article__comments comments flex flex-column gap-3">
                     <h2 class="mt-6 mb-4">Коментарі</h2>
-                    <div v-for="comment of comments" class="comments__item flex">
+                    <div v-if="comments?.length" v-for="comment of comments" class="comments__item flex">
                         <div class="comments__writer writer flex flex-column align-items-center justify-content-center gap-2">
                             <svg class="writer__avatar" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
@@ -110,29 +130,31 @@ const deleteComment = (id: number) => {
                             <h3 class="writer__name ">{{ comment.user.username }}</h3>
                             <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
                         </div>
-                            <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
-                                <p>{{ comment.text }}</p>
-                                <div class="flex justify-content-between align-items-end">
-                                    <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
-                                    <Button 
-                                        v-if="isAdmin" 
-                                        v-tooltip="'Видалити коментар'" 
-                                        icon="pi pi-trash" 
-                                        @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" 
-                                        class="danger"
-                                    />
-                                </div>
+                        <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
+                            <p>{{ comment.text }}</p>
+                            <div class="flex justify-content-between align-items-end">
+                                <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
+                                <Button 
+                                    v-if="isAdmin" 
+                                    v-tooltip="'Видалити коментар'" 
+                                    icon="pi pi-trash" 
+                                    @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" 
+                                    class="danger"
+                                />
                             </div>
-                            <div>
                         </div>
                     </div>
-                    <div v-if="!comments?.length">
+                    <div v-else>
                         <p>Коментарі відсутні</p>
                     </div>
                     <div class="comments__textarea mt-5">
                         <h2 class="mb-3">Залишити коментар</h2>
                         <form @submit.prevent="createComment">
-                            <Textarea v-model="createCommentForm.text"  rows="5" class="w-full" />
+                            <div class="relative">
+                                <Textarea v-model="createCommentForm.text"  rows="5" class="w-full" />
+                                <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button>
+                                <EmojiPicker  @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker" class="emoji"/>
+                            </div>
                             <button class="btn btn-sm mt-2">Відправити</button>
                         </form>
                     </div>
@@ -166,6 +188,25 @@ const deleteComment = (id: number) => {
     }
 }
 
+.emoji {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.emoji-button {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    z-index: 1000;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
 .writer {
     width: fit-content;
     height: fit-content;
@@ -187,13 +228,17 @@ const deleteComment = (id: number) => {
         border: 1px solid rgba(93, 119, 144, 0.1);
         border-radius: 10px 0 0 10px;
     }
-
+    
     &__writer {
         border: 1px solid rgba(93, 119, 144, 0.1);
     }
-
+    
     &__text {
         word-break: break-all;
+
+        * {
+            text-shadow: none !important;
+        }
     }
 }
 

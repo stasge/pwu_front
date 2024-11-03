@@ -6,13 +6,14 @@ import { onMounted, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
 import type { IForumSubCategory, IForumTheme } from '@/models/forum';
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {useUserStore} from '@/stores/userStore'
 import {useConfirmRemoval} from '@/composables/useConfirmRemoval'
 
 const {confirmRemoval} = useConfirmRemoval()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
+const router = useRouter()
 const {isAdmin} = useUserStore()
 
 const themes = ref<IForumTheme[]>()
@@ -31,9 +32,9 @@ const deleteTheme = (id: number) => {
 }
 
 const loadThemes = async () => {
-    const {data: _themes} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
+    const {data} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
     const {data: _subCategories} = await fetchPost('/forum/getSub', {id_main: +route.params.cat_id})
-    themes.value = _themes
+    themes.value = data.themes
     subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id)
 }
 
@@ -66,7 +67,7 @@ const loadThemes = async () => {
                                         v-tooltip="'Редагувати тему'" 
                                         class="primary" 
                                         icon="pi pi-pencil"
-                                        @click="$router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
+                                        @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
                                     />
                                     <Button 
                                         v-if="isAdmin" 
