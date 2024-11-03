@@ -16,9 +16,7 @@ function onSelectEmoji(emoji: EmojiExt) {
         <EmojiPicker 
         v-if="showEmojiPicker" 
             :native="true" 
-            @select="onSelectEmoji" 
-            disable-skin-tones="true" 
-            hide-search="true" 
+            @select="onSelectEmoji"  
             class="emoji-menu absolute"
         />
     </div>
