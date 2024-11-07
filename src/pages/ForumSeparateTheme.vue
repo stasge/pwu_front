@@ -17,6 +17,7 @@ import type { Emoji } from '@/models/emoji';
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
 const {getRoleName, isAdmin} = useUserStore()
+const userStore = useUserStore()
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -147,7 +148,7 @@ const toggleEmojiPicker = () => {
                     <div v-else>
                         <p>Коментарі відсутні</p>
                     </div>
-                    <div class="comments__textarea mt-5">
+                    <div v-if="userStore.user" class="comments__textarea mt-5">
                         <h2 class="mb-3">Залишити коментар</h2>
                         <form @submit.prevent="createComment">
                             <div class="relative">

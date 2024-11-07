@@ -3,42 +3,51 @@ import Paginator from 'primevue/paginator';
 import Button from 'primevue/button';
 
 import { onMounted, ref } from 'vue';
-import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
-import {fetchPost} from '@/utils/fetchApi'
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
+import { fetchPost } from '@/utils/fetchApi';
 import type { IForumSubCategory, IForumTheme } from '@/models/forum';
-import { useRoute, useRouter } from 'vue-router'
-import {useUserStore} from '@/stores/userStore'
-import {useConfirmRemoval} from '@/composables/useConfirmRemoval'
+import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { useConfirmRemoval } from '@/composables/useConfirmRemoval';
 
-const {confirmRemoval} = useConfirmRemoval()
-const {wrapAsyncCall} = useAsyncCallWrapper()
-const route = useRoute()
-const router = useRouter()
-const {isAdmin} = useUserStore()
+const { confirmRemoval } = useConfirmRemoval();
+const { wrapAsyncCall } = useAsyncCallWrapper();
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
 
-const themes = ref<IForumTheme[]>()
-const subCategory = ref<IForumSubCategory>()
+const themes = ref<IForumTheme[]>([]);
+const subCategory = ref<IForumSubCategory>();
+const total = ref(0);
+const currentPage = ref(1);
+const rowsPerPage = ref(5);
+
 onMounted(() => {
-    wrapAsyncCall(async () => {
-        await loadThemes()
-    })
-})
+    wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
+});
 
 const deleteTheme = (id: number) => {
     wrapAsyncCall(async () => {
-        await fetchPost('/forum/deleteTheme', {id})
-        await loadThemes()
-    })
-}
+        await fetchPost('/forum/deleteTheme', { id });
+        await loadThemes(currentPage.value, rowsPerPage.value);
+    });
+};
 
-const loadThemes = async () => {
-    const {data} = await fetchPost('/forum/getThemes', {id_main: +route.params.sub_id, page: 1, limit: 10})
-    const {data: _subCategories} = await fetchPost('/forum/getSub', {id_main: +route.params.cat_id})
-    themes.value = data.themes
-    subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id)
-}
+const loadThemes = async (page = 1, rowsPerPage = 5) => {
+    const { data } = await fetchPost('/forum/getThemes', { id_main: +route.params.sub_id, page, limit: rowsPerPage });
+    const { data: _subCategories } = await fetchPost('/forum/getSub', { id_main: +route.params.cat_id });
+    themes.value = data.themes;
+    total.value = data.total;
+    subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id);
+};
 
+const onPageChange = (event: { page: number, rows: number }) => {
+    currentPage.value = event.page + 1;
+    rowsPerPage.value = event.rows;
+    wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
+};
 </script>
+
 <template>
     <div class="units w-full">
         <div class="units__inner">
@@ -63,14 +72,14 @@ const loadThemes = async () => {
                                 <p>{{ theme.edited_at }}</p>
                                 <div class="flex justify-content-end gap-2">
                                     <Button 
-                                        v-if="isAdmin" 
+                                        v-if="userStore.isAdmin" 
                                         v-tooltip="'Редагувати тему'" 
                                         class="primary" 
                                         icon="pi pi-pencil"
                                         @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
                                     />
                                     <Button 
-                                        v-if="isAdmin" 
+                                        v-if="userStore.isAdmin" 
                                         v-tooltip="'Видалити тему'" 
                                         class="danger" 
                                         icon="pi pi-trash" 
@@ -81,16 +90,19 @@ const loadThemes = async () => {
                         </div>
                     </div>
                     <Paginator 
-                        :rows="10" 
-                        :totalRecords="120" 
-                        :rowsPerPageOptions="[10, 20, 30]" 
+                        :rows="rowsPerPage" 
+                        :totalRecords="total" 
+                        :first="(currentPage - 1) * rowsPerPage" 
+                        :rowsPerPageOptions="[5, 10, 20, 30]" 
+                        @page="onPageChange"
                         class="mt-4"
-                    ></Paginator>
+                    />
                 </div>
             </div>
         </div>
     </div>
 </template>
+
 <style scoped lang='scss'>
 .units {
     color: #fff;
