@@ -95,7 +95,7 @@ const fillForm = async (id: string) => {
                 <label for="image">Зображення</label>
                 <input type="file" id="image" @change="handleImageUpload" />
                 <img v-if="previewImage" style="max-width: 200px;aspect-ratio: 16/9;" :src="previewImage" alt="#">
-                <img v-else style="max-width: 200px;" :src="baseUrl + '/files/' + imageUrl" alt="#">
+                <img v-else-if="imageUrl" style="max-width: 200px;" :src="baseUrl + '/files/' + imageUrl" alt="#">
             </div>
 
             <button type="submit" class="btn btn-sm mt-3">Зберегти</button>

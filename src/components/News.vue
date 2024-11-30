@@ -74,7 +74,7 @@ const handleScroll = () => {
         <div v-for="item of news" class="news__item flex gap-5">
             <div class="flex flex-column align-items-center justify-content-end relative w-max">
                 <img class="news__item-img" :src="baseURL + '/files/' + item.image" alt="">
-                <a href="#" class="news__item-btn btn btn-sm">Детальніше</a>
+                <router-link  :to="{name: 'single-news', params: {id: item.id}}" class="news__item-btn btn btn-sm">Детальніше</router-link>
             </div>
             <div class="news__item-content flex flex-column gap-3">
                 <div class="badges">
