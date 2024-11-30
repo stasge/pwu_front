@@ -10,6 +10,7 @@ import Forum from '@/pages/Forum.vue'
 import ForumThemes from '@/pages/ForumThemes.vue'
 import ForumSeparateTheme from '@/pages/ForumSeparateTheme.vue'
 import ForumCreateTheme from '@/pages/ForumCreateTheme.vue'
+import CreateNews from '@/pages/CreateNews.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,12 @@ const router = createRouter({
           path: '/page/theme-creation/:id_main/:id?',
           name: 'theme-creation',
           component: ForumCreateTheme,
+          meta: {requiresAuth: true}
+        },
+        {
+          path: '/page/news-creation/:id?',
+          name: 'news-creation',
+          component: CreateNews,
           meta: {requiresAuth: true}
         },
       ]

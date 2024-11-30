@@ -18,7 +18,7 @@ import {useConfirmRemoval} from '@/composables/useConfirmRemoval'
 const {confirmRemoval} = useConfirmRemoval()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const categories = ref<IForumCategory[]>()
-const {isAdmin} = useUserStore()
+const userStore = useUserStore()
 const forumMainCatRef = ref()
 const forumSubCatRef = ref()
 const openAccordions = ref<number[]>([])
@@ -63,7 +63,7 @@ const toggleAccordion = (categoryId: number) => {
             <div class="forum__container w-full flex flex-column gap-2">
                 <h1 class="forum__title mb-6 text-center">Форум</h1>
                 <Button 
-                    v-if="isAdmin" 
+                    v-if="userStore.isAdmin" 
                     v-tooltip="'Створити головну категорію'" 
                     icon="pi pi-plus" 
                     @click="forumMainCatRef.showDia()" 
@@ -74,21 +74,21 @@ const toggleAccordion = (categoryId: number) => {
                         <AccordionHeader>
                             <h2>{{ category.name }}</h2>
                             <Button 
-                                v-if="isAdmin" 
+                                v-if="userStore.isAdmin" 
                                 v-tooltip="'Створити розділ'" 
                                 class="ml-auto mr-2 success" 
                                 icon="pi pi-plus" 
                                 @click.stop="forumSubCatRef.showDia(null, category.id)" 
                             />
                             <Button 
-                                v-if="isAdmin" 
+                                v-if="userStore.isAdmin" 
                                 v-tooltip="'Редагувати головну категорію'" 
                                 class="mr-2 primary" 
                                 icon="pi pi-pencil" 
                                 @click.stop="forumMainCatRef.showDia(category)" 
                             />
                             <Button 
-                                v-if="isAdmin" 
+                                v-if="userStore.isAdmin" 
                                 v-tooltip="'Видалити головну категорію'" 
                                 class="mr-3 danger" 
                                 icon="pi pi-trash" 
@@ -107,7 +107,7 @@ const toggleAccordion = (categoryId: number) => {
                                 <div class="flex align-items-center">
                                     <RouterLink :to="{name: 'theme-creation', params: {id_main: t.id}}">
                                         <Button
-                                            v-if="isAdmin" 
+                                            v-if="userStore.isAdmin" 
                                             v-tooltip="'Стврорити тему у цьому розділі'" 
                                             class="mr-2 success" 
                                             icon="pi pi-plus" 
@@ -116,14 +116,14 @@ const toggleAccordion = (categoryId: number) => {
                                         </Button>
                                     </RouterLink>
                                     <Button 
-                                        v-if="isAdmin" 
+                                        v-if="userStore.isAdmin" 
                                         v-tooltip="'Редагувати розділ'" 
                                         class="mr-2 primary" 
                                         icon="pi pi-pencil" 
                                         @click="forumSubCatRef.showDia(t)" 
                                     />
                                     <Button 
-                                        v-if="isAdmin" 
+                                        v-if="userStore.isAdmin" 
                                         v-tooltip="'Видалити розділ'" 
                                         class="mr-3 danger" 
                                         icon="pi pi-trash" 

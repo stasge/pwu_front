@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/userStore';
 import { ref, onMounted, onUnmounted } from 'vue';
+import Button from 'primevue/button';
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
+import { fetchGet, fetchPost } from '@/utils/fetchApi';
+import type { News } from '@/models/news';
+import { useRouter } from 'vue-router';
 
+const baseURL = import.meta.env.VITE_BASE_URL
 const items = ref([]);
+const news = ref<News[]>([])
+const userStore = useUserStore()
+const {wrapAsyncCall} = useAsyncCallWrapper()
 const viewportHeight = window.innerHeight;
 let lastScrollTop = window.scrollY || document.documentElement.scrollTop;
+const router = useRouter()
 
 const isInViewport = (element: HTMLDivElement) => {
   const rect = element.getBoundingClientRect();
@@ -15,14 +26,30 @@ const isInViewport = (element: HTMLDivElement) => {
   );
 };
 
-onMounted(() => {
-  items.value = Array.from(document.querySelectorAll('.news__item'));
-  window.addEventListener('scroll', handleScroll);
+onMounted(async () => {
+    await loadNews()
+    items.value = Array.from(document.querySelectorAll('.news__item'));
+    window.addEventListener('scroll', handleScroll);
 });
+
+const loadNews = async () => {
+    await wrapAsyncCall( async () => {
+        const {data} = await fetchGet('getNews')
+        news.value = data
+    })
+}
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+const deleteNews = async (id: number) => {
+    await wrapAsyncCall(async () => {
+        await fetchPost('deleteNews', {id})
+        const {data} = await fetchGet('getNews')
+        news.value = data
+    })
+}
 
 const handleScroll = () => {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -37,17 +64,40 @@ const handleScroll = () => {
 
 <template>
     <div class="news flex flex-column gap-8 relative z-2">
-        <div v-for="item of 3" class="news__item flex gap-5">
+        <Button 
+            v-if="userStore.isAdmin" 
+            v-tooltip="'Створити нову новину'" 
+            icon="pi pi-plus" 
+            @click="router.push({name: 'news-creation'})" 
+            class="success"
+        />
+        <div v-for="item of news" class="news__item flex gap-5">
             <div class="flex flex-column align-items-center justify-content-end relative w-max">
-                <img class="news__item-img" src="@/assets/images/header-bg.jpg" alt="">
+                <img class="news__item-img" :src="baseURL + '/files/' + item.image" alt="">
                 <a href="#" class="news__item-btn btn btn-sm">Детальніше</a>
             </div>
             <div class="news__item-content flex flex-column gap-3">
                 <div class="badges">
                     <div class="badges__item"></div>
                 </div>
-                <h2 class="news__item-title">Старт ЗБТ</h2>
-                <p class="news__item-text">На нашому сервері на вас чекає безліч марафонів, що пропонують як інтенсивні, так і поступові шляхи до успіху. Ти можеш досягти успіху в ідеальному світі та виграти грошові призи!</p>
+                <h2 class="news__item-title">{{ item.title }}</h2>
+                <p class="news__item-text">{{ item.text }}</p>
+                <div class="flex gap-3">
+                    <Button 
+                        v-if="userStore.isAdmin" 
+                        v-tooltip="'Редагувати новину'" 
+                        icon="pi pi-pencil" 
+                        @click="router.push({name: 'news-creation', params: {id: item.id}})" 
+                        class="primary"
+                    />
+                    <Button 
+                        v-if="userStore.isAdmin" 
+                        v-tooltip="'Видалити новину'" 
+                        icon="pi pi-trash" 
+                        @click="deleteNews(item.id)" 
+                        class="danger"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -105,6 +155,11 @@ const handleScroll = () => {
             &-text {
                 font-size: 125%; /* 20/16 */
                 line-height: 26px;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
     }
