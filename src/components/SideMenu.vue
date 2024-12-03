@@ -24,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="side-menu flex flex-column sticky top-0 align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
+    <div class="side-menu flex flex-column sticky align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span>PWU</span>
@@ -37,7 +37,7 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-        <ul class="side-menu__list flex flex-column gap-3 mt-6">
+        <ul class="side-menu__list flex flex-column gap-3 mt-7">
             <li class="side-menu__item">
                 <router-link :to="{name: 'home'}">Головна</router-link>
             </li>
@@ -65,6 +65,7 @@ onMounted(async () => {
 <style scoped lang="scss">
     .side-menu {
         scroll-margin-top: 100px;
+        top: 20px;
 
         @media (max-width: 768px) {
             display: none !important;

@@ -8,7 +8,7 @@ import BurgerMenu from '@/components/BurgerMenu.vue'
     <BurgerMenu />
     <div class="wrapper">
         <div class="container">
-            <div class="px-5 flex justify-content-between pb-8 pt-6 gap-5">
+            <div class="px-0 sm:px-5 flex justify-content-between pb-8 pt-6 gap-5">
                 <router-view></router-view>
                 <SideMenu :translateY="'0'"/>
             </div>

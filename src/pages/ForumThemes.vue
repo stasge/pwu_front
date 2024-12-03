@@ -61,7 +61,7 @@ const onPageChange = (event: { page: number, rows: number }) => {
                             <p>Відповідей</p>
                             <p>Переглядів</p>
                             <p>Оновлено</p>
-                            <p>Дії</p>
+                            <p v-if="userStore.isAdmin">Дії</p>
                         </div>
                         <div v-for="theme of themes" class="game-acc__wrapper">
                             <div class="game-acc__item">
@@ -70,16 +70,14 @@ const onPageChange = (event: { page: number, rows: number }) => {
                                 <p>{{ theme.messages_count }}</p>
                                 <p>{{ theme.views_count }}</p>
                                 <p>{{ theme.edited_at }}</p>
-                                <div class="flex justify-content-end gap-2">
+                                <div v-if="userStore.isAdmin" class="flex justify-content-end gap-2">
                                     <Button 
-                                        v-if="userStore.isAdmin" 
                                         v-tooltip="'Редагувати тему'" 
                                         class="primary" 
                                         icon="pi pi-pencil"
                                         @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
                                     />
-                                    <Button 
-                                        v-if="userStore.isAdmin" 
+                                    <Button
                                         v-tooltip="'Видалити тему'" 
                                         class="danger" 
                                         icon="pi pi-trash" 
@@ -124,6 +122,13 @@ const onPageChange = (event: { page: number, rows: number }) => {
         align-items: end;
         background: linear-gradient(225deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(45deg, #3d4c60 0%, rgba(21, 26, 33, 0.34) 65.59%, rgba(0, 0, 0, 0) 100%);
         border-radius: 10px;
+        
+        @media (max-width: 576px) {
+            padding: 5px;
+            font-size: 8px;
+            align-items: center;
+            grid-template-columns: 30% 15% 15% 15% 15% 10%;
+        }
 
         &>* {
             text-align: center;
@@ -136,6 +141,13 @@ const onPageChange = (event: { page: number, rows: number }) => {
         padding: 20px;
         background: rgba($color: #000000, $alpha: 0.4);
         border-radius: 10px;
+
+        @media (max-width: 576px) {
+            padding: 5px;
+            font-size: 8px;
+            align-items: center;
+            grid-template-columns: 30% 15% 15% 15% 15% 10%;
+        }
 
         &>* {
             text-align: center;
