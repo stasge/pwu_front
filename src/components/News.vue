@@ -82,7 +82,7 @@ const handleScroll = () => {
             @click="router.push({name: 'news-creation'})" 
             class="success"
         />
-        <div v-for="item of userStore.isAdmin ? news : [...news.filter(n => !n.isHidden).slice(0, 3)]" class="news__item flex gap-5">
+        <div v-for="item of userStore.isAdmin ? news : [...news.filter(n => !n.isHidden).slice(0, 3)]" class="news__item  flex gap-5" :class="{'hidden': item.isHidden}">
             <div class="flex flex-column align-items-center justify-content-end relative w-max">
                 <img class="news__item-img" :src="baseURL + '/files/' + item.image" alt="">
                 <router-link  :to="{name: 'single-news', params: {id: item.id}}" class="news__item-btn btn btn-sm">Детальніше</router-link>
@@ -130,6 +130,10 @@ const handleScroll = () => {
                 justify-content: center;
             }
             // transform: translateX(-30px);
+
+            &.hidden {
+                opacity: 0.5 !important;
+            }
 
             &.fade-in {
                 opacity: 1;
