@@ -57,8 +57,8 @@ const register = async () => {
     await wrapAsyncCall(async () => {
         const {data} = await fetchPost('signup', body)
         showed.value = false
-        localStorage.setItem("pwu_token", data.access_token);
-        localStorage.setItem("pwu_refresh_token", data.refresh_token);
+        sessionStorage.setItem("pwu_token", data.access_token);
+        sessionStorage.setItem("pwu_refresh_token", data.refresh_token);
         useUserStore().loadUser()
         resetForm()
         v$.value.$reset()

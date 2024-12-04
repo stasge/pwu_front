@@ -33,14 +33,14 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function loginUser(username: string, password: string) {
     const resp = await fetchPost("signin", { username, pass: password });
-    localStorage.setItem("pwu_token", resp?.data.access_token);
-    localStorage.setItem("pwu_refresh_token", resp?.data.refresh_token);
+    sessionStorage.setItem("pwu_token", resp?.data.access_token);
+    sessionStorage.setItem("pwu_refresh_token", resp?.data.refresh_token);
     user.value = resp?.data?.user
   }
 
   function logoutUser() {
-    localStorage.removeItem("pwu_token");
-    localStorage.removeItem("pwu_refresh_token");
+    sessionStorage.removeItem("pwu_token");
+    sessionStorage.removeItem("pwu_refresh_token");
     user.value = null
     router.push({ name: 'home' })
   }

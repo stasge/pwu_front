@@ -20,12 +20,12 @@ export const fetchGet = (uri: string, data: any = {}) => {
 
 const addToken = async ({request, options}: {request: any, options: any}) => {
     const userStore = useUserStore()
-    let accessToken = localStorage.getItem("pwu_token")
-    const refreshToken = localStorage.getItem("pwu_refresh_token")
+    let accessToken = sessionStorage.getItem("pwu_token")
+    const refreshToken = sessionStorage.getItem("pwu_refresh_token")
     if (!accessToken && refreshToken) {
         const {data: token} = await ofetch('refresh', {baseURL, method: 'GET', headers: {'Auth': refreshToken}}).catch(error => userStore.logoutUser())
         accessToken = token
-        localStorage.setItem('pwu_token', token)
+        sessionStorage.setItem('pwu_token', token)
     }
     if (accessToken) {
         options.headers = {...(options.headers ?? {}), "Auth": `${accessToken}`};
