@@ -7,6 +7,8 @@ import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useRoute } from 'vue-router';
 import type { News } from '@/models/news';
+import useVuelidate from '@vuelidate/core';
+import { required } from '@vuelidate/validators';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
 const route = useRoute()
@@ -20,6 +22,15 @@ const form = reactive({
     isHidden: false,
     image: null as File | null
 });
+
+const rules = {
+    title: {required},
+    text: {required},
+    image: {required},
+}
+
+const v$ = useVuelidate(rules, form)
+
 
 onMounted(() => {
     if (route.params?.id) {
@@ -37,7 +48,10 @@ const handleImageUpload = (event: Event) => {
     }
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
+    if (!await v$.value.$validate()) {
+        return
+    }
     const formData = new FormData();
     formData.append('title', form.title);
     formData.append('isHidden', `${form.isHidden}`);
@@ -78,12 +92,12 @@ const fillForm = async (id: string) => {
         <form @submit.prevent="handleSubmit" class="mt-4 flex flex-column gap-4">
             <div class="flex flex-column gap-2">
                 <label for="title">Заголовок</label>
-                <InputText id="title" type="text" v-model="form.title" />
+                <InputText id="title" type="text" v-model="form.title" :class="{'invalid': v$.title.$error}" />
             </div>
 
             <div class="flex flex-column gap-2">
                 <label for="text">Контент</label>
-                <Textarea v-model="form.text" rows="5" class="w-full" />
+                <Textarea v-model="form.text" rows="5" class="w-full" :class="{'invalid': v$.text.$error}" />
             </div>
 
             <div class="flex gap-3">
@@ -93,7 +107,8 @@ const fillForm = async (id: string) => {
 
             <div class="flex flex-column gap-3">
                 <label for="image">Зображення</label>
-                <input type="file" id="image" @change="handleImageUpload" />
+                <input type="file" id="image" @change="handleImageUpload" class="w-max" />
+                <small class="text-red" v-if="v$.image.$error">Додайте картинку</small>
                 <img v-if="previewImage" style="max-width: 200px;aspect-ratio: 16/9;" :src="previewImage" alt="#">
                 <img v-else-if="imageUrl" style="max-width: 200px;" :src="baseUrl + '/files/' + imageUrl" alt="#">
             </div>

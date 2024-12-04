@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Button from 'primevue/button';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import type { News } from '@/models/news';
 import { useRouter } from 'vue-router';
+import { useMitt } from '@/composables/useMitt';
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const items = ref([]);
@@ -15,6 +16,7 @@ const {wrapAsyncCall} = useAsyncCallWrapper()
 const viewportHeight = window.innerHeight;
 let lastScrollTop = window.scrollY || document.documentElement.scrollTop;
 const router = useRouter()
+const emitter = useMitt()
 
 const isInViewport = (element: HTMLDivElement) => {
   const rect = element.getBoundingClientRect();
@@ -30,6 +32,15 @@ onMounted(async () => {
     await loadNews()
     items.value = Array.from(document.querySelectorAll('.news__item'));
     window.addEventListener('scroll', handleScroll);
+
+    emitter.on('login', () => {
+        setTimeout(() => {
+            items.value = Array.from(document.querySelectorAll('.news__item'));
+            items.value.forEach((element: HTMLDivElement) => {
+                element.classList.add('fade-in');
+            });
+        }, 0)
+    })
 });
 
 const loadNews = async () => {
@@ -71,12 +82,12 @@ const handleScroll = () => {
             @click="router.push({name: 'news-creation'})" 
             class="success"
         />
-        <div v-for="item of news" class="news__item flex gap-5">
+        <div v-for="item of userStore.isAdmin ? news : [...news.filter(n => !n.isHidden).slice(0, 3)]" class="news__item flex gap-5">
             <div class="flex flex-column align-items-center justify-content-end relative w-max">
                 <img class="news__item-img" :src="baseURL + '/files/' + item.image" alt="">
                 <router-link  :to="{name: 'single-news', params: {id: item.id}}" class="news__item-btn btn btn-sm">Детальніше</router-link>
             </div>
-            <div class="news__item-content flex flex-column gap-3">
+            <div class="news__item-content flex flex-column gap-3 pr-3">
                 <div class="badges">
                     <div class="badges__item"></div>
                 </div>
@@ -126,6 +137,7 @@ const handleScroll = () => {
             }
 
             &-img {
+                aspect-ratio: 16/9;
                 max-width: 288px;
                 box-shadow: rgba(0, 0, 0, 0.35) 0px 54px 55px, rgba(0, 0, 0, 0.42) 0px -12px 30px, rgba(0, 0, 0, 0.42) 0px 4px 6px, rgba(0, 0, 0, 0.57) 0px 12px 13px, rgba(0, 0, 0, 0.59) 0px -3px 5px;
             }
@@ -150,6 +162,11 @@ const handleScroll = () => {
 
             &-title {
                 font-size: 187.5%; /* 30/16 */
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             &-text {

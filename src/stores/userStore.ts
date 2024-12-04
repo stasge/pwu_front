@@ -3,6 +3,7 @@ import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import type { User } from '@/models/user';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useMitt } from '@/composables/useMitt';
 
 export const useUserStore = defineStore('userStore', () => {
   const roles = [
@@ -36,6 +37,8 @@ export const useUserStore = defineStore('userStore', () => {
     sessionStorage.setItem("pwu_token", resp?.data.access_token);
     sessionStorage.setItem("pwu_refresh_token", resp?.data.refresh_token);
     user.value = resp?.data?.user
+
+    useMitt().emit('login')
   }
 
   function logoutUser() {

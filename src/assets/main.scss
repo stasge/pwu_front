@@ -99,7 +99,7 @@ a {
 }
 
 .invalid {
-    border: 1px solid red;
+    border: 1px solid red !important;
 }
 
 .right-10px {
@@ -295,4 +295,8 @@ oembed {
     // .ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
     //     border: 1px solid #e26f0f !important;
     // }
+}
+
+.text-red {
+    color: red;
 }

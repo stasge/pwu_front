@@ -65,7 +65,7 @@ const router = createRouter({
           path: '/page/news-creation/:id?',
           name: 'news-creation',
           component: CreateNews,
-          meta: {requiresAuth: true}
+          meta: {requiresAuth: true, onlyAdmin: true}
         },
         {
           path: '/page/single-news/:id',
@@ -88,6 +88,11 @@ router.beforeEach(async (to, from) => {
   await userStore.loadUser();
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     toast.error("Потрібно авторизуватися")
+    return {name: 'home'}
+  }
+
+  if (to.meta.onlyAdmin && !userStore.isAdmin) {
+    toast.error("Недостатньо прав")
     return {name: 'home'}
   }
 })
