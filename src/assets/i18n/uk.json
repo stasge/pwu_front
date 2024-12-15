@@ -1,0 +1,8 @@
+{
+    "Not enough time has passed since the previous shipment.": "З моменту попереднього відправлення минуло недостатньо часу.",
+    "User already exists": "Користувач вже існує",
+    "User is not verification": "Користувач не верифікований",
+    "The code is not valid": "Код неправильний",
+    "User not found": "Невірний логін або пароль",
+    "Today's sending limit reached": "Сьогоднішній ліміт надсилання досягнуто"
+}

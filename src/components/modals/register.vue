@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import Modal from '@/components/base/modal.vue'
+import VerificationForm from '@/components/VirificationForm.vue'
 import { reactive, ref } from 'vue';
 import { fetchPost } from '@/utils/fetchApi';
 import { required, email, sameAs } from '@vuelidate/validators'
@@ -10,7 +11,9 @@ import { useToast } from 'vue-toastification';
 import { useUserStore } from '@/stores/userStore';
 import Checkbox from 'primevue/checkbox';
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
+const {t} = useI18n()
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const emit = defineEmits(['openLogin'])
 const toast = useToast();
@@ -18,6 +21,7 @@ const showed = ref(false)
 const passwordHidden = ref(true)
 const repeatPasswordHidden = ref(true)
 const requiredTrue = (value: boolean) => value === true
+const needVerification = ref(false)
 const form = reactive<RegisterData>({
     username: '',
     pass: '',
@@ -57,29 +61,33 @@ const register = async () => {
     await wrapAsyncCall(async () => {
         const {data} = await fetchPost('signup', body)
         showed.value = false
-        sessionStorage.setItem("pwu_token", data.access_token);
-        sessionStorage.setItem("pwu_refresh_token", data.refresh_token);
         useUserStore().loadUser()
         resetForm()
         v$.value.$reset()
     }, 
     (e) => {
-        if (e.status === 409) {
-            toast.error("Користувач з таким email вже існує")
+        toast.error(t(e.data.msg))
+
+        if (e.status === 403) {
+            needVerification.value = true
         }
+
         return true
     }, 
     'Ви успішно зареєструвалися')
 }
+
+const onVerificationDone = () => {
+    showed.value = false
+    needVerification.value = false
+}
 defineExpose({showDia})
 </script>
 <template>
-    <Modal v-model:showed="showed">
-        <template #header>
-            <h2 class="modal__title mb-5">Реєстрація</h2>
-        </template>
+    <Modal v-model:showed="showed" @closeDia="needVerification = false">
         <template #body>
-            <form @submit.prevent="register" class="flex flex-column align-items-center">
+            <form v-if="!needVerification" @submit.prevent="register" class="flex flex-column align-items-center">
+                <h2 class="modal__title mb-5">Реєстрація</h2>
                 <div class="field w-full">
                     <label for="email" class="w-full">Ваш email</label>
                     <input 
@@ -143,6 +151,7 @@ defineExpose({showDia})
                 </div>
                 <button type="submit" class="btn btn-sm mt-3">Зареєструватися</button>
             </form>
+            <VerificationForm v-else  @verificationDone="onVerificationDone"/>
         </template>
     </Modal>
 </template>

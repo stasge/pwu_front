@@ -1,7 +1,9 @@
 import {useLoading} from "vue-loading-overlay";
 import {useToast} from "vue-toastification";
+import { useI18n } from 'vue-i18n'
 
 export function useAsyncCallWrapper() {
+    const {t} = useI18n()
     const loading = useLoading();
     const toast = useToast();
 
@@ -17,7 +19,7 @@ export function useAsyncCallWrapper() {
 
         } catch (e: any) {
             if (!errorHandler || !errorHandler(e)) {
-                toast.error("Серверна помилка")
+                toast.error(t(e.msg))
             }
         } finally {
             spinner.hide();
