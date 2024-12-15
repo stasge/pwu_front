@@ -23,7 +23,11 @@ export const useUserStore = defineStore('userStore', () => {
   const isAdmin = computed(() => user.value?.role === 1)
   const isLoggedIn = computed(() => !!user.value)
 
-  async function loadUser() {
+  async function loadUser(userData: User | null = null) {
+    if (userData) {
+      user.value = userData
+      return 
+    }
     try {
       const resp = await fetchGet('user/getUser')
       user.value = resp?.data
@@ -34,16 +38,13 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function loginUser(username: string, password: string) {
     const resp = await fetchPost("signin", { username, pass: password });
-    sessionStorage.setItem("pwu_token", resp?.data.access_token);
-    sessionStorage.setItem("pwu_refresh_token", resp?.data.refresh_token);
-    user.value = resp?.data?.user
+    user.value = resp?.data
 
     useMitt().emit('login')
   }
 
-  function logoutUser() {
-    sessionStorage.removeItem("pwu_token");
-    sessionStorage.removeItem("pwu_refresh_token");
+  async function logoutUser() {
+    await fetchGet('user/logout')
     user.value = null
     router.push({ name: 'home' })
   }

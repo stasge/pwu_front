@@ -41,9 +41,10 @@
 .play {
     position: relative;
     top: 4rem;
-
+    
     &:hover {
-        transform: translateY(-5px);
+        letter-spacing: 1px;
+        top: 3.5rem;
     }
 }
 

@@ -72,7 +72,11 @@ const verify = async () => {
     }
 
     await wrapAsyncCall(async () => {
-        await fetchPost('user/verification', {code: verificationForm.code})
+        const {data: user} = await fetchPost('user/sendCode', {code: verificationForm.code})
+        userStore.loadUser(user)
+        showed.value = false
+        needVerification.value = false
+        resetForm()
     }, 
     (e) => {
         if (e.status === 401) {

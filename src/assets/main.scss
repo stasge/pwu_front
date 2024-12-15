@@ -39,6 +39,10 @@ html {
     padding: 0 15px;
 }
 
+input[type=text] {
+    transition: all .3s;
+}
+
 h2,
 h3,
 p,
@@ -55,6 +59,7 @@ a {
 }
 
 .btn {
+    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,6 +78,7 @@ a {
     cursor: pointer;
     text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
     0px -4px 10px rgba(255,255,255,0.3);
+    transform: scale(1);
 
     &.btn-sm {
         font-family: "Roboto", sans-serif;
@@ -82,15 +88,26 @@ a {
         width: clamp(130px, 16vw, 202px);
         height: 58px;
     }
+
+    &:active {
+        transform: scale(0.9);
+    }
+
 }
 
 .p-button {
     border: none !important;
     background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%) !important;
     font-family: inherit;
+    transform: scale(1);
+    transition: all .3s !important;
 
     &:hover {
         border: none !important;
+    }
+
+    &:active {
+        transform: scale(0.9);
     }
 }
 
