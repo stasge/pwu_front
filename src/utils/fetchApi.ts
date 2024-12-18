@@ -2,14 +2,30 @@ import { ofetch } from "ofetch";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
+const refreshToken = async () => {
+    await ofetch('refresh', { baseURL, method: 'POST', credentials: 'include' });
+};
+
+const retryRequest = async (uri: string, options: any) => {
+    try {
+        return await ofetch(uri, options);
+    } catch (error: any) {
+        if (error?.response?.status === 401) {
+            await refreshToken();
+            return ofetch(uri, options);
+        }
+        throw error;
+    }
+};
 
 export const fetchPost = (uri: string, body: any) => {
-    return ofetch(uri, {
+    const options = {
         baseURL, 
         method: 'POST',
         body,
         credentials: 'include',
-    });
+    }
+    return retryRequest(uri, options)
 };
 
 export const fetchGet = (uri: string, data: any = {}) => {
@@ -19,5 +35,12 @@ export const fetchGet = (uri: string, data: any = {}) => {
             params[key] = value;
         }
     }
-    return ofetch(uri, {baseURL, method: 'GET', params, credentials: 'include',})
+
+    const options = {
+        baseURL, 
+        method: 'GET', 
+        params, 
+        credentials: 'include',
+    }
+    return retryRequest(uri, options)
 }
