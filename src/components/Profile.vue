@@ -3,6 +3,7 @@ import { useUserStore } from '@/stores/userStore';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchPost } from '@/utils/fetchApi';
 import Modal from '@/components/base/modal.vue'
+import Button from 'primevue/button';
 import { reactive, ref } from 'vue';
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
@@ -10,8 +11,10 @@ import { format } from 'date-fns';
 import { useToast } from 'vue-toastification';
 import {calculateTimeLeft} from '@/utils/dateUtils.ts'
 import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
+import ChangePhone from './modals/ChangePhone.vue';
 
 const changeGameAccPassRef = ref()
+const changePhoneRef = ref()
 
 const userStore = useUserStore()
 const { wrapAsyncCall } = useAsyncCallWrapper()
@@ -86,6 +89,31 @@ const show = () => {
             <div class="flex gap-3 mt-3 align-items-center">
                 <h3>Ваш логін:</h3>
                 <p>{{ userStore.user?.username }}</p>
+            </div>
+            <div class="flex gap-3 mt-3 align-items-center">
+                <h3>Ваш номер телефону:</h3>
+                <p>
+                    <div v-if="userStore.user?.phone" class="flex align-items-center gap-3">
+                        <span >{{ userStore.user?.phone }}</span>
+                        <Button 
+                            v-if="userStore.isAdmin" 
+                            v-tooltip="'Змінити номер телефону'" 
+                            icon="pi pi-pencil" 
+                            @click="changePhoneRef.showDia(true, userStore.user?.phone)" 
+                            class="primary"
+                        />
+                    </div>
+                    <div v-else class="flex align-items-center gap-3">
+                        <span>Відсутній</span>
+                        <Button 
+                            v-if="userStore.isAdmin" 
+                            v-tooltip="'Додати номер телефону'" 
+                            icon="pi pi-plus" 
+                            @click="changePhoneRef.showDia()" 
+                            class="success"
+                        />
+                    </div>
+                </p>
             </div>
             <div class="flex gap-3 mt-3 align-items-center">
                 <h3>Верифікація:</h3>
@@ -226,6 +254,7 @@ const show = () => {
         </template>
     </Modal>
     <ChangeGameAccPass ref="changeGameAccPassRef"/>
+    <ChangePhone ref="changePhoneRef"/>
 </template>
 <style scoped lang='scss'>
 .profile {
