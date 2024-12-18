@@ -19,7 +19,11 @@ export function useAsyncCallWrapper() {
 
         } catch (e: any) {
             if (!errorHandler || !errorHandler(e)) {
-                toast.error(t(e.msg))
+                if (e.data.msg) {
+                    toast.error(t(e.data.msg))
+                } else {
+                    toast.error('Серверна помилка')
+                }
             }
         } finally {
             spinner.hide();
