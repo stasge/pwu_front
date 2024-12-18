@@ -27,7 +27,8 @@ const form = reactive<RegisterData>({
     pass: '',
     email: '',
     repeat_pass: '',
-    rules: false
+    rules: false,
+    phone: ''
 })
 const rules = {
     username: {required},
@@ -105,6 +106,15 @@ defineExpose({showDia})
                         id="login" 
                         type="text" 
                         :class="{invalid: v$.username.$error}"
+                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                    >
+                </div>
+                <div class="field w-full">
+                    <label for="phone" class="w-full">Номер телефону</label>
+                    <input 
+                        v-model="form.phone" 
+                        id="phone" 
+                        type="text" 
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
                 </div>
