@@ -9,6 +9,7 @@ export interface User {
     role: number;
     phone: string;
     game_user: GameUser[];
+    avatar?: string;
 }
 
 export interface GameUser {
