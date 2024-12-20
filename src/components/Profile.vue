@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useUserStore } from '@/stores/userStore';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
-import { fetchPost } from '@/utils/fetchApi';
+import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import Modal from '@/components/base/modal.vue'
 import Button from 'primevue/button';
 import { reactive, ref } from 'vue';
@@ -12,9 +12,11 @@ import { useToast } from 'vue-toastification';
 import {calculateTimeLeft} from '@/utils/dateUtils.ts'
 import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
 import ChangePhone from './modals/ChangePhone.vue';
+import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 
 const changeGameAccPassRef = ref()
 const changePhoneRef = ref()
+const changeMainPasswordRef = ref()
 const filesBase = import.meta.env.VITE_FILES_URL
 
 const userStore = useUserStore()
@@ -84,6 +86,13 @@ const changeAvatar = async (event: any) => {
     }
 }
 
+const changePass = async () => {
+    await wrapAsyncCall(async () => {
+        await fetchGet('user/changePass')
+        changeMainPasswordRef.value.showDia()
+    }, null, 'На вашу пошту було надіслано лист з кодом для зміни паролю')
+}
+
 const show = () => {
     resetForm()
     showed.value = true
@@ -139,15 +148,20 @@ const show = () => {
                                     <div v-else class="flex align-items-center gap-3">
                                         <span>Відсутній</span>
                                         <Button 
-                                            v-if="userStore.isAdmin" 
                                             v-tooltip="'Додати номер телефону'" 
                                             icon="pi pi-plus" 
-                                            @click="changePhoneRef.showDia()" 
+                                            @click="changePhoneRef.showDia(true, userStore.user?.phone)" 
                                             class="success"
                                         />
                                     </div>
                                 </p>
                             </div>
+                            <Button  
+                                icon="pi pi-pencil" 
+                                @click="changePass" 
+                                class="primary mt-3"
+                                label="Змінити пароль"
+                            />
                         </div> 
                         <div>
                             <div class="flex gap-3 align-items-center">
@@ -294,6 +308,7 @@ const show = () => {
     </Modal>
     <ChangeGameAccPass ref="changeGameAccPassRef"/>
     <ChangePhone ref="changePhoneRef"/>
+    <ChangeMainPassword  ref="changeMainPasswordRef"/>
 </template>
 <style scoped lang='scss'>
 .profile {
