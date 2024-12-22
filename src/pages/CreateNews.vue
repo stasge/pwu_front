@@ -20,7 +20,7 @@ const form = reactive({
     text: '',
     link: '',
     isHidden: false,
-    image: null as File | null
+    image: null as File | null | string
 });
 
 const rules = {
@@ -80,6 +80,7 @@ const fillForm = async (id: string) => {
             form.isHidden = selected.isHidden
             form.text = selected.text
             form.title = selected.title
+            form.image = selected.image
             imageUrl.value = selected.image
         }
     }
