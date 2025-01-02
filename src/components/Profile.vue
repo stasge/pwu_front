@@ -13,10 +13,12 @@ import {calculateTimeLeft} from '@/utils/dateUtils.ts'
 import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
 import ChangePhone from './modals/ChangePhone.vue';
 import ChangeMainPassword from './modals/ChangeMainPassword.vue';
+import PromoCode from './modals/PromoCode.vue';
 
 const changeGameAccPassRef = ref()
 const changePhoneRef = ref()
 const changeMainPasswordRef = ref()
+const promoCodeRef = ref()
 const filesBase = import.meta.env.VITE_FILES_URL
 
 const userStore = useUserStore()
@@ -210,6 +212,14 @@ const show = () => {
                                 <h3>Ігрові акаунти:</h3>
                                 <p>{{ userStore.user?.game_user.length }}</p>
                             </div>
+                            <div class="flex gap-3 mt-3 align-items-center">
+                                <Button 
+                                    label="Ввести промокод" 
+                                    icon="pi pi-ticket" 
+                                    class="primary" 
+                                    @click="promoCodeRef.showDia()" 
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>  
@@ -309,6 +319,7 @@ const show = () => {
     <ChangeGameAccPass ref="changeGameAccPassRef"/>
     <ChangePhone ref="changePhoneRef"/>
     <ChangeMainPassword  ref="changeMainPasswordRef"/>
+    <PromoCode ref="promoCodeRef"/>
 </template>
 <style scoped lang='scss'>
 .profile {
