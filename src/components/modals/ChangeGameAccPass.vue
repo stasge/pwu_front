@@ -29,7 +29,7 @@ const rules = {
     pass: { required },
 }
 
-const v$ = useVuelidate(rules, form)
+const v$ = useVuelidate(rules, form, {$stopPropagation: true})
 const update = async () => {
     if (!await v$.value.$validate()) {
         return
