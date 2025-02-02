@@ -12,6 +12,7 @@ import ForumSeparateTheme from '@/pages/ForumSeparateTheme.vue'
 import ForumCreateTheme from '@/pages/ForumCreateTheme.vue'
 import CreateNews from '@/pages/CreateNews.vue'
 import SingleNews from '@/pages/SingleNews.vue'
+import Leaderboard from '@/pages/Leaderboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -71,6 +72,11 @@ const router = createRouter({
           path: '/page/single-news/:id',
           name: 'single-news',
           component: SingleNews,
+        },
+        {
+          path: '/page/leaderboard',
+          name: 'leaderboard',
+          component: Leaderboard,
         },
       ]
     },
