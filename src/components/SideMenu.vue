@@ -5,8 +5,12 @@ import { onMounted, ref } from 'vue';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import { useUserStore } from '@/stores/userStore';
+import RecoverPass from './modals/RecoverPass.vue';
+import RecoverPassCode from './modals/RecoverPassCode.vue';
 
 const loginRef = ref<InstanceType<typeof Login> | null>(null)
+const recoverRef = ref<InstanceType<typeof RecoverPass> | null>(null)
+const recoverPassCodeRef = ref<InstanceType<typeof RecoverPassCode> | null>(null)
 const registerRef = ref<InstanceType<typeof Register> | null>(null)
 const userStore = useUserStore()
 const {wrapAsyncCall} = useAsyncCallWrapper()
@@ -58,7 +62,9 @@ onMounted(async () => {
             </li>
         </ul>
     </div>
-    <Login ref="loginRef" @openRegistration="registerRef?.showDia"/>
+    <Login ref="loginRef" @openRegistration="registerRef?.showDia" @openRecoverPass="recoverRef?.showDia"/>
+    <RecoverPass ref="recoverRef" @openLogin="loginRef?.showDia" @openRecoverPassCode="recoverPassCodeRef?.showDia"/>
+    <RecoverPassCode ref="recoverPassCodeRef" />
     <Register ref="registerRef" @openLogin="loginRef?.showDia"/>
 </template>
 

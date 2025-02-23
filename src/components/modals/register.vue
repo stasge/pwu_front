@@ -87,7 +87,7 @@ defineExpose({showDia})
 <template>
     <Modal v-model:showed="showed" @closeDia="needVerification = false">
         <template #body>
-            <form v-if="!needVerification" @submit.prevent="register" class="flex flex-column align-items-center">
+            <form v-if="!needVerification" @submit.prevent="register" class="flex flex-column align-items-center w-full">
                 <h2 class="modal__title mb-5">Реєстрація</h2>
                 <div class="field w-full">
                     <label for="email" class="w-full">Ваш email</label>

@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 
 const {t} = useI18n()
-const emit = defineEmits(['openRegistration'])
+const emit = defineEmits(['openRegistration', 'openRecoverPass'])
 const toast = useToast();
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const userStore = useUserStore()
@@ -68,7 +68,7 @@ defineExpose({showDia})
 <template>
     <Modal v-model:showed="showed" @closeDia="needVerification = false">
         <template #body>
-            <form v-if="!needVerification" @submit.prevent="login" class="flex flex-column justify-content-center">
+            <form v-if="!needVerification" @submit.prevent="login" class="flex flex-column justify-content-center w-full">
                 <h2 class="modal__title mb-5">Увійти</h2>
                 <div class="field w-full">
                     <label for="login" class="w-full">Логін</label>
@@ -99,6 +99,10 @@ defineExpose({showDia})
                 <div class="flex gap-1">
                     <span>Ще не зареєструвалися?</span>
                     <span @click="emit('openRegistration'), showed = false" class="underline cursor-pointer">Зареєструватися</span>
+                </div>
+                <div class="flex gap-1 mt-2">
+                    <span>Забули пароль?</span>
+                    <span @click="emit('openRecoverPass'), showed = false" class="underline cursor-pointer">Відновити пароль</span>
                 </div>
                 <button type="submit" class="btn btn-sm mt-3 align-self-center">Увійти</button>
             </form>
