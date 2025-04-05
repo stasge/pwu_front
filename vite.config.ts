@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-                target: "http://46.33.36.151:21191",
+                target: "https://perfectworld.in.ua",
                 changeOrigin: true
             }
     }
