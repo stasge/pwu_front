@@ -62,7 +62,7 @@ const sendVerificationCode = async () => {
     @submit.prevent="verify"
     class="flex flex-column justify-content-center"
   >
-    <h2 class="text-center mb-5">
+    <h2 class="mb-5">
       На вашу пошту було відправлено код для верифікації
     </h2>
     <div class="field w-full">
@@ -75,12 +75,16 @@ const sendVerificationCode = async () => {
         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
       />
     </div>
-    <span @click="sendVerificationCode" class="underline cursor-pointer"
-      >Відправити код повторно</span
-    >
+    <p class="text-xl mb-3">
+      Якщо ви не бачите листа — перевірте папку «Спам».
+    </p>
+    <span @click="sendVerificationCode" class="underline cursor-pointer">
+      Відправити код повторно
+    </span>
     <button type="submit" class="btn btn-sm mt-3 align-self-center">
       Відправити
     </button>
+
   </form>
 </template>
 <style scoped lang="scss"></style>

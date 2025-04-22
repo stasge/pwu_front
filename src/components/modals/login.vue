@@ -50,7 +50,11 @@ const login = async () => {
         resetForm()
     }, 
     (e) => {
-        toast.error(t(e.data.msg))
+        if (e.status === 401) {
+            toast.error('Невірний логін або пароль')
+        } else {
+            toast.error(t(e.data.msg))
+        }
         if (e.status === 403) {
             needVerification.value = true
         }
