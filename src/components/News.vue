@@ -92,7 +92,7 @@ const handleScroll = () => {
                     <div class="badges__item"></div>
                 </div>
                 <h2 class="news__item-title">{{ item.title }}</h2>
-                <p class="news__item-text">{{ item.text }}</p>
+                <p class="news__item-text" v-html="item.text"></p>
                 <div class="flex gap-3">
                     <Button 
                         v-if="userStore.isAdmin" 
