@@ -106,22 +106,22 @@ const show = () => {
             <div class="profile__left w-full">
                 <h1 class="profile__title">Особистий кабінет</h1>
                 <div class="flex flex-wrap gap-6 mt-6">
-                    <div>
+                    <div class="relative">
                         <div class="profile__writer writer flex flex-column align-items-center justify-content-center gap-2">
                             <svg v-if="!userStore.user?.avatar" class="writer__avatar" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
                                 <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
                             </svg>
                             <img v-else :src="filesBase + userStore.user?.avatar" alt="#">
-                            <div class="writer__add-btn">
-                                <label for="addAvatarInput">
-                                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="11" cy="11" r="11" fill="white"/>
-                                        <path d="M11 0C4.9 0 0 4.9 0 11C0 17.1 4.9 22 11 22C17.1 22 22 17.1 22 11C22 4.9 17.1 0 11 0ZM16 13H13V16C13 17.1 12.1 18 11 18C9.9 18 9 17.1 9 16V13H6C4.9 13 4 12.1 4 11C4 9.9 4.9 9 6 9H9V6C9 4.9 9.9 4 11 4C12.1 4 13 4.9 13 6V9H16C17.1 9 18 9.9 18 11C18 12.1 17.1 13 16 13Z" fill="#E26F0F"/>
-                                    </svg>
-                                </label>
-                                <input @change="changeAvatar" id="addAvatarInput" class="hidden" type="file">
-                            </div>
+                        </div>
+                        <div class="writer__add-btn">
+                            <label for="addAvatarInput">
+                                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="11" cy="11" r="11" fill="white"/>
+                                    <path d="M11 0C4.9 0 0 4.9 0 11C0 17.1 4.9 22 11 22C17.1 22 22 17.1 22 11C22 4.9 17.1 0 11 0ZM16 13H13V16C13 17.1 12.1 18 11 18C9.9 18 9 17.1 9 16V13H6C4.9 13 4 12.1 4 11C4 9.9 4.9 9 6 9H9V6C9 4.9 9.9 4 11 4C12.1 4 13 4.9 13 6V9H16C17.1 9 18 9.9 18 11C18 12.1 17.1 13 16 13Z" fill="#E26F0F"/>
+                                </svg>
+                            </label>
+                            <input @change="changeAvatar" id="addAvatarInput" class="hidden" type="file">
                         </div>
                     </div>
                     <div class="flex gap-6">
@@ -404,15 +404,17 @@ const show = () => {
         position: absolute;
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        object-position: top;
         border-radius: 100%;
     }
     
     &__add-btn {
         position: absolute;
-        bottom: -10px;
-        left: 76%;
+        bottom: 5px;
+        left: 79%;
         transform: translateY(-55%);
+        z-index: 1;
 
         svg {
             cursor: pointer;

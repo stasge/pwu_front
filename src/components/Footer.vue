@@ -4,9 +4,9 @@
 
 <template>
     <div class="footer w-full flex flex-column align-items-center justify-content-center gap-2">
-        <p>2024 Perfect World Ukraine - Ігровий сервер</p>
-        <div class="flex gap-2">
-            <span>Усі права належать правовласникам.</span>
+        <p>2025 Perfect World Ukraine - Ігровий сервер</p>
+        <div class="flex flex-column text-center gap-2">
+            <span>Сервер є тестовим і створений для ознайомлення з грою "Perfect World", всі права належать правовласникам.</span>
             <router-link :to="{name: 'terms'}" class="underline">Користувацька угода</router-link>
         </div>
         <div class="flex align-items-center gap-3">
