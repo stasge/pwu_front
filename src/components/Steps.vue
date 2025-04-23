@@ -9,7 +9,7 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
 </script>
 
 <template>
-    <div class="join-fight mt-8">
+    <div id="steps" class="join-fight mt-8">
         <h2 class="join-fight__title">Вступи в бій</h2>
         <p class="join-fight__text mt-3">Переписуючи основи</p>
     </div>

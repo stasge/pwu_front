@@ -1,106 +1,112 @@
-import { createRouter, createWebHistory, useRouter } from 'vue-router'
-import MainView from '@/views/MainView.vue'
-import MainPage from '@/pages/MainPage.vue'
-import Profile from '@/components/Profile.vue'
-import PageView from '@/views/PageView.vue'
-import { useUserStore } from '@/stores/userStore'
-import { useToast } from 'vue-toastification'
-import Terms from '@/pages/Terms.vue'
-import Forum from '@/pages/Forum.vue'
-import ForumThemes from '@/pages/ForumThemes.vue'
-import ForumSeparateTheme from '@/pages/ForumSeparateTheme.vue'
-import ForumCreateTheme from '@/pages/ForumCreateTheme.vue'
-import CreateNews from '@/pages/CreateNews.vue'
-import SingleNews from '@/pages/SingleNews.vue'
-import Leaderboard from '@/pages/Leaderboard.vue'
+import { createRouter, createWebHistory, useRouter } from "vue-router";
+import MainView from "@/views/MainView.vue";
+import MainPage from "@/pages/MainPage.vue";
+import Profile from "@/components/Profile.vue";
+import PageView from "@/views/PageView.vue";
+import { useUserStore } from "@/stores/userStore";
+import { useToast } from "vue-toastification";
+import Terms from "@/pages/Terms.vue";
+import Forum from "@/pages/Forum.vue";
+import ForumThemes from "@/pages/ForumThemes.vue";
+import ForumSeparateTheme from "@/pages/ForumSeparateTheme.vue";
+import ForumCreateTheme from "@/pages/ForumCreateTheme.vue";
+import CreateNews from "@/pages/CreateNews.vue";
+import SingleNews from "@/pages/SingleNews.vue";
+import Leaderboard from "@/pages/Leaderboard.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  scrollBehavior (to, from, savedPosition) {
-    return {top: 0}
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: "smooth",
+      };
+    }
+    return { top: 0 };
   },
   routes: [
     {
-      path: '/',
+      path: "/",
       component: MainView,
       children: [
         {
-          path: '',
-          name: 'home',
-          component: MainPage
+          path: "",
+          name: "home",
+          component: MainPage,
         },
-      ]
+      ],
     },
     {
-      path: '/page',
+      path: "/page",
       component: PageView,
       children: [
         {
-          path: '/page/profile',
-          name: 'profile',
+          path: "/page/profile",
+          name: "profile",
           component: Profile,
-          meta: {requiresAuth: true}
+          meta: { requiresAuth: true },
         },
         {
-          path: '/page/forum',
-          name: 'forum',
+          path: "/page/forum",
+          name: "forum",
           component: Forum,
         },
         {
-          path: '/page/themes/:cat_id/:sub_id',
-          name: 'themes',
+          path: "/page/themes/:cat_id/:sub_id",
+          name: "themes",
           component: ForumThemes,
         },
         {
-          path: '/page/separate-theme/:theme_id/:cat_id',
-          name: 'separate-theme',
+          path: "/page/separate-theme/:theme_id/:cat_id",
+          name: "separate-theme",
           component: ForumSeparateTheme,
         },
         {
-          path: '/page/theme-creation/:id_main/:id?',
-          name: 'theme-creation',
+          path: "/page/theme-creation/:id_main/:id?",
+          name: "theme-creation",
           component: ForumCreateTheme,
-          meta: {requiresAuth: true}
+          meta: { requiresAuth: true },
         },
         {
-          path: '/page/news-creation/:id?',
-          name: 'news-creation',
+          path: "/page/news-creation/:id?",
+          name: "news-creation",
           component: CreateNews,
-          meta: {requiresAuth: true, onlyAdmin: true}
+          meta: { requiresAuth: true, onlyAdmin: true },
         },
         {
-          path: '/page/single-news/:id',
-          name: 'single-news',
+          path: "/page/single-news/:id",
+          name: "single-news",
           component: SingleNews,
         },
         {
-          path: '/page/leaderboard',
-          name: 'leaderboard',
+          path: "/page/leaderboard",
+          name: "leaderboard",
           component: Leaderboard,
         },
-      ]
+      ],
     },
     {
-      path: '/terms',
+      path: "/terms",
       component: Terms,
-      name: 'terms'
-    }
-  ]
-})
+      name: "terms",
+    },
+  ],
+});
 
 router.beforeEach(async (to, from) => {
-  const userStore = useUserStore()
-  const toast = useToast()
+  const userStore = useUserStore();
+  const toast = useToast();
   await userStore.loadUser();
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-    toast.error("Потрібно авторизуватися")
-    return {name: 'home'}
+    toast.error("Потрібно авторизуватися");
+    return { name: "home" };
   }
 
   if (to.meta.onlyAdmin && !userStore.isAdmin) {
-    toast.error("Недостатньо прав")
-    return {name: 'home'}
+    toast.error("Недостатньо прав");
+    return { name: "home" };
   }
-})
+});
 
-export default router
+export default router;

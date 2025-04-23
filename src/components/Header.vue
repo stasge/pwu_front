@@ -7,7 +7,7 @@
         <div class="logo flex flex-column align-self-end relative z-2">
             <img src="@/assets/images/logo.svg" alt="logo">
         </div>
-        <a class="play btn z-2">Грати</a>
+        <router-link :to="{page: '/', hash: '#steps'}" class="play btn z-2">Грати</router-link>
         <div class="blur w-full h-5rem absolute z-2"></div>
         <div class="header__chars absolute w-full h-full z-1"></div>
     </div>
