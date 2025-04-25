@@ -18,7 +18,7 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
             <h3>Реєстрація</h3>
             <p>Для подальшої гри необхідний ігровий обліковий запис</p>
         </div>
-        <a href="https://perfectworld.in.ua/files/PWUkraine.zip" target="_blank" class="steps__item">
+        <a href="http://valor.in.ua/files/PWUkraine.zip" target="_blank" class="steps__item">
             <h3>Завантаження</h3>
             <p>Завантажте ігровий клієнт зручним способом</p>
         </a>

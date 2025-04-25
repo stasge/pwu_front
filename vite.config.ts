@@ -8,8 +8,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-                target: "https://perfectworld.in.ua",
-                changeOrigin: true
+                target: "https://valor.in.ua",
+                changeOrigin: true,
             }
     }
   },

@@ -187,6 +187,7 @@ const toggleEmojiPicker = () => {
 
         * {
             width: 100%;
+            height: auto;
         }
     }
 
