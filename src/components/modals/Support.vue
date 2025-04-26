@@ -3,12 +3,9 @@ import { onMounted, ref } from "vue";
 
 const supportRef = ref();
 onMounted(() => {
-  setTimeout(() => {
-    supportRef.value.style.left = "-120px";
-  }, 20000);
   setInterval(() => {
     supportRef.value.style.left = "-120px";
-  }, 300000);
+  }, 900000);
 });
 
 const close = () => {
