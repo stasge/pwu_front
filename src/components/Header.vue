@@ -5,7 +5,7 @@
 <template>
     <div class="header flex flex-column align-items-center justify-content-center h-screen relative">
         <div class="logo flex flex-column align-self-end relative z-2">
-            <img src="@/assets/images/logo.svg" alt="logo">
+            <img src="@/assets/images/logo.png" alt="logo">
         </div>
         <router-link :to="{hash: '#steps'}" class="play btn z-2">Грати</router-link>
         <div class="blur w-full h-5rem absolute z-2"></div>

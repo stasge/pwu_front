@@ -31,11 +31,11 @@ onMounted(async () => {
     <div class="side-menu flex flex-column sticky align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
-                <span>PWU</span>
+                <span><img width="20" src="@/assets/images/ua.png" alt=""></span>
             </div>
-            <div class="server-state__content flex flex-column justify-content-center align-items-end">
-                <div class="flex flex-column align-items-start w-max">
-                    <h3>PW Ukraine - 1.3.6</h3>
+            <div class="server-state__content flex flex-column justify-content-center align-items-center">
+                <div class="flex flex-column align-items-start w-max" style="transform: translateX(20%);">
+                    <h3>Valor - 1.3.6</h3>
                     <p v-if="serverStatusCode">Статус: <span style="color: #16db65;">Online</span></p>
                     <p v-else>Статус: <span style="color: red;">Offline</span></p>
                 </div>
@@ -119,7 +119,7 @@ onMounted(async () => {
     .rhombus {
         position: absolute;
         z-index: 2;
-        padding: 27px 20px;
+        padding: 16px 22px;
         transform: rotate(45deg) translate(-8px, 2px);
         background:  linear-gradient(225deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%), linear-gradient(45deg, #3d4c60 0%, rgba(21, 26, 33, 0.34) 65.59%, rgba(0, 0, 0, 0) 100%);
 
@@ -127,6 +127,7 @@ onMounted(async () => {
             display: block;
             transform: rotate(-45deg);
             font-weight: 700;
+            line-height: 0;
         }
     }
 </style>

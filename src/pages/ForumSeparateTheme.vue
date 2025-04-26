@@ -121,7 +121,7 @@ const toggleEmojiPicker = () => {
                         <h3 class="writer__name ">{{ theme.user.username }}</h3>
                         <p class="writer__position">{{ getRoleName(theme.user.role) }}</p>
                     </div>
-                    <div class="article__content flex flex-column align-items-center gap-4 text-center flex-grow-1" :innerHTML="theme.text"></div>
+                    <div class="article__content flex flex-column align-items-center gap-4 flex-grow-1" :innerHTML="theme.text"></div>
                 </div>
                 <div class="article__comments comments flex flex-column gap-3">
                     <h2 class="mt-6 mb-4">Коментарі</h2>
@@ -188,6 +188,10 @@ const toggleEmojiPicker = () => {
         * {
             width: 100%;
             height: auto;
+        }
+
+        ::v-deep(ul, ol) {
+            padding-left: 20px;
         }
     }
 
