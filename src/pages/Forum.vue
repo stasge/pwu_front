@@ -21,7 +21,6 @@ const categories = ref<IForumCategory[]>()
 const userStore = useUserStore()
 const forumMainCatRef = ref()
 const forumSubCatRef = ref()
-const openAccordions = ref<number[]>([])
 
 onMounted(async () => {
     wrapAsyncCall(async () => {
@@ -49,13 +48,6 @@ const deleteSub = (id: number) => {
     })
 }
 
-const toggleAccordion = (categoryId: number) => {
-    if (openAccordions.value.includes(categoryId)) {
-        openAccordions.value = openAccordions.value.filter(id => id !== categoryId);
-    } else {
-        openAccordions.value.push(categoryId);
-    }
-}
 </script>
 <template>
     <div class="forum w-full">
@@ -69,7 +61,7 @@ const toggleAccordion = (categoryId: number) => {
                     @click="forumMainCatRef.showDia()" 
                     class="success"
                 />
-                <Accordion v-for="category of categories" :key="category.id" class="forum__accordion" :value="openAccordions.includes(category.id) ? category.id : null" @input="toggleAccordion(category.id)">
+                <Accordion v-for="category of categories" :key="category.id" class="forum__accordion">
                     <AccordionPanel>
                         <AccordionHeader>
                             <h2>{{ category.name }}</h2>
