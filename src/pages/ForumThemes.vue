@@ -54,6 +54,11 @@ const onPageChange = (event: { page: number, rows: number }) => {
             <div class="units__container">
                 <div class="flex flex-column align-items-center justify-content-center">
                     <h1>{{ subCategory?.name }}</h1>
+                    <nav class="breadcrumb">
+                        <RouterLink :to="{ name: 'forum' }">Головний розділ</RouterLink>
+                        <span> / </span>
+                        <span class="opacity-80">{{ subCategory?.name }}</span>
+                    </nav>
                     <div class="w-full mt-5">
                         <div class="game-acc__header">
                             <p>Заголовок</p>
@@ -155,6 +160,25 @@ const onPageChange = (event: { page: number, rows: number }) => {
         }
     }
 
+}
+.breadcrumb {
+    display: flex;
+    align-items: left;
+    gap: 5px;
+    font-size: 14px;
+    color: #fff;
+    margin-top: 10px;
+    width: 100%;
+
+    a {
+        color: #fff;
+        text-decoration: none;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
 
 </style>

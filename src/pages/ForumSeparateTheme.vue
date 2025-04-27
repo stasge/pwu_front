@@ -107,6 +107,15 @@ const toggleEmojiPicker = () => {
         <div class="article__inner">
             <div  v-if="theme" class="article__container">
                 <h1 class="article__title">{{ theme?.name }}</h1>
+                <nav class="breadcrumbs mt-3">
+                    <router-link :to="{ name: 'forum' }">Головний розділ</router-link>
+                    <span class="mx-2">/</span>
+                    <router-link :to="{ name: 'themes', params: { sub_id: theme?.id_main } }">
+                        {{ category?.topic.find(t => t.id === theme?.id_main)?.name }}
+                    </router-link>
+                    <span class="mx-2">/</span>
+                    <span class="text-sm opacity-80">{{ theme?.name }}</span>
+                </nav>
                 <small class="text-sm mt-2 block opacity-50">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
                 <div class="flex gap-3 justify-content-between mt-6 flex-wrap sm:flex-nowrap">
                     <div class="article__writer writer flex flex-column align-items-center justify-content-center gap-2 sticky align-self-start">
@@ -282,5 +291,24 @@ const toggleEmojiPicker = () => {
     }
 }
 
+.breadcrumbs {
+    display: flex;
+    align-items: left;
+    gap: 5px;
+    font-size: 14px;
+    color: #fff;
+    margin-top: 10px;
+    width: 100%;
+
+    a {
+        color: #fff;
+        text-decoration: none;
+        transition: all .3s ease-in-out;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
 
 </style>
