@@ -4,7 +4,7 @@ import { fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useRoute, useRouter } from 'vue-router';
 import InputText from 'primevue/inputtext';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter   } from 'ckeditor5';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
@@ -19,38 +19,40 @@ const form = reactive({
 });
 
 const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter  ],
-    toolbar: [ 'heading', 'bold', 'italic', 'alignment',  '|','numberedList', 'bulletedList', '|', 'undo', 'redo', 'mediaEmbed', 'imageUpload' ],
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link ],
+    toolbar: [ 'heading', 'bold', 'italic', 'alignment', '|', 'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo', 'mediaEmbed', 'imageUpload' ],
     mediaEmbed: {
        previewsInData: true
     }
-}
+};
 
 onMounted(() => {
     if (route.params.id) {
         wrapAsyncCall(async () => {
-           const {data} = await fetchPost('/forum/getTheme', {id: route.params.id})
-           form.name = data.name
-           form.text = data.text
-           form.id = data.id
-        })
+           const {data} = await fetchPost('/forum/getTheme', {id: route.params.id});
+           form.name = data.name;
+           form.text = data.text;
+           form.id = data.id;
+        });
     }
-})
+});
 
 const handleSubmit = () => {
-    const methodName = route.params.id ? '/forum/updateTheme' : '/forum/addTheme'
+    const methodName = route.params.id ? '/forum/updateTheme' : '/forum/addTheme';
     wrapAsyncCall(async () => {
-        await fetchPost(methodName, {...form, id_main: route.params.id_main});
-        form.name = form.text = ''
-        form.id_main = form.id = null
-        router.push({name: 'theme-creation'})
+        const {data: id} = await fetchPost(methodName, {...form, id_main: route.params.id_main, id: route.params.id});
+        if (!route.params.id) {
+            router.push({name: 'theme-creation', params: {id}})
+        }
+        
     }, null, route.params.id ? 'Тему успішно редаговано' : 'Тему успішно додано');
 };
 </script>
 
 <template>
     <div class="create-theme w-full">
-        <h2>Створення теми</h2>
+        <h2 v-if="!route.params.id">Створення теми</h2>
+        <h2 v-else>Рудагування теми</h2>
         <form @submit.prevent="handleSubmit" class="mt-4 flex flex-column gap-4">
             <div class="flex flex-column gap-2">
                 <label for="name">Назва</label>
@@ -85,6 +87,10 @@ const handleSubmit = () => {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+
+        ::v-deep(a) {
+            color: blue;
+        }
     }
 
     button {

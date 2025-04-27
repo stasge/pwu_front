@@ -199,6 +199,12 @@ const toggleEmojiPicker = () => {
             text-shadow: none;
             width: 100%;
             height: auto;
+            color: inherit;
+        }
+
+        ::v-deep(a) {
+            color: blue;
+            text-decoration: none;
         }
 
         ::v-deep(ul, ol) {
