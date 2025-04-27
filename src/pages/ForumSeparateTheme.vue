@@ -116,8 +116,8 @@ const toggleEmojiPicker = () => {
                     <span class="mx-2">/</span>
                     <span class="text-sm opacity-80">{{ theme?.name }}</span>
                 </nav>
-                <small class="text-sm mt-2 block opacity-50">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
-                <div class="flex gap-3 justify-content-between mt-6 flex-wrap sm:flex-nowrap">
+                <small class="text-sm mt-5 block opacity-50">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
+                <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
                     <div class="article__writer writer flex flex-column align-items-center justify-content-center gap-2 sticky align-self-start">
                         <div class="writer__avatar">
                             <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">

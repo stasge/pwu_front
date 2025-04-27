@@ -53,7 +53,7 @@ const onPageChange = (event: { page: number, rows: number }) => {
         <div class="units__inner">
             <div class="units__container">
                 <div class="flex flex-column align-items-center justify-content-center">
-                    <h1>{{ subCategory?.name }}</h1>
+                    <h1 class="w-full">{{ subCategory?.name }}</h1>
                     <nav class="breadcrumb">
                         <RouterLink :to="{ name: 'forum' }">Головний розділ</RouterLink>
                         <span> / </span>
