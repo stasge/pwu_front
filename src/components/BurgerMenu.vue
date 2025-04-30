@@ -36,7 +36,10 @@ function close() {
           <router-link :to="{ name: 'home' }">Головна</router-link>
         </li>
         <li @click="close()" class="burger-menu__item">
-          <a href="#">Про сервер</a>
+          <router-link :to="{name: 'separate-theme', params: {theme_id: 2, cat_id: 1}}">Про сервер</router-link>
+        </li>
+        <li @click="close()" class="burger-menu__item">
+            <router-link :to="{name: 'leaderboard'}">Таблиця лідерів</router-link>
         </li>
         <li v-if="userStore.isLoggedIn" @click="close()" class="burger-menu__item">
           <router-link :to="{ name: 'profile' }">Особистий кабінет</router-link>

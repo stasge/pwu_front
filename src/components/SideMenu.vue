@@ -28,7 +28,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="side-menu flex flex-column sticky align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 253px;">
+    <div class="side-menu flex flex-column sticky align-self-start z-2 w-full" style="transform: translateY(translateY);max-width: 260px;">
         <div class="server-state flex gap-5">
             <div class="rhombus">
                 <span><img width="20" src="@/assets/images/ua.png" alt=""></span>
@@ -44,6 +44,9 @@ onMounted(async () => {
         <ul class="side-menu__list flex flex-column gap-3 mt-7">
             <li class="side-menu__item">
                 <router-link :to="{name: 'home'}">Головна</router-link>
+            </li>
+            <li class="side-menu__item">
+                <router-link :to="{name: 'separate-theme', params: {theme_id: 2, cat_id: 1}}">Про сервер</router-link>
             </li>
             <li class="side-menu__item">
                 <router-link :to="{name: 'leaderboard'}">Таблиця лідерів</router-link>

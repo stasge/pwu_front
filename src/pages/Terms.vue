@@ -4,11 +4,8 @@ import Footer from "@/components/Footer.vue";
 
 <template>
   <div>
-    <router-link
-      :to="{ name: 'home' }"
-      class="fixed btn btn-sm no-underline text-xl text-white"
-      >На головну</router-link
-    >
+    <router-link :to="{ name: 'home' }" class="fixed btn btn-sm no-underline text-xl text-white">На
+      головну</router-link>
     <h1>Користувацька угода Valor</h1>
     <h3>
       Підключаючись до сервера, переглядаючи сайт та використовуючи його, ви
