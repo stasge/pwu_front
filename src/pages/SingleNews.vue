@@ -25,7 +25,7 @@ onMounted(() => {
             <div class="single-news__inner">
                 <h2 class="single-news__title mb-6 text-center">{{singleNews?.title}}</h2>
                 <img class="single-news__image w-full" :src="baseURL + '/files/' + singleNews?.image" :alt="singleNews?.title">
-                <p class="single-news__text mt-5" v-html="singleNews?.text"></p>
+                <p class="single-news__text mt-5" v-html="singleNews?.text.replace(/\n/g, '<br>')"></p>
             </div>
         </div>
     </div>
