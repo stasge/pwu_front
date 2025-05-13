@@ -100,7 +100,7 @@ defineExpose({showDia})
                     >
                 </div>
                 <div class="field w-full">
-                    <label for="login" class="w-full">Логін <span class="text-xs">(буде використовуватися на форумі)</span></label>
+                    <label for="login" class="w-full">Логін <span class="text-xs">(Важливо! Буде використовуватись на форумі як ім'я)</span></label>
                     <input 
                         v-model="form.username" 
                         id="login" 
