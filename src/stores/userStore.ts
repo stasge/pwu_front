@@ -14,6 +14,18 @@ export const useUserStore = defineStore('userStore', () => {
     {
       id: 1,
       role: 'Адміністратор'
+    },
+    {
+      id: 6,
+      role: 'Бан форума'
+    },
+    {
+      id: 7,
+      role: 'Лиходій, що прикидається адміном'
+    },
+    {
+      id: 8,
+      role: 'Повний бан'
     }
   ]
 

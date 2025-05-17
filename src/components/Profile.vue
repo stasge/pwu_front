@@ -140,7 +140,6 @@ const show = () => {
                                     <div v-if="userStore.user?.phone" class="flex align-items-center gap-3">
                                         <span >{{ userStore.user?.phone }}</span>
                                         <Button 
-                                            v-if="userStore.isAdmin" 
                                             v-tooltip="'Змінити номер телефону'" 
                                             icon="pi pi-pencil" 
                                             @click="changePhoneRef.showDia(true, userStore.user?.phone)" 

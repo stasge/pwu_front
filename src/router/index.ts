@@ -13,6 +13,7 @@ import ForumCreateTheme from "@/pages/ForumCreateTheme.vue";
 import CreateNews from "@/pages/CreateNews.vue";
 import SingleNews from "@/pages/SingleNews.vue";
 import Leaderboard from "@/pages/Leaderboard.vue";
+import AdminPanel from "@/pages/AdminPanel.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -84,6 +85,12 @@ const router = createRouter({
           name: "leaderboard",
           component: Leaderboard,
         },
+        {
+          path: "/page/admin-panel",
+          name: "admin-panel",
+          meta: { requiresAuth: true, onlyAdmin: true },
+          component: AdminPanel,
+        },
       ],
     },
     {
@@ -104,7 +111,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.meta.onlyAdmin && !userStore.isAdmin) {
-    toast.error("Недостатньо прав");
+    toast.error("Пішов геть, ти не адмін");
     return { name: "home" };
   }
 });
