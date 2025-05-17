@@ -108,6 +108,7 @@ onMounted(() => {
                     <div>{{ slotProps.index + 1 }}</div>
                 </template>
             </Column>
+            <Column field="id" header="ID"></Column>
             <Column field="email" header="Email"></Column>
             <Column field="username" header="Ім'я"></Column>
             <Column field="role" header="Роль">
