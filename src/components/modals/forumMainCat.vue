@@ -15,11 +15,13 @@ const emit = defineEmits(['mainCatCreated'])
 interface Form {
     name: string;
     id: number | null;
+    position: number;
     id_main?: number | null;
 }
 
 const form = reactive<Form>({
     name: '',
+    position: 0,
     id: null
 })
 
@@ -46,6 +48,7 @@ const showDia = (category: IForumCategory | null = null) => {
     if (category) {
         form.id = category.id
         form.name = category.name
+        form.position = category.position
     }
     isDiaShown.value = true
 }
@@ -66,10 +69,15 @@ defineExpose({
             <h2 class="modal__title mb-5">{{ form.id ? 'Редагування категорії' : 'Створення категорії' }}</h2>
         </template>
         <template #body>
-            <form @submit.prevent="createOrUpdate" class="flex flex-column justify-content-center w-full">
-                <div class="flex flex-column gap-3 w-full">
+            <form @submit.prevent="createOrUpdate" class="flex flex-column justify-content-center w-full gap-3">
+                <div class="flex flex-column gap-2 w-full">
                     <label for="name">Назва</label>
                     <input v-model="form.name" id="name" type="text" :class="{ invalid: v$.name.$error }"
+                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full">
+                </div>
+                <div class="flex flex-column gap-2 w-full">
+                    <label for="position">Позиція</label>
+                    <input v-model="form.position" id="position" type="number" :class="{ invalid: v$.name.$error }"
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full">
                 </div>
                 <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id ? 'Редагувати' : 'Створити' }}</button>

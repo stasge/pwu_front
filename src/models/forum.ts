@@ -5,6 +5,7 @@ export interface IForumCategory {
   name: string;
   created_at: string;
   edited_at: string;
+  position: number;
   topic: IForumSubCategory[];
 }
 
@@ -13,6 +14,8 @@ export interface IForumSubCategory {
   edited_at: string;
   id: number;
   id_main: number;
+  position: number;
+  type: number;
   messages: number;
   name: string;
   themes: number;

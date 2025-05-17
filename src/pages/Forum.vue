@@ -99,7 +99,7 @@ const deleteSub = (id: number) => {
                                 <div class="flex align-items-center">
                                     <RouterLink :to="{name: 'theme-creation', params: {id_main: t.id}}">
                                         <Button
-                                            v-if="userStore.isAdmin" 
+                                            v-if="userStore.isAdmin || t.type === 0" 
                                             v-tooltip="'Стврорити тему у цьому розділі'" 
                                             class="mr-2 success" 
                                             icon="pi pi-plus" 

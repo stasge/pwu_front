@@ -75,14 +75,16 @@ const onPageChange = (event: { page: number, rows: number }) => {
                                 <p>{{ theme.messages_count }}</p>
                                 <p>{{ theme.views_count }}</p>
                                 <p>{{ theme.edited_at }}</p>
-                                <div v-if="userStore.isAdmin" class="flex justify-content-end gap-2">
+                                <div  class="flex justify-content-end gap-2">
                                     <Button 
+                                        v-if="userStore.isAdmin || userStore.user?.id === theme.user_id"
                                         v-tooltip="'Редагувати тему'" 
                                         class="primary" 
                                         icon="pi pi-pencil"
                                         @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
                                     />
                                     <Button
+                                        v-if="userStore.isAdmin"
                                         v-tooltip="'Видалити тему'" 
                                         class="danger" 
                                         icon="pi pi-trash" 
