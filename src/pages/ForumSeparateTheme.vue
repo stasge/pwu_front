@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
+import Paginator from 'primevue/paginator';
 
 import { onMounted, reactive, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
@@ -27,6 +28,14 @@ const theme = ref<IForumTheme>()
 const category = ref<IForumCategory>()
 const themeId = ref(+route.params.theme_id)
 const showEmojiPicker = ref(false)
+const commetsTotal = ref(0)
+const commentsPage = ref(1)
+const commentsLimit = ref(5)
+const onPageChange = (event: { page: number, rows: number }) => {
+    commentsPage.value = event.page + 1
+    commentsLimit.value = event.rows
+    wrapAsyncCall(() => loadComments())
+}
 
 const createCommentForm = reactive({
     text: ''
@@ -42,7 +51,8 @@ onMounted(() => {
 })
 
 const loadComments = async () => {
-    const {data} = await fetchPost('/forum/getMessage', {id_theme: themeId.value, page: 1, limit: 100})
+    const {data} = await fetchPost('/forum/getMessage', {id_theme: themeId.value, page: commentsPage.value, limit: commentsLimit.value})
+    commetsTotal.value = data.total
     comments.value = data.messages
 }
 
@@ -164,6 +174,14 @@ const toggleEmojiPicker = () => {
                     <div v-else>
                         <p>Коментарі відсутні</p>
                     </div>
+                    <Paginator 
+                        v-if="comments?.length"
+                        :rows="commentsLimit" 
+                        :totalRecords="commetsTotal" 
+                        :rowsPerPageOptions="[5, 10, 20, 30]" 
+                        @page="onPageChange"
+                        class="mt-4"
+                    />
                     <div v-if="userStore.user" class="comments__textarea mt-5">
                         <h2 class="mb-3">Залишити коментар</h2>
                         <form @submit.prevent="createComment">
