@@ -5,7 +5,7 @@ import Support from './components/modals/Support.vue';
 </script>
 
 <template>
-    <Support />
+    <!-- <Support /> -->
     <RouterView />
     <ConfirmPopup></ConfirmPopup>
 </template>
