@@ -216,7 +216,7 @@ const toggleEmojiPicker = () => {
         * {
             text-shadow: none;
             height: auto;
-            max-width: 767px;
+            max-width: 100%;
             color: inherit;
         }
 
