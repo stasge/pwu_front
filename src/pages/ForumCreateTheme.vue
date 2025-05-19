@@ -32,31 +32,11 @@ const editorConfig = {
        previewsInData: true
     },
     image: {
-        resizeUnit: 'px',
+        resizeUnit: '%' as '%',
         toolbar: [
             'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
             'imageTextAlternative', '|', 'imageResize'
         ],
-        styles: [
-            'alignLeft', 'alignCenter', 'alignRight', 'inline'
-        ],
-        resizeOptions: [
-            {
-                name: 'resizeImage:original',
-                label: 'Оригінал',
-                value: null
-            },
-            {
-                name: 'resizeImage:50',
-                label: '50%',
-                value: '50'
-            },
-            {
-                name: 'resizeImage:75',
-                label: '75%',
-                value: '75'
-            }
-        ]
     }
 };
 
