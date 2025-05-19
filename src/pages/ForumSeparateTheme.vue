@@ -337,5 +337,4 @@ const toggleEmojiPicker = () => {
         }
     }
 }
-
 </style>

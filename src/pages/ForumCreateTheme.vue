@@ -4,7 +4,8 @@ import { fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useRoute, useRouter } from 'vue-router';
 import InputText from 'primevue/inputtext';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link } from 'ckeditor5';
+// Додаємо ImageResize, ImageStyle, ImageToolbar
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
@@ -19,10 +20,43 @@ const form = reactive({
 });
 
 const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link ],
-    toolbar: [ 'heading', 'bold', 'italic', 'alignment', '|', 'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo', 'mediaEmbed', 'imageUpload' ],
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    toolbar: [
+        'heading', 'bold', 'italic', 'alignment', '|',
+        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
+        'mediaEmbed', 'imageUpload', '|',
+        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+        'imageResize'
+    ],
     mediaEmbed: {
        previewsInData: true
+    },
+    image: {
+        resizeUnit: 'px',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+        styles: [
+            'alignLeft', 'alignCenter', 'alignRight', 'inline'
+        ],
+        resizeOptions: [
+            {
+                name: 'resizeImage:original',
+                label: 'Оригінал',
+                value: null
+            },
+            {
+                name: 'resizeImage:50',
+                label: '50%',
+                value: '50'
+            },
+            {
+                name: 'resizeImage:75',
+                label: '75%',
+                value: '75'
+            }
+        ]
     }
 };
 
