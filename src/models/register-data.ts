@@ -5,4 +5,5 @@ export interface RegisterData {
     repeat_pass: string;
     rules: boolean;
     phone: string;
+    name: string;
 }

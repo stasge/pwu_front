@@ -28,10 +28,13 @@ const form = reactive<RegisterData>({
     email: '',
     repeat_pass: '',
     rules: false,
-    phone: ''
+    phone: '',
+    name: '',
 })
 const rules = {
     username: {required},
+    name: {required},
+    phone: {required},
     pass: {required},
     email: {email, required},
     repeat_pass: {required, sameAs: (val: string) => val === form.pass},
@@ -46,7 +49,7 @@ function showDia() {
 }
 
 const resetForm = () => {
-    form.username = form.email = form.pass = form.repeat_pass = ''
+    form.username = form.email = form.pass = form.repeat_pass = form.phone = form.name = ''
     form.rules = false
     passwordHidden.value = repeatPasswordHidden.value = true
 }
@@ -100,7 +103,7 @@ defineExpose({showDia})
                     >
                 </div>
                 <div class="field w-full">
-                    <label for="login" class="w-full">Логін <span class="text-xs">(Важливо! Буде використовуватись на форумі як ім'я)</span></label>
+                    <label for="login" class="w-full">Логін</label>
                     <input 
                         v-model="form.username" 
                         id="login" 
@@ -108,6 +111,16 @@ defineExpose({showDia})
                         :class="{invalid: v$.username.$error}"
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
+                </div>
+                <div class="field w-full">
+                    <label for="name" class="w-full">Ім'я для форуму</label>
+                    <input 
+                        v-model="form.name" 
+                        id="name" 
+                        type="text" 
+                        :class="{invalid: v$.name.$error}"
+                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                >
                 </div>
                 <div class="field w-full">
                     <label for="phone" class="w-full">Номер телефону</label>
