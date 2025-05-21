@@ -14,6 +14,7 @@ const { confirmRemoval } = useConfirmRemoval();
 const { wrapAsyncCall } = useAsyncCallWrapper();
 const route = useRoute();
 const router = useRouter();
+
 const userStore = useUserStore();
 
 const themes = ref<IForumTheme[]>([]);
@@ -22,14 +23,13 @@ const total = ref(0);
 const currentPage = ref(1);
 const rowsPerPage = ref(5);
 
-onMounted(() => {
-    wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
-});
-
-const deleteTheme = (id: number) => {
-    wrapAsyncCall(async () => {
-        await fetchPost('/forum/deleteTheme', { id });
-        await loadThemes(currentPage.value, rowsPerPage.value);
+const syncQueryWithPagination = () => {
+    router.replace({
+        query: {
+            ...route.query,
+            page: currentPage.value,
+            limit: rowsPerPage.value,
+        },
     });
 };
 
@@ -39,6 +39,7 @@ const loadThemes = async (page = 1, rowsPerPage = 5) => {
     themes.value = data.themes;
     total.value = data.total;
     subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id);
+    syncQueryWithPagination();
 };
 
 const onPageChange = (event: { page: number, rows: number }) => {
@@ -46,6 +47,20 @@ const onPageChange = (event: { page: number, rows: number }) => {
     rowsPerPage.value = event.rows;
     wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
 };
+
+const deleteTheme = (id: number) => {
+    wrapAsyncCall(async () => {
+        await fetchPost('/forum/deleteTheme', { id });
+        await loadThemes(currentPage.value, rowsPerPage.value);
+    });
+};
+
+onMounted(() => {
+    // Встановлюємо значення з query при завантаженні
+    if (route.query.page) currentPage.value = +route.query.page;
+    if (route.query.limit) rowsPerPage.value = +route.query.limit;
+    wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
+});
 </script>
 
 <template>
@@ -95,6 +110,7 @@ const onPageChange = (event: { page: number, rows: number }) => {
                         </div>
                     </div>
                     <Paginator 
+                        v-if="total > rowsPerPage"
                         :rows="rowsPerPage" 
                         :totalRecords="total" 
                         :first="(currentPage - 1) * rowsPerPage" 

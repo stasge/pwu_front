@@ -11,11 +11,13 @@ import { truncateText } from '@/utils/text';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useUserStore } from '@/stores/userStore';
 import Paginator from 'primevue/paginator';
-
+import { useRoute, useRouter } from 'vue-router';
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
 const createThemeRef = ref()
 const userStore = useUserStore()
+const route = useRoute();
+const router = useRouter();
 
 const themes = ref<Theme[]>([])
 const state = ref<null | number>(null)
@@ -29,18 +31,29 @@ const stateOptions = [
     { label: 'Закриті', value: 1 },
 ];
 
-const getThemes = async (state: null | number = null) => {
+const syncQueryWithPagination = () => {
+    router.replace({
+        query: {
+            ...route.query,
+            page: page.value,
+            limit: limit.value,
+            state: state.value !== null ? state.value : undefined,
+        },
+    });
+};
+
+const getThemes = async (stateParam: null | number = null) => {
     const params: any = {
         limit: limit.value,
         page: page.value,
+    };
+    if (stateParam != null) {
+        params.state = stateParam;
     }
-    if (state != null) {
-        params.state = state
-    }
-    const { data: themesData } = await fetchPost('/support/getThemes', params)
-    themes.value = themesData.themes
-    total.value = themesData.total
-
+    const { data: themesData } = await fetchPost('/support/getThemes', params);
+    themes.value = themesData.themes;
+    total.value = themesData.total;
+    syncQueryWithPagination();
 };
 
 const toggleSingleState = async (id: number, state: number) => {
@@ -61,16 +74,20 @@ const onPageChange = (event: any) => {
 }
 
 onMounted(() => {
+    // Встановлюємо значення з query при завантаженні
+    if (route.query.page) page.value = +route.query.page;
+    if (route.query.limit) limit.value = +route.query.limit;
+    if (route.query.state != undefined) {
+        state.value = route.query.state === 'null' ? null : +route.query.state;
+    }
     wrapAsyncCall(async () => {
-        getThemes()
-    })
-})
+        getThemes(state.value);
+    });
+});
 
-watch(state, async (newState) => {
-    wrapAsyncCall(async () => {
-        getThemes(newState)
-    })
-})
+watch([state, page, limit], ([newState]) => {
+    getThemes(newState);
+});
 </script>
 <template>
     <div class="chat-support">
@@ -155,6 +172,7 @@ watch(state, async (newState) => {
                     </div>
                 </div>
                 <Paginator
+                    v-if="total > limit"
                     :rows="limit"
                     :totalRecords="total"
                     :rowsPerPageOptions="[5, 10, 20, 30]"

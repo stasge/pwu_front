@@ -10,6 +10,7 @@ import type { User } from '@/models/user';
 import { useUserStore } from '@/stores/userStore';
 import { format } from 'date-fns';
 import Button from 'primevue/button';
+import { useRoute, useRouter } from 'vue-router';
 const { wrapAsyncCall } = useAsyncCallWrapper();
 
 const users = ref<User[]>([]);
@@ -19,6 +20,9 @@ const page = ref(1);
 const limit = ref(10);
 const total = ref(0);
 const ifSearch = ref(false);
+
+const route = useRoute();
+const router = useRouter();
 
 const getUsers = async () => {
     const { data: usersData } = await wrapAsyncCall(() =>
@@ -78,6 +82,16 @@ const reset = () => {
     getUsers();
 };
 
+const syncQueryWithPagination = () => {
+    router.replace({
+        query: {
+            ...route.query,
+            page: page.value,
+            limit: limit.value,
+        },
+    });
+};
+
 const onPageChange = (event: { page: number, rows: number }) => {
     page.value = event.page + 1;
     limit.value = event.rows;
@@ -86,9 +100,13 @@ const onPageChange = (event: { page: number, rows: number }) => {
     } else {
         getUsers();
     }
+    syncQueryWithPagination();
 };
 
 onMounted(() => {
+    // Встановлюємо значення з query при завантаженні
+    if (route.query.page) page.value = +route.query.page;
+    if (route.query.limit) limit.value = +route.query.limit;
     getUsers();
 });
 
@@ -157,6 +175,7 @@ onMounted(() => {
                     </template>
                 </DataTable>
                 <Paginator
+                    v-if="total > limit"
                     :rows="limit"
                     :totalRecords="total"
                     :rowsPerPageOptions="[5, 10, 20, 30]"

@@ -7,7 +7,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import type { IForumCategory, IForumComment, IForumTheme } from '@/models/forum';
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { format } from 'date-fns'
 import { useUserStore } from '@/stores/userStore'
 import { useConfirm } from 'primevue/useconfirm';
@@ -17,13 +17,14 @@ import type { Emoji } from '@/models/emoji';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
+const router = useRouter()
 const {getRoleName, isAdmin} = useUserStore()
 const userStore = useUserStore()
 const confirm = useConfirm();
 const toast = useToast();
 const filesBase = import.meta.env.VITE_FILES_URL
 
-const comments = ref<IForumComment[]>()
+const comments = ref<IForumComment[]>([])
 const theme = ref<IForumTheme>()
 const category = ref<IForumCategory>()
 const themeId = ref(+route.params.theme_id)
@@ -31,16 +32,31 @@ const showEmojiPicker = ref(false)
 const commetsTotal = ref(0)
 const commentsPage = ref(1)
 const commentsLimit = ref(5)
+
+const syncQueryWithPagination = () => {
+    router.replace({
+        query: {
+            ...route.query,
+            page: commentsPage.value,
+            limit: commentsLimit.value,
+        },
+    });
+};
+
 const onPageChange = (event: { page: number, rows: number }) => {
     commentsPage.value = event.page + 1
     commentsLimit.value = event.rows
     wrapAsyncCall(() => loadComments())
+    syncQueryWithPagination();
 }
 
 const createCommentForm = reactive({
     text: ''
 })
 onMounted(() => {
+    // Встановлюємо значення з query при завантаженні
+    if (route.query.page) commentsPage.value = +route.query.page;
+    if (route.query.limit) commentsLimit.value = +route.query.limit;
     wrapAsyncCall(async () => {
         await loadComments()
         const {data: _theme} = await fetchPost('/forum/getTheme', {id: themeId.value})
@@ -175,7 +191,7 @@ const toggleEmojiPicker = () => {
                         <p>Коментарі відсутні</p>
                     </div>
                     <Paginator 
-                        v-if="comments?.length"
+                        v-if="commetsTotal > commentsLimit"
                         :rows="commentsLimit" 
                         :totalRecords="commetsTotal" 
                         :rowsPerPageOptions="[5, 10, 20, 30]" 
