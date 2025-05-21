@@ -95,72 +95,76 @@ onMounted(() => {
 </script>
 <template>
     <div class="users">
-        <h1 class="users__title mb-5 text-center">Користувачі</h1>
-        <div class="flex justify-content-start align-items-center mb-3">
-            <InputText v-model="searchUsername" placeholder="Пошук користувача" class="w-full" style="max-width: 300px"
-                @keyup.enter="searchUsers" />
-            <Button icon="pi pi-search" class="ml-2 success" @click="searchUsers" v-tooltip="'Пошук'" />
-            <Button icon="pi pi-times" class="ml-2 danger" @click="reset" v-tooltip="'Скинути фільтр'" />
-        </div>
-        <DataTable :value="users">
-            <Column header="#" style="width: 50px">
-                <template #body="slotProps">
-                    <div>{{ slotProps.index + 1 }}</div>
-                </template>
-            </Column>
-            <Column field="id" header="ID"></Column>
-            <Column field="email" header="Email"></Column>
-            <Column field="username" header="Ім'я"></Column>
-            <Column field="role" header="Роль">
-                <template #body="slotProps">
-                    <div>{{ userStore.getRoleName(slotProps.data.role) }}</div>
-                </template>
-            </Column>
-            <Column field="createdAt" header="Дата реєстрації">
-                <template #body="slotProps">
-                    <div>{{ format(slotProps.data.created_at, 'dd-MM-yyyy') }}</div>
-                </template>
-            </Column>
-            <Column header="Дія" style="width: 120px">
-                <template #body="slotProps">
-                    <div class="flex justify-content-center align-items-center gap-1">
-                        <Button 
-                            v-if="[6, 7, 8].includes(slotProps.data.role)" 
-                            icon="pi pi-unlock" 
-                            class="mr-2 success-green"
-                            @click="unbanUser(slotProps.data.id)" 
-                            v-tooltip.top="'Розблокувати користувача'" 
-                        />
-                        <Button 
-                            v-if="slotProps.data.role !== 6"
-                            icon="pi pi-ban" 
-                            class="mr-2 warning" 
-                            @click="banUser(slotProps.data.id)"
-                            v-tooltip.top="'Заблокувати користувача на форумі'" 
-                        />
-                        <Button 
-                            v-if="slotProps.data.role !== 8"
-                            icon="pi pi-times" 
-                            class="danger" 
-                            @click="fullBanUser(slotProps.data.id)"
-                            v-tooltip.top="'Повне блокування користувача'" 
-                        />
-                    </div>
-                </template>
-            </Column>
-            <template #empty>
-                <div class="text-center p-4">
-                    Немає результатів пошуку.
+        <div class="users__inner">
+            <div class="users__container">
+                <h1 class="users__title mb-5 text-center">Користувачі</h1>
+                <div class="flex justify-content-start align-items-center mb-3">
+                    <InputText v-model="searchUsername" placeholder="Пошук користувача" class="w-full" style="max-width: 300px"
+                        @keyup.enter="searchUsers" />
+                    <Button icon="pi pi-search" class="ml-2 success" @click="searchUsers" v-tooltip="'Пошук'" />
+                    <Button icon="pi pi-times" class="ml-2 danger" @click="reset" v-tooltip="'Скинути фільтр'" />
                 </div>
-            </template>
-        </DataTable>
-        <Paginator
-            :rows="limit"
-            :totalRecords="total"
-            :rowsPerPageOptions="[5, 10, 20, 30]"
-            class="mt-4"
-            @page="onPageChange"
-        />
+                <DataTable :value="users">
+                    <Column header="#" style="width: 50px">
+                        <template #body="slotProps">
+                            <div>{{ slotProps.index + 1 }}</div>
+                        </template>
+                    </Column>
+                    <Column field="id" header="ID"></Column>
+                    <Column field="email" header="Email"></Column>
+                    <Column field="username" header="Ім'я"></Column>
+                    <Column field="role" header="Роль">
+                        <template #body="slotProps">
+                            <div>{{ userStore.getRoleName(slotProps.data.role) }}</div>
+                        </template>
+                    </Column>
+                    <Column field="createdAt" header="Дата реєстрації">
+                        <template #body="slotProps">
+                            <div>{{ format(slotProps.data.created_at, 'dd-MM-yyyy') }}</div>
+                        </template>
+                    </Column>
+                    <Column header="Дія" style="width: 120px">
+                        <template #body="slotProps">
+                            <div class="flex justify-content-center align-items-center gap-1">
+                                <Button 
+                                    v-if="[6, 7, 8].includes(slotProps.data.role)" 
+                                    icon="pi pi-unlock" 
+                                    class="mr-2 success-green"
+                                    @click="unbanUser(slotProps.data.id)" 
+                                    v-tooltip.top="'Розблокувати користувача'" 
+                                />
+                                <Button 
+                                    v-if="slotProps.data.role !== 6"
+                                    icon="pi pi-ban" 
+                                    class="mr-2 warning" 
+                                    @click="banUser(slotProps.data.id)"
+                                    v-tooltip.top="'Заблокувати користувача на форумі'" 
+                                />
+                                <Button 
+                                    v-if="slotProps.data.role !== 8"
+                                    icon="pi pi-times" 
+                                    class="danger" 
+                                    @click="fullBanUser(slotProps.data.id)"
+                                    v-tooltip.top="'Повне блокування користувача'" 
+                                />
+                            </div>
+                        </template>
+                    </Column>
+                    <template #empty>
+                        <div class="text-center p-4">
+                            Немає результатів пошуку.
+                        </div>
+                    </template>
+                </DataTable>
+                <Paginator
+                    :rows="limit"
+                    :totalRecords="total"
+                    :rowsPerPageOptions="[5, 10, 20, 30]"
+                    class="mt-4"
+                    @page="onPageChange"
+                />
+            </div>
+        </div>
     </div>
 </template>
 

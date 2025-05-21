@@ -30,6 +30,7 @@ export const useUserStore = defineStore('userStore', () => {
   ]
 
   const user = ref<User | null>(null)
+  const unreadCount = ref(0)
   const router = useRouter()
 
   const isAdmin = computed(() => user.value?.role === 1)
@@ -51,6 +52,7 @@ export const useUserStore = defineStore('userStore', () => {
   async function loginUser(username: string, password: string) {
     const resp = await fetchPost("signin", { username, pass: password });
     user.value = resp?.data
+    getUnreadCount()
 
     useMitt().emit('login')
   }
@@ -58,11 +60,17 @@ export const useUserStore = defineStore('userStore', () => {
   async function logoutUser() {
     await fetchGet('user/logout')
     user.value = null
+    unreadCount.value = 0
     router.push({ name: 'home' })
   }
 
   const getRoleName = (rid: number) => {
     return roles.find(r => r.id === rid)?.role
+  }
+
+  const getUnreadCount = async () => {
+      const { data } = await fetchGet('/support/getUnread')
+      unreadCount.value = data
   }
 
   return {
@@ -72,6 +80,8 @@ export const useUserStore = defineStore('userStore', () => {
     getRoleName,
     isLoggedIn,
     user,
-    isAdmin
+    isAdmin,
+    getUnreadCount,
+    unreadCount,
   }
 })

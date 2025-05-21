@@ -14,6 +14,8 @@ import CreateNews from "@/pages/CreateNews.vue";
 import SingleNews from "@/pages/SingleNews.vue";
 import Leaderboard from "@/pages/Leaderboard.vue";
 import AdminPanel from "@/pages/AdminPanel.vue";
+import SupportChat from "@/pages/SupportChat.vue";
+import SupportChatTheme from "@/pages/SupportChatTheme.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -84,6 +86,18 @@ const router = createRouter({
           path: "/page/leaderboard",
           name: "leaderboard",
           component: Leaderboard,
+        },
+        {
+          path: "/page/support-chat",
+          name: "support-chat",
+          meta: { requiresAuth: true },
+          component: SupportChat,
+        },
+        {
+          path: "/page/support-chat-theme/:theme_id",
+          name: "support-chat-theme",
+          meta: { requiresAuth: true },
+          component: SupportChatTheme,
         },
         {
           path: "/page/admin-panel",
