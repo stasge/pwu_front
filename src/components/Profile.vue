@@ -5,7 +5,7 @@ import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import Modal from '@/components/base/modal.vue'
 import Button from 'primevue/button';
 import { reactive, ref } from 'vue';
-import { required } from '@vuelidate/validators';
+import { maxLength, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import { format } from 'date-fns';
 import { useToast } from 'vue-toastification';
@@ -33,7 +33,7 @@ const form = reactive({
 })
 
 const rules = {
-    username: {required},
+    username: {required, maxLength: maxLength(20)},
     pass: {required},
 }
 const v$ = useVuelidate(rules, form)
@@ -93,6 +93,10 @@ const changePass = async () => {
         await fetchGet('user/changePass')
         changeMainPasswordRef.value.showDia()
     }, null, 'На вашу пошту було надіслано лист з кодом для зміни паролю')
+}
+
+const removeReadonly = (event: any) => {
+    event.target.removeAttribute('readonly');
 }
 
 const show = () => {
@@ -290,25 +294,30 @@ const show = () => {
             <h2 class="modal__title mb-5">Створення ігрового акаунту</h2>
         </template>
         <template #body>
-            <form @submit.prevent="addGameUser" class="flex flex-column justify-content-center">
+            <form @submit.prevent="addGameUser" class="flex flex-column justify-content-center w-full" autocomplete="off">
                 <div class="field w-full">
-                    <label for="login" class="w-full">Логін</label>
+                    <label for="gameAccL" class="w-full">Логін</label>
                     <input 
                         v-model="form.username" 
-                        id="login" 
+                        id="gameAccL" 
                         type="text" 
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                         :class="{invalid: v$.username.$error}"
+                        autocomplete="off"
+                        readonly
+                        @focus="removeReadonly($event)"
                     >
+                    <small class="text-right block" :class="{'text-red': form.username.length > 20}">{{ form.username.length }}/20</small>
                 </div>
                 <div class="field w-full">
-                    <label for="password">Пароль</label>
+                    <label for="gameAccP">Пароль</label>
                     <input 
                         v-model="form.pass" 
-                        id="password" 
+                        id="gameAccP" 
                         :type="passwordHidden ? 'password' : 'text'" 
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                         :class="{invalid: v$.pass.$error}"
+                        autocomplete="off"
                     >
                 </div>
                 <button type="submit" class="btn btn-sm mt-3 align-self-center">Створити</button>

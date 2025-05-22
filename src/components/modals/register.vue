@@ -128,6 +128,7 @@ defineExpose({showDia})
                         v-model="form.phone" 
                         id="phone" 
                         type="text" 
+                        :class="{invalid: v$.phone.$error}"
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
                 </div>
