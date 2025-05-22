@@ -228,6 +228,7 @@ const toggleEmojiPicker = () => {
         background: #fff;
         border: 1px solid #e26f0f;
         color: black;
+        word-break: break-all;
         
         * {
             text-shadow: none;
@@ -318,6 +319,7 @@ const toggleEmojiPicker = () => {
     }
     
     &__writer {
+        text-align: center;
         border: 1px solid rgba(93, 119, 144, 0.1);
     }
     
