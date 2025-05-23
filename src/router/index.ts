@@ -16,6 +16,7 @@ import Leaderboard from "@/pages/Leaderboard.vue";
 import AdminPanel from "@/pages/AdminPanel.vue";
 import SupportChat from "@/pages/SupportChat.vue";
 import SupportChatTheme from "@/pages/SupportChatTheme.vue";
+import SupportProject from "@/pages/SupportProject.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,6 +87,11 @@ const router = createRouter({
           path: "/page/leaderboard",
           name: "leaderboard",
           component: Leaderboard,
+        },
+        {
+          path: "/page/support-project",
+          name: "support-project",
+          component: SupportProject,
         },
         {
           path: "/page/support-chat",
