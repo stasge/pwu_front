@@ -41,9 +41,9 @@ function close() {
         <li @click="close()" class="burger-menu__item">
             <router-link :to="{name: 'leaderboard'}">Таблиця лідерів</router-link>
         </li>
-        <!-- <li @click="close()" class="burger-menu__item">
+        <li @click="close()" class="burger-menu__item">
             <router-link :to="{name: 'support-project'}">Підтримка проєкту</router-link>
-        </li> -->
+        </li>
         <li v-if="userStore.isLoggedIn" @click="close()" class="burger-menu__item">
           <router-link :to="{ name: 'profile' }">Особистий кабінет</router-link>
         </li>
