@@ -67,6 +67,7 @@ const copyToClipboard = (text: string) => {
                         </p>
                     </div>
                     <h3 class="my-2">УВАГА! Обовʼязково <b> завантажте квитанцію та логін ІГРОВОГО акаунту (використовується для входу в гру) в приватні повідомлення discord адміністратору - Roman(romanhrytsiuk)</b>, щоб отримати бонус.</h3>
+                    <p class="text-center font-bold">QR код для приват24</p>
                     <img class="block" src="@/assets/images/qr-bank.png" alt="" width="300">
                     <p>Це не продаж ігрових цінностей, а вдячність за допомогу, яку ми щиро цінуємо 🙏</p>
                 </div>
