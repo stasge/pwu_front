@@ -351,6 +351,10 @@ const toggleEmojiPicker = () => {
 
     ::v-deep(.ck-editor) {
         width: clamp(300px, 70vw, 887px) !important;
+
+        @media (min-width: 1080px) {
+            width: 100% !important;
+        }
         
         @media (max-width: 768px) {
             width: 90vw !important;
