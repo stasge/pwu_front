@@ -7,17 +7,18 @@ import { onMounted, reactive, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import type { IForumCategory, IForumComment, IForumTheme } from '@/models/forum';
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { format } from 'date-fns'
 import { useUserStore } from '@/stores/userStore'
 import { useConfirm } from 'primevue/useconfirm';
 import EmojiPicker from '@/components/EmojiPicker.vue';
 import { useToast } from 'vue-toastification';
 import type { Emoji } from '@/models/emoji';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
-const router = useRouter()
 const {getRoleName, isAdmin} = useUserStore()
 const userStore = useUserStore()
 const confirm = useConfirm();
@@ -33,30 +34,37 @@ const commetsTotal = ref(0)
 const commentsPage = ref(1)
 const commentsLimit = ref(5)
 
-const syncQueryWithPagination = () => {
-    router.replace({
-        query: {
-            ...route.query,
-            page: commentsPage.value,
-            limit: commentsLimit.value,
-        },
-    });
+const editorConfig = {
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    toolbar: [
+        'heading', 'bold', 'italic', 'alignment', '|',
+        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
+        'mediaEmbed', 'imageUpload', '|',
+        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+        'imageResize'
+    ],
+    mediaEmbed: {
+       previewsInData: true
+    },
+    image: {
+        resizeUnit: '%' as '%',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+    }
 };
 
 const onPageChange = (event: { page: number, rows: number }) => {
     commentsPage.value = event.page + 1
     commentsLimit.value = event.rows
     wrapAsyncCall(() => loadComments())
-    syncQueryWithPagination();
 }
 
 const createCommentForm = reactive({
     text: ''
 })
 onMounted(() => {
-    // Встановлюємо значення з query при завантаженні
-    if (route.query.page) commentsPage.value = +route.query.page;
-    if (route.query.limit) commentsLimit.value = +route.query.limit;
     wrapAsyncCall(async () => {
         await loadComments()
         const {data: _theme} = await fetchPost('/forum/getTheme', {id: themeId.value})
@@ -144,7 +152,7 @@ const toggleEmojiPicker = () => {
                 </nav>
                 <small class="text-sm mt-5 block opacity-50">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
                 <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
-                    <div class="article__writer writer flex flex-column align-items-center justify-content-center gap-2 sticky align-self-start">
+                    <div class="article__writer writer writer_main flex flex-column align-items-center justify-content-center gap-2 sticky align-self-start">
                         <div class="writer__avatar">
                             <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">
                             <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -174,7 +182,7 @@ const toggleEmojiPicker = () => {
                             <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
                         </div>
                         <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
-                            <p>{{ comment.text }}</p>
+                            <p v-html="comment.text"></p>
                             <div class="flex justify-content-between align-items-end">
                                 <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
                                 <Button 
@@ -202,9 +210,13 @@ const toggleEmojiPicker = () => {
                         <h2 class="mb-3">Залишити коментар</h2>
                         <form @submit.prevent="createComment">
                             <div class="relative">
-                                <Textarea v-model="createCommentForm.text"  rows="5" class="w-full" />
-                                <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button>
-                                <EmojiPicker  @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker" class="emoji"/>
+                                <ckeditor
+                                    v-model="createCommentForm.text"
+                                    :editor="ClassicEditor"
+                                    :config="editorConfig"
+                                />
+                                <!-- <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button> -->
+                                <!-- <EmojiPicker  @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker" class="emoji"/> -->
                             </div>
                             <button class="btn btn-sm mt-2">Відправити</button>
                         </form>
@@ -228,7 +240,6 @@ const toggleEmojiPicker = () => {
         background: #fff;
         border: 1px solid #e26f0f;
         color: black;
-        word-break: break-all;
         
         * {
             text-shadow: none;
@@ -291,9 +302,11 @@ const toggleEmojiPicker = () => {
         min-width: auto;
     }
 
-    @media (max-width: 576px) {
-        width: 100%;
-        background: linear-gradient(180deg, #16171b 20%, rgb(39, 50, 68) 100%);
+    &_main {
+        @media (max-width: 576px) {
+            width: 100%;
+            background: linear-gradient(180deg, #16171b 20%, rgb(39, 50, 68) 100%);
+        }
     }
 
     &__avatar {
@@ -319,7 +332,6 @@ const toggleEmojiPicker = () => {
     }
     
     &__writer {
-        text-align: center;
         border: 1px solid rgba(93, 119, 144, 0.1);
     }
     
@@ -328,7 +340,25 @@ const toggleEmojiPicker = () => {
 
         * {
             text-shadow: none !important;
+            height: auto;
+            max-width: 100%;
         }
+    }
+
+    ol, ul {
+        padding-left: 20px !important;
+    }
+
+    ::v-deep(.ck-editor) {
+        width: clamp(300px, 70vw, 887px) !important;
+        
+        @media (max-width: 768px) {
+            width: 90vw !important;
+        }
+    }
+
+    ::v-deep(.ck-editor__editable) {
+        min-height: 200px;
     }
 }
 

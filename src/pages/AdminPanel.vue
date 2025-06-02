@@ -138,7 +138,7 @@ onMounted(() => {
                     </Column>
                     <Column field="createdAt" header="Дата реєстрації">
                         <template #body="slotProps">
-                            <div>{{ format(slotProps.data.created_at, 'dd-MM-yyyy') }}</div>
+                            <div>{{ format(slotProps.data.created_at, 'dd-MM-yyyy hh:mm') }}</div>
                         </template>
                     </Column>
                     <Column header="Дія" style="width: 120px">
