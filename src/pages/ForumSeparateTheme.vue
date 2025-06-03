@@ -135,6 +135,31 @@ const deleteComment = (id: number) => {
 const toggleEmojiPicker = () => {
     showEmojiPicker.value = !showEmojiPicker.value
 }
+
+const editingCommentId = ref<number|null>(null);
+const editingCommentText = ref('');
+
+const startEditComment = (comment: IForumComment) => {
+    editingCommentId.value = comment.id;
+    editingCommentText.value = comment.text;
+};
+
+const cancelEditComment = () => {
+    editingCommentId.value = null;
+    editingCommentText.value = '';
+};
+
+const saveEditComment = async (comment: IForumComment) => {
+    await wrapAsyncCall(async () => {
+        await fetchPost('/forum/updateMessage', {
+            text: editingCommentText.value,
+            id: comment.id
+        });
+        await loadComments();
+        editingCommentId.value = null;
+        editingCommentText.value = '';
+    }, null, 'Коментар відредаговано');
+};
 </script>
 <template>
     <div class="article flex-grow-1	">
@@ -177,22 +202,31 @@ const toggleEmojiPicker = () => {
                                     <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
                                 </svg>
                             </div>
-
                             <h3 class="writer__name ">{{ comment.user.username }}</h3>
                             <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
                         </div>
                         <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
-                            <p v-html="comment.text"></p>
-                            <div class="flex justify-content-between align-items-end">
-                                <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
-                                <Button 
-                                    v-if="isAdmin" 
-                                    v-tooltip="'Видалити коментар'" 
-                                    icon="pi pi-trash" 
-                                    @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" 
-                                    class="danger"
+                            <template v-if="editingCommentId === comment.id">
+                                <ckeditor
+                                    v-model="editingCommentText"
+                                    :editor="ClassicEditor"
+                                    :config="editorConfig"
                                 />
-                            </div>
+                                <div class="flex gap-2 mt-2">
+                                    <Button size="small" class="success" @click="saveEditComment(comment)">Зберегти</Button>
+                                    <Button size="small" class="danger" @click="cancelEditComment">Скасувати</Button>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <p v-html="comment.text"></p>
+                                <div class="flex justify-content-between align-items-end">
+                                    <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
+                                    <div class="flex gap-2">
+                                        <Button v-if="isAdmin || userStore.user?.id === comment.user_id" icon="pi pi-pencil" class="primary" size="small" @click="startEditComment(comment)" v-tooltip="'Редагувати коментар'" />
+                                        <Button v-if="isAdmin" v-tooltip="'Видалити коментар'" icon="pi pi-trash" @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" class="danger" />
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
                     <div v-else>
