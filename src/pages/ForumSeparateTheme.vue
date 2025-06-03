@@ -297,6 +297,8 @@ const toggleEmojiPicker = () => {
     border: 1px solid #e26f0f;  
     top: -5px;
     z-index: 1;
+    text-align: center;
+    max-width: 140px;
 
     @media (max-width: 1024px) {
         min-width: auto;
