@@ -6,6 +6,8 @@ import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const isDiaShown = ref(false)
@@ -15,6 +17,27 @@ interface Form {
     name: string;
     text: string;
 }
+
+const editorConfig = {
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    toolbar: [
+        'heading', 'bold', 'italic', 'alignment', '|',
+        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
+        'mediaEmbed', 'imageUpload', '|',
+        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+        'imageResize'
+    ],
+    mediaEmbed: {
+       previewsInData: true
+    },
+    image: {
+        resizeUnit: '%' as '%',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+    }
+};
 
 const form = reactive<Form>({
     name: '',
@@ -61,7 +84,7 @@ defineExpose({
             <h2 class="modal__title mb-5">Створення теми</h2>
         </template>
         <template #body>
-            <form @submit.prevent="create" class="flex flex-column justify-content-center w-full">
+            <form @submit.prevent="create" class="create-theme flex flex-column justify-content-center w-full">
                 <div class="field w-full">
                     <label for="name" class="w-full">Назва теми</label>
                     <input 
@@ -74,17 +97,49 @@ defineExpose({
                 </div>
                 <div class="field w-full">
                     <label for="text" class="w-full">Текст теми</label>
-                    <textarea 
-                        v-model="form.text" 
-                        id="text" 
-                        :class="{invalid: v$.text.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                        rows="5"
-                    ></textarea>
+                    <ckeditor
+                        v-model="form.text"
+                        :editor="ClassicEditor"
+                        :config="editorConfig"
+                    />
                 </div>
                 <button type="submit" class="btn btn-sm mt-3 align-self-center">Створити</button>
             </form>
         </template>
     </Modal>
 </template>
-<style scoped lang='scss'></style>
+<style scoped lang='scss'>
+.create-theme {
+    ::v-deep(.ck-editor) {
+        width: clamp(300px, 70vw, 887px) !important;
+        max-width: 100vw;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+    }
+    ::v-deep(.ck-editor__main) {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: 50vh;
+        overflow: hidden;
+    }
+    ::v-deep(.ck-editor__editable_inline) {
+        min-height: 300px;
+        max-height: 40vh;
+        overflow-y: auto !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        font-size: 1rem;
+        resize: vertical;
+        border-radius: 8px;
+        background: #fff;
+        color: #222;
+        word-break: break-word;
+    }
+}
+
+::v-deep(.modal__body) {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+</style>

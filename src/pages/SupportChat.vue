@@ -130,7 +130,7 @@ watch([state, page, limit], ([newState]) => {
                             </div>
                             <div class="flex flex-column gap-2 mt-2">
                                 <span>Текст:</span>
-                                <div class="theme__text">{{ theme.text }}</div>
+                                <div class="theme__text" v-html="truncateText(theme.text, 200)"></div>
                             </div>
                             <div v-if="theme.last" class="theme__last flex flex-column gap-2 justify-content-between mt-2">
                                 <span>Останнє повідомлення: </span>
@@ -145,7 +145,7 @@ watch([state, page, limit], ([newState]) => {
                                         <div>
                                             <span class="text-base font-bold">{{ theme.last.user.username + ': '
                                                 }}</span>
-                                            <span class="text-base">{{ truncateText(theme.last.text) }}</span>
+                                            <span class="text-base" v-html="truncateText(theme.last.text)"></span>
                                         </div>
                                         <div v-if="theme.last" class="flex justify-content-end mt-2">
                                             <span class="text-xs">{{ format(theme.last.created_at, 'dd-MM-yyyy hh:mm')
@@ -302,5 +302,6 @@ watch([state, page, limit], ([newState]) => {
     ::v-deep(.p-togglebutton.p-togglebutton-checked::before) {
         background-color: rgba(93, 119, 144, 0.2);
     }
+    
 }
 </style>

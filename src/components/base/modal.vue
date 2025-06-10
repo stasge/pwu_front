@@ -16,7 +16,7 @@ function closeModal(e: Event) {
 <template>
     <Teleport to="body">
         <div v-if="showed" @click="closeModal" class="back-mask w-screen h-screen flex align-items-center justify-content-center cursor-pointer">
-            <div ref="modalRef" class="modal py-5 px-6 flex flex-column align-items-center justify-content-between">
+            <div ref="modalRef" class="modal py-4 px-4 md:py-5 md:px-6 flex flex-column align-items-center justify-content-between">
                 <div class="absolute cursor-pointer" style="top: 20px;right: 20px;">
                     <svg @click="emit('update:showed', false), emit('closeDia')" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0.999978 1L18 19" stroke="white" stroke-width="2"/>
@@ -52,10 +52,11 @@ function closeModal(e: Event) {
     // text-shadow: 3px 0px 7px rgba(81, 67, 21, 0.8), -3px 0px 7px rgba(81, 67, 21, 0.8), 0px 4px 7px rgba(81, 67, 21, 0.8);
     border: 1px solid #2e2e2e;
     border-radius: 10px;
-    width: 500px;
+    min-width: 500px;
     cursor: default;
 
     @media (max-width: 550px) {
+        min-width: auto;
         width: 90%;
     }
 }

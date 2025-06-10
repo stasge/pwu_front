@@ -10,6 +10,8 @@ import { useUserStore } from '@/stores/userStore';
 import Textarea from 'primevue/textarea';
 import EmojiPicker from '@/components/EmojiPicker.vue';
 import type { Emoji } from '@/models/emoji';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 
 
 const userStore = useUserStore()
@@ -22,11 +24,33 @@ const page = ref(1)
 const limit = ref(10)
 const total = ref(0)
 const isLoading = ref(false)
+const theme = ref<Message|null>(null)
 
 interface Form {
     name: string;
     text: string;
 }
+
+const editorConfig = {
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    toolbar: [
+        'heading', 'bold', 'italic', 'alignment', '|',
+        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
+        'mediaEmbed', 'imageUpload', '|',
+        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+        'imageResize'
+    ],
+    mediaEmbed: {
+       previewsInData: true
+    },
+    image: {
+        resizeUnit: '%' as '%',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+    }
+};
 
 const form = reactive<Form>({
     text: '',
@@ -47,17 +71,36 @@ const getMessages = async (reload = false) => {
     if (reload) {
         page.value = 1;
     }
+    // Отримати всі теми і відфільтрувати по theme_id
+    const { data: themesData } = await fetchPost('/support/getThemes', { page: 1, limit: 100000000 });
+    const foundTheme = (themesData.themes || []).find((t: any) => t.id == route.params.theme_id);
+    theme.value = foundTheme || null;
+
     const { data: messagesData } = await fetchPost('/support/getMessages', { page: page.value, limit: limit.value, id_theme: route.params.theme_id });
     
+    let loadedMessages = reload ? messagesData.messages.reverse() : [...messagesData.messages, ...messages.value];
+    // Додаємо theme.text як перше повідомлення лише при reload і якщо theme існує
+    if (reload && theme.value && theme.value.text) {
+        loadedMessages = [
+            {
+                id: 'theme-text',
+                text: theme.value.text,
+                created_at: theme.value.created_at,
+                user: theme.value.user ? { username: theme.value.user.username, avatar: theme.value.user.avatar || null } : { username: 'Тема', avatar: null },
+                is_admin: false,
+                // ...інші поля за потреби
+            },
+            ...loadedMessages
+        ];
+    }
     if (reload) {
         page.value = 1;
-        messages.value = messagesData.messages.reverse();
+        messages.value = loadedMessages;
         total.value = messagesData.total || 0;
         markAsRead(messagesData.messages.map((message: Message) => message.id));
         nextTick(() => scrollToBottom());
     } else {
-        // Додаємо старі повідомлення на початок
-        messages.value = [...messagesData.messages, ...messages.value];
+        messages.value = loadedMessages;
         total.value = messagesData.total || 0;
         markAsRead(messagesData.messages.map((message: Message) => message.id));
         nextTick(() => {
@@ -115,6 +158,25 @@ const addEmoji = (emoji: Emoji) => {
     form.text = form.text + emoji.i
 }
 
+const fullscreenImage = ref<string | null>(null);
+
+const openImageFullscreen = (src: string) => {
+    fullscreenImage.value = src;
+    // Спроба використати Fullscreen API (опціонально)
+    nextTick(() => {
+        const el = document.getElementById('fullscreen-image-modal');
+        if (el && el.requestFullscreen) {
+            el.requestFullscreen();
+        }
+    });
+};
+const closeImageFullscreen = () => {
+    fullscreenImage.value = null;
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    }
+};
+
 </script>
 <template>
     <div class="chat-support-theme">
@@ -154,7 +216,12 @@ const addEmoji = (emoji: Emoji) => {
                                         d="M0.5 12.9999C13.9644 9.31125 21.6304 7.03946 35.5 0.5L35.5 25.1913C19.7721 16.4417 12.593 14.7101 0.5 12.9999Z"
                                         fill="white" />
                                 </svg>
-                                <p class="item__text">{{ message.text }}</p>
+                                <p class="item__text" v-html="message.text" @click="(e) => {
+                                    const t = e.target as HTMLElement;
+                                    if (t && t.tagName === 'IMG') {
+                                        openImageFullscreen((t as HTMLImageElement).src);
+                                    }
+                                }"></p>
                             </div>
                         </div>
                     </div>
@@ -163,17 +230,21 @@ const addEmoji = (emoji: Emoji) => {
                             <span>Немає повідомлень</span>
                         </div>
                     </div>
-                    <div v-if="isLoading" class="text-center my-2">
+                    <div v-if="isLoading" class="text-center text-white my-2">
                         <span>Завантаження...</span>
                     </div>
                 </div>
                 <div v-if="userStore.user" class="comments__textarea mt-5">
                     <form @submit.prevent="sendMessage">
                         <div class="relative">
-                            <Textarea v-model="form.text" rows="5" class="w-full" />
-                            <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button>
-                            <EmojiPicker @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker"
-                                class="emoji" />
+                            <ckeditor
+                                v-model="form.text"
+                                :editor="ClassicEditor"
+                                :config="editorConfig"
+                            />
+                            <!-- <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button> -->
+                            <!-- <EmojiPicker @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker"
+                                class="emoji" /> -->
                         </div>
                         <button class="btn btn-sm mt-2">Відправити</button>
                     </form>
@@ -181,6 +252,10 @@ const addEmoji = (emoji: Emoji) => {
             </div>
         </div>
 
+    </div>
+    <div v-if="fullscreenImage" id="fullscreen-image-modal" class="fullscreen-image-modal" @click.self="closeImageFullscreen">
+        <img :src="fullscreenImage" alt="image" />
+        <button class="close-btn" @click="closeImageFullscreen">×</button>
     </div>
 </template>
 <style scoped lang="scss">
@@ -263,6 +338,20 @@ const addEmoji = (emoji: Emoji) => {
             max-width: 80%;
             position: relative;
 
+            * {
+                max-width: 100%;
+                height: auto;
+            }
+
+            ::v-deep(:is(ol, ul)) {
+                margin: 0;
+                padding-left: 15px;
+            }
+
+            ::v-deep(img) {
+                cursor: zoom-in ;
+            }
+
             @media (max-width: 768px) {
                 padding: 6px;
             }
@@ -325,6 +414,63 @@ const addEmoji = (emoji: Emoji) => {
         font-size: 24px;
         cursor: pointer;
         margin-bottom: 8px;
+    }
+
+    ::v-deep(.ck-editor) {
+        width: clamp(300px, 70vw, 887px) !important;
+
+        @media (min-width: 1080px) {
+            width: 100% !important;
+        }
+        
+        @media (max-width: 768px) {
+            width: 90vw !important;
+        }
+    }
+    ::v-deep(.ck-editor__editable_inline) {
+        word-break: break-word;
+        min-height: 200px;
+    }
+
+}
+
+.fullscreen-image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: zoom-out;
+    transition: background 0.2s;
+
+    img {
+        width: 85%;
+        max-width: 95vw;
+        max-height: 90vh;
+        border-radius: 10px;
+        box-shadow: 0 0 20px #000a;
+        background: #fff;
+        cursor: default;
+    }
+    .close-btn {
+        position: absolute;
+        top: 30px;
+        right: 40px;
+        font-size: 2.5rem;
+        color: #fff;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 10001;
+        transition: color 0.2s;
+    }
+    .close-btn:hover {
+        color: #e26f0f;
     }
 }
 </style>
