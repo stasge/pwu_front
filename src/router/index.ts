@@ -17,6 +17,7 @@ import AdminPanel from "@/pages/AdminPanel.vue";
 import SupportChat from "@/pages/SupportChat.vue";
 import SupportChatTheme from "@/pages/SupportChatTheme.vue";
 import SupportProject from "@/pages/SupportProject.vue";
+import Download from "@/pages/Download.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -92,6 +93,11 @@ const router = createRouter({
           path: "/page/support-project",
           name: "support-project",
           component: SupportProject,
+        },
+        {
+          path: "/page/download",
+          name: "download-page",
+          component: Download,
         },
         {
           path: "/page/support-chat",
