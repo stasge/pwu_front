@@ -449,7 +449,7 @@ const closeImageFullscreen = () => {
     transition: background 0.2s;
 
     img {
-        width: 85%;
+        width: auto;
         max-width: 95vw;
         max-height: 90vh;
         border-radius: 10px;
