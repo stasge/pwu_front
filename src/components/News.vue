@@ -116,7 +116,7 @@ const handleScroll = () => {
 
 <style scoped lang="scss">
     .news {
-        transform: translateY(-10%);
+        // transform: translateY(-10%);
 
         &__item {
             max-width: 970px;

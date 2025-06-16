@@ -2,11 +2,15 @@
 import News from '@/components/News.vue'
 import SideMenu from '@/components/SideMenu.vue'
 import Steps from '@/components/Steps.vue'
+import TopDonators from '@/components/TopDonators.vue';
 </script>
 <template>
-    <div class="content flex gap-5 justify-content-between">
-        <News />
-        <SideMenu :translateY="'-10%'"/>
+    <div class="content">
+        <TopDonators />
+        <div class="flex flex gap-5 justify-content-between">
+            <News />
+            <SideMenu :translateY="'-10%'"/>
+        </div>
     </div>
     <Steps />
 </template>

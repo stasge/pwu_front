@@ -54,6 +54,6 @@
 .blur {
     filter: blur(15px);
     background: #1d202f;
-    bottom: -30px;
+    bottom: -50px;
 }
 </style>
