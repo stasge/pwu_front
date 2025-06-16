@@ -88,6 +88,7 @@ const donators = ref([
         margin-top: 30px;
         max-height: 48px;
         left: 0;
+        transform: translateX(-30%);
     }
 
     .donator-nick {
