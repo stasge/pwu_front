@@ -2,8 +2,16 @@
 import { ref } from 'vue';
 
 const donators = ref([
-    'Рома', 'ECMA262', 'POVEZLO', 'xUltrAx', 'PalpatinTOP',
-    'Інкогніто', ' Warriors UA', 'Інкогніто', 'Док', 'Гнів'
+    'Рома', 
+    'ECMA262', 
+    'POVEZLO', 
+    'xUltrAx', 
+    'PalpatinTOP',
+    'Інкогніто', 
+    'Warriors UA', 
+    'Док', 
+    'Інкогніто', 
+    'Admiral'
 ]);
 </script>
 <template>
