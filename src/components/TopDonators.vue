@@ -7,7 +7,7 @@ const donators = ref([
     'POVEZLO', 
     'xUltrAx', 
     'PalpatinTOP',
-    'Інкогніто', 
+    'Decim', 
     'Warriors UA', 
     'Док', 
     'Інкогніто', 
