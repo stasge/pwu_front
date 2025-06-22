@@ -400,6 +400,11 @@ const saveEditComment = async (comment: IForumComment) => {
     ::v-deep(.ck-editor__editable) {
         min-height: 200px;
     }
+
+    ::v-deep(a) {
+        color: #e26f0f;
+        text-decoration: none;
+    }
 }
 
 .breadcrumbs {

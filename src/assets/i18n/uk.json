@@ -9,5 +9,6 @@
     "The new password matches one of the previous ones": "Новий пароль збігається з попереднім",
     "You can change your password once every 3 days." : "Змінювати пароль можна раз на 3 дні.",
     "This phone is the same as the saved one": "Цей телефон такий самий, як і збережений",
-    "The promo code has already expired.": "Термін дії промокоду вже закінчився."
+    "The promo code has already expired.": "Термін дії промокоду вже закінчився.",
+    "You have reached the maximum number of accounts.": "Ви досягли максимальної кількості акаунтів."
 }

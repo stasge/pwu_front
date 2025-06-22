@@ -14,7 +14,9 @@ import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
 import ChangePhone from './modals/ChangePhone.vue';
 import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
+import { useI18n } from 'vue-i18n'
 
+const {t} = useI18n()
 const changeGameAccPassRef = ref()
 const changePhoneRef = ref()
 const changeMainPasswordRef = ref()
@@ -55,6 +57,9 @@ const addGameUser = async () => {
     (e) => {
         if (e.data.status_code === 409) {
             toast.error('Акаунт з таким логіном вже існує')
+        } else {
+            console.error(e)
+            toast.error(t(e.data.msg))
         }
         return true
     }, 'Ігровий акаунт успішно створено')
