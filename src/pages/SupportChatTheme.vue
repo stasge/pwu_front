@@ -24,7 +24,7 @@ const page = ref(1)
 const limit = ref(10)
 const total = ref(0)
 const isLoading = ref(false)
-const theme = ref<Message|null>(null)
+const theme = ref<Message | null>(null)
 
 interface Form {
     name: string;
@@ -32,7 +32,7 @@ interface Form {
 }
 
 const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    plugins: [Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar],
     toolbar: [
         'heading', 'bold', 'italic', 'alignment', '|',
         'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
@@ -41,7 +41,7 @@ const editorConfig = {
         'imageResize'
     ],
     mediaEmbed: {
-       previewsInData: true
+        previewsInData: true
     },
     image: {
         resizeUnit: '%' as '%',
@@ -77,7 +77,7 @@ const getMessages = async (reload = false) => {
     theme.value = foundTheme || null;
 
     const { data: messagesData } = await fetchPost('/support/getMessages', { page: page.value, limit: limit.value, id_theme: route.params.theme_id });
-    
+
     let loadedMessages = reload ? messagesData.messages.reverse() : [...messagesData.messages, ...messages.value];
     // Додаємо theme.text як перше повідомлення лише при reload і якщо theme існує
     if (reload && theme.value && theme.value.text) {
@@ -183,23 +183,19 @@ const closeImageFullscreen = () => {
         <div class="chat-support-theme__inner">
             <div class="chat-support-theme__container">
                 <h1 class="chat-support-theme__title">Повідомлення</h1>
-                <div
-                    class="chat-support-theme__messages messages"
-                    @scroll="handleScroll"
-                    ref="messagesContainer"
-                    style="max-height: 55vh; overflow-y: auto;"
-                >
-                    <div 
-                        v-if="messages.length"
-                        class="messages__item item" 
-                        v-for="message in messages" 
-                        :key="message.id"
-                        :class="{ 'flex-row-reverse': message.is_admin }"
-                    >
+                <div class="chat-support-theme__messages messages" @scroll="handleScroll" ref="messagesContainer"
+                    style="max-height: 55vh; overflow-y: auto;">
+                    <div v-if="messages.length" class="messages__item item" v-for="message in messages"
+                        :key="message.id" :class="{ 'flex-row-reverse': message.is_admin }">
                         <div class="item__avatar flex align-items-center justify-content-center">
-                            <svg v-if="!message.user?.avatar" class="writer__avatar" width="30" height="30" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
-                                <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
+                            <svg v-if="!message.user?.avatar" class="writer__avatar" width="30" height="30"
+                                viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z"
+                                    fill="#e26f0f" />
+                                <path
+                                    d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z"
+                                    fill="#e26f0f" />
                             </svg>
                             <img v-else :src="filesBase + message.user.avatar" alt="Avatar" />
                         </div>
@@ -207,7 +203,7 @@ const closeImageFullscreen = () => {
                             <div class="item__header">
                                 <span class="item__username">{{ message.user.username }}</span>
                                 <span class="item__date">{{ format(new Date(message.created_at), 'dd.MM.yyyy HH:mm')
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div>
                                 <svg class="item__romb" :class="{ 'reverced': message.is_admin }" width="20" height="26"
@@ -237,11 +233,7 @@ const closeImageFullscreen = () => {
                 <div v-if="userStore.user" class="comments__textarea mt-5">
                     <form @submit.prevent="sendMessage">
                         <div class="relative">
-                            <ckeditor
-                                v-model="form.text"
-                                :editor="ClassicEditor"
-                                :config="editorConfig"
-                            />
+                            <ckeditor v-model="form.text" :editor="ClassicEditor" :config="editorConfig" />
                             <!-- <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button> -->
                             <!-- <EmojiPicker @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker"
                                 class="emoji" /> -->
@@ -253,7 +245,8 @@ const closeImageFullscreen = () => {
         </div>
 
     </div>
-    <div v-if="fullscreenImage" id="fullscreen-image-modal" class="fullscreen-image-modal" @click.self="closeImageFullscreen">
+    <div v-if="fullscreenImage" id="fullscreen-image-modal" class="fullscreen-image-modal"
+        @click.self="closeImageFullscreen">
         <img :src="fullscreenImage" alt="image" />
         <button class="close-btn" @click="closeImageFullscreen">×</button>
     </div>
@@ -262,6 +255,11 @@ const closeImageFullscreen = () => {
 .chat-support-theme {
     width: 100%;
     color: #fff;
+
+    :deep(a) {
+        color: #e26f0f !important;
+        text-decoration: underline;
+    }
 
     &__title {
         font-weight: bold;
@@ -349,7 +347,7 @@ const closeImageFullscreen = () => {
             }
 
             ::v-deep(img) {
-                cursor: zoom-in ;
+                cursor: zoom-in;
             }
 
             @media (max-width: 768px) {
@@ -422,11 +420,12 @@ const closeImageFullscreen = () => {
         @media (min-width: 1080px) {
             width: 100% !important;
         }
-        
+
         @media (max-width: 768px) {
             width: 90vw !important;
         }
     }
+
     ::v-deep(.ck-editor__editable_inline) {
         word-break: break-word;
         min-height: 200px;
@@ -440,7 +439,7 @@ const closeImageFullscreen = () => {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0, 0, 0, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -457,6 +456,7 @@ const closeImageFullscreen = () => {
         background: #fff;
         cursor: default;
     }
+
     .close-btn {
         position: absolute;
         top: 30px;
@@ -469,6 +469,7 @@ const closeImageFullscreen = () => {
         z-index: 10001;
         transition: color 0.2s;
     }
+
     .close-btn:hover {
         color: #e26f0f;
     }
