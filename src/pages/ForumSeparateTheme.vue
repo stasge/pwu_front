@@ -287,8 +287,8 @@ const saveEditComment = async (comment: IForumComment) => {
             text-decoration: none;
         }
 
-        ::v-deep(ul, ol) {
-            padding-left: 20px;
+        ::v-deep(:is(ul, ol)) {
+            padding-left: 25px;
         }
     }
 
