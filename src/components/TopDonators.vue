@@ -9,10 +9,9 @@ const donators = ref([
     'AnalogowNET',
     'PalpatinTOP',
     'Док', 
-    'odfre_mage',
+    'Інкогніто',
     'xUltrAx', 
     'Admiral',
-    // 'Warriors UA'
 ]);
 </script>
 <template>
