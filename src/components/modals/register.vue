@@ -30,6 +30,7 @@ const form = reactive<RegisterData>({
     rules: false,
     phone: '',
     name: '',
+    ref: '',
 })
 const rules = {
     username: {required},
@@ -59,8 +60,11 @@ const register = async () => {
         return
     }
 
+
+
     const body = Object.assign({...form})
     delete body.repeat_pass
+    if (!body.ref) delete body.ref
 
     await wrapAsyncCall(async () => {
         const {data} = await fetchPost('signup', body)
@@ -70,11 +74,15 @@ const register = async () => {
         v$.value.$reset()
     }, 
     (e) => {
-        toast.error(t(e.data.msg))
-
+        if (typeof e.data?.msg === 'string' && e.data.msg.includes('Invalid character:')) {
+            toast.error('Реферальний код невірний');
+        } else {
+            toast.error(t(e.data.msg));
+        }
         if (e.status === 403) {
             needVerification.value = true
         }
+        
 
         return true
     }, 
@@ -121,6 +129,15 @@ defineExpose({showDia})
                         :class="{invalid: v$.name.$error}"
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                 >
+                </div>
+                <div class="field w-full">
+                    <label for="ref" class="w-full">Реферальний код (необов’язково)</label>
+                    <input 
+                        v-model="form.ref" 
+                        id="ref" 
+                        type="text" 
+                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                    >
                 </div>
                 <div class="field w-full">
                     <label for="phone" class="w-full">Номер телефону</label>

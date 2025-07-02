@@ -6,4 +6,5 @@ export interface RegisterData {
     rules: boolean;
     phone: string;
     name: string;
+    ref?: string;
 }
