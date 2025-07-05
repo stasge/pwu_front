@@ -63,7 +63,7 @@ const checkPromoCode = async () => {
     (err) => {
       toasts.error("Помилка при використанні промокоду");
       return true;
-    }
+    },
   );
 };
 
@@ -75,8 +75,9 @@ const applyPromo = async () => {
   await wrapAsyncCall(
     async () => {
       await fetchPost("user/promo", {...form});
+      toasts.success("Промокод успішно використано"); 
       closeModal();
-    }, null, 'Промокод успішно використано'
+    }
   );
 };
 
