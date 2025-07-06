@@ -25,7 +25,7 @@ function getRewardTooltip(level: number): string {
 
                 Небесний камінь - 5
                 Підземний камінь - 5
-                Камінь безсмертних - 10
+                Камінь безсмертн. - 10
                 Репутація - 50`;
     }
     if (level === 2) {
@@ -33,15 +33,15 @@ function getRewardTooltip(level: number): string {
 
                 Небесний камінь - 10
                 Підземний камінь - 10
-                Камінь безсмертних - 20
+                Камінь безсмертн. - 20
                 Репутація - 100`;
     }
     if (level === 3) {
-        return `Бездоганний/Демон (89+)
+        return `Бездоган./Демон (89+)
 
                 Небесний камінь - 20
                 Підземний камінь - 20
-                Камінь безсмертних - 40
+                Камінь безсмертн. - 40
                 Репутація - 150`;
     }
     return '';
@@ -200,15 +200,14 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                             Злий (59+)
                                             Відчужений (69+)
                                             Благочестивий (79+)
-                                            Бездоганний/Демон (89+)
+                                            Бездоган./Демон (89+)
                                         `"></i>
                                     </div>
                                 </th>
                                 <th>
                                     <div class="flex gap-1 align-items-center justify-content-center">
-                                        <span>Прогрес</span> 
+                                        <span>Прогрес</span>
                                     </div>
-                                    
                                 </th>
                             </tr>
                         </thead>
@@ -282,7 +281,34 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                 </td>
                             </tr>
                             <tr v-if="refers.length === 0">
-                                <td colspan="4" class="text-center text-secondary">Список рефералів пустий.</td>
+                                <td colspan="4" class="text-left">
+                                    <p class="text-center">Список рефералів пустий.</p><br>
+                                    За кожну людину, яка зареєструється з вашим реферальним кодом <br> і досягне відповідного статусу культивації, ви отримаєте нагороду.
+                                    <div class="flex align-items-center gap-2">
+                                        <span>Розважливий (29+): </span>
+                                        <img  
+                                            src="@/assets/images/chest-closed.png" 
+                                            width="35"
+                                            v-tooltip.top="getRewardTooltip(1)"
+                                        >
+                                    </div>
+                                    <div class="flex align-items-center gap-2">
+                                        <span>Злий (59+): </span>
+                                        <img 
+                                            src="@/assets/images/chest-closed.png" 
+                                            width="35"
+                                            v-tooltip.top="getRewardTooltip(2)"
+                                        >
+                                    </div>
+                                    <div class="flex align-items-center gap-2">
+                                        <span>Бездоганний/Демон (89+): </span>
+                                        <img  
+                                            src="@/assets/images/chest-closed.png" 
+                                            width="35"
+                                            v-tooltip.top="getRewardTooltip(3)"
+                                        >
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -427,9 +453,6 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
     }
 }
 
-.checkpoint-done {
-    // background: #4caf50;
-}
 
 .progress-line-mini {
     width: 25px;
