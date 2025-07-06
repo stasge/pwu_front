@@ -184,7 +184,7 @@ const show = () => {
                                 label="Змінити пароль"
                             />
                         </div> 
-                        <div>
+                        <div class="flex flex-column justify-content-between">
                             <div class="flex gap-3 align-items-center">
                                 <h3>Верифікація:</h3>
                                 <svg v-if="userStore.user?.is_verified" width="21" height="21" viewBox="0 0 21 21" fill="none"
