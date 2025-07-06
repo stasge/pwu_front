@@ -165,11 +165,11 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
     // Для кожного чекпоінта визначаємо межі
     let min = 0, max = 0;
     if (checkpoint === 1) {
-        min = 0; max = 4;
+        min = 0; max = 3;
     } else if (checkpoint === 2) {
-        min = 4; max = 8;
+        min = 3; max = 6;
     } else if (checkpoint === 3) {
-        min = 8; max = 12;
+        min = 6; max = 9;
     }
     if (lvl < min) return 0;
     if (lvl >= max) return 100;
@@ -190,8 +190,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                 <th>
                                     <div class="flex gap-1 align-items-center justify-content-center">
                                         <span>Культивація</span>
-                                        <i class="pi pi-question-circle" v-tooltip.top="`
-                                            Стійкий (0+)
+                                        <i class="pi pi-question-circle" v-tooltip.top="`Стійкий (0+)
                                             Допитливий (9+)
                                             Досвідчений (19+)
                                             Розважливий (29+)
@@ -218,6 +217,11 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                 <td>{{ getCultivationName(ref.lvl) }}</td>
                                 <td>
                                     <div class="progressbar-inline">
+                                        <img src="@/assets/images/start-ref.png" width="35"  alt="start">
+                                        <div class="relative">
+                                            <span class="progress-line-mini-bg"></span>
+                                            <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 1) + '%'}"></span>
+                                        </div>
                                         <span class="checkpoint-mini" :class="getStatusClass(ref.lvl1)">
                                             <img 
                                                 v-if="ref.lvl1 === 0"  
@@ -237,7 +241,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                         </span>
                                         <div class="relative">
                                             <span class="progress-line-mini-bg"></span>
-                                            <span class="progress-line-mini" :class="getStatusClass(ref.lvl1)" :style="{width: getProgressPercent(ref.lvl, 1) + '%'}"></span>
+                                            <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 2) + '%'}"></span>
                                         </div>
                                         <span class="checkpoint-mini" :class="getStatusClass(ref.lvl2)">
                                             <img 
@@ -258,7 +262,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                         </span>
                                         <div class="relative">
                                             <span class="progress-line-mini-bg"></span>
-                                            <span class="progress-line-mini" :class="getStatusClass(ref.lvl2)" :style="{width: getProgressPercent(ref.lvl, 2) + '%'}"></span>
+                                            <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 3) + '%'}"></span>
                                         </div>
                                         <span class="checkpoint-mini" :class="getStatusClass(ref.lvl3)">
                                             <img 
