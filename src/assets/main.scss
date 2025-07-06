@@ -106,6 +106,7 @@ a {
   font-family: inherit;
   transform: scale(1);
   transition: all 0.3s !important;
+  color: #fff !important;
 
   &:hover {
     border: none !important;
@@ -337,3 +338,5 @@ oembed {
   float: right;
   margin-left: 1rem;
 }
+
+
