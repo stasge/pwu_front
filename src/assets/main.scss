@@ -157,7 +157,6 @@ a {
 }
 
 .p-select,
-.p-select-list,
 .p-paginator-page-selected,
 .p-select-list-container {
   background: rgba(0, 0, 0, 0.5) !important;
@@ -168,6 +167,14 @@ a {
     color: #fff !important;
     text-shadow: none !important;
   }
+}
+
+.p-select-list {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+.p-select-overlay {
+  border: none !important;
 }
 
 .p-select:not(.p-disabled).p-focus {

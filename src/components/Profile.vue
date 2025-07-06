@@ -15,12 +15,14 @@ import ChangePhone from './modals/ChangePhone.vue';
 import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
 import { useI18n } from 'vue-i18n'
+import AllRefersModal from './modals/AllRefersModal.vue';
 
 const {t} = useI18n()
 const changeGameAccPassRef = ref()
 const changePhoneRef = ref()
 const changeMainPasswordRef = ref()
 const promoCodeRef = ref()
+const allRefersModalRef = ref()
 const filesBase = import.meta.env.VITE_FILES_URL
 
 const userStore = useUserStore()
@@ -104,6 +106,15 @@ const removeReadonly = (event: any) => {
     event.target.removeAttribute('readonly');
 }
 
+const copyReferralCode = (code: string | undefined) => {
+    if (!code) {
+        toast.error('Реферальний код відсутній')
+        return
+    }
+    navigator.clipboard.writeText(code)
+    toast.success('Реферальний код скопійовано')
+}
+
 const show = () => {
     resetForm()
     showed.value = true
@@ -135,15 +146,15 @@ const show = () => {
                     </div>
                     <div class="flex gap-6">
                         <div>
-                            <div class="flex gap-3 align-items-center">
+                            <div class="flex flex-wrap gap-3 align-items-center">
                                 <h3>Ваш email:</h3>
                                 <p>{{ userStore.user?.email }}</p>
                             </div>
-                            <div class="flex gap-3 mt-3 align-items-center">
+                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
                                 <h3>Ваш логін:</h3>
                                 <p>{{ userStore.user?.username }}</p>
                             </div>
-                            <div class="flex gap-3 mt-3 align-items-center">
+                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
                                 <h3>Ваш номер телефону:</h3>
                                 <p>
                                     <div v-if="userStore.user?.phone" class="flex align-items-center gap-3">
@@ -220,7 +231,24 @@ const show = () => {
                                 <h3>Ігрові акаунти:</h3>
                                 <p>{{ userStore.user?.game_user.length }}</p>
                             </div>
-                            <div class="flex gap-3 mt-3 align-items-center">
+                            <div v-if="userStore.user?.my_ref" class="flex flex-wrap gap-3 mt-3 align-items-center">
+                                <h3>Ваш реферальний код:</h3>
+                                <p class="flex align-items-center gap-2">
+                                    <span>{{ userStore.user?.my_ref }}</span> 
+                                    <i
+                                        @click="copyReferralCode(userStore.user?.my_ref)"
+                                        class="pi pi-copy text-xl"
+                                        style="color: #e26f0f; cursor: pointer;"
+                                    ></i>
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
+                                <Button 
+                                    label="Всі реферали" 
+                                    icon="pi pi-users" 
+                                    class="primary" 
+                                    @click="allRefersModalRef.showDia()" 
+                                />
                                 <Button 
                                     label="Ввести промокод" 
                                     icon="pi pi-ticket" 
@@ -333,11 +361,11 @@ const show = () => {
     <ChangePhone ref="changePhoneRef"/>
     <ChangeMainPassword  ref="changeMainPasswordRef"/>
     <PromoCode ref="promoCodeRef"/>
+    <AllRefersModal ref="allRefersModalRef"/>
 </template>
 <style scoped lang='scss'>
 .profile {
     color: #fff;
-    text-shadow: 3px 0px 7px rgba(81, 67, 21, 0.8), -3px 0px 7px rgba(81, 67, 21, 0.8), 0px 4px 7px rgba(81, 67, 21, 0.8);
 
     &__left,
     &__right {

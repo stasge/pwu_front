@@ -1,15 +1,28 @@
+export interface RefNameLVLModel {
+  id: number;
+  name: string;
+  lvl: number;
+  lvl1: number; // 0 – ще не досягнуто, 1 – досягнуто можна отримати, 2 – досягнуто і отримано
+  lvl2: number;
+  lvl3: number;
+}
+
 export interface User {
   id: number;
   username: string;
+  name: string;
   email: string;
-  game_id: number;
+  role: number;
+  avatar?: string;
   created_at: string;
   edited_at: string;
   is_verified: boolean;
-  role: number;
-  phone: string;
   game_user: GameUser[];
-  avatar?: string;
+  refers: RefNameLVLModel[];
+  point: number;
+  id_refer: number;
+  my_ref: string;
+  phone: string;
 }
 
 export interface GameUser {
