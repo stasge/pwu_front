@@ -242,7 +242,7 @@ const show = () => {
                                     ></i>
                                 </p>
                             </div>
-                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
+                            <div class="flex flex-wrap gap-3 mt-4 align-items-center">
                                 <Button 
                                     label="Всі реферали" 
                                     icon="pi pi-users" 
