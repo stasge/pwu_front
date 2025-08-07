@@ -175,21 +175,24 @@ const saveEditComment = async (comment: IForumComment) => {
                     <span class="mx-2">/</span>
                     <span class="opacity-80">{{ theme?.name }}</span>
                 </nav>
-                <small class="text-sm mt-5 block opacity-50">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
-                <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
-                    <div class="article__writer writer writer_main flex flex-column align-items-center justify-content-center gap-2 sticky align-self-start">
-                        <div class="writer__avatar">
-                            <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">
-                            <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
-                                <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
-                            </svg>
-                        </div>
+                <div class="article__writer writer writer_main mt-5 mb-2">
+                    <div class="writer__avatar">
+                        <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">
+                        <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
+                            <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
+                        </svg>
+                    </div>
 
+                    <div class="flex flex-column">
                         <h3 class="writer__name ">{{ theme.user.username }}</h3>
                         <p class="writer__position">{{ getRoleName(theme.user.role) }}</p>
                     </div>
-                    <div class="article__content flex flex-column flex-grow-1" :innerHTML="theme.text"></div>
+                </div>
+                <small class="text-sm block opacity-50 mb-2">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
+                
+                <div class="article__content flex flex-column flex-grow-1" :innerHTML="theme.text"></div>
+                <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
                 </div>
                 <div class="article__comments comments flex flex-column gap-3">
                     <h2 class="mt-6 mb-4">Коментарі</h2>
@@ -322,17 +325,10 @@ const saveEditComment = async (comment: IForumComment) => {
 }
 
 .writer {
-    width: fit-content;
-    height: fit-content;
-    min-width: 150px;
-    background: rgba(93, 119, 144, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #e26f0f;  
-    top: -5px;
-    z-index: 1;
-    text-align: center;
-    max-width: 140px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
 
     @media (max-width: 1024px) {
         min-width: auto;
