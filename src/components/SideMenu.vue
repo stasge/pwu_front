@@ -35,9 +35,19 @@ onMounted(async () => {
             </div>
             <div class="server-state__content flex flex-column justify-content-center align-items-center">
                 <div class="flex flex-column align-items-start w-max" style="transform: translateX(20%);">
-                    <h3>Valor - 1.3.6</h3>
-                    <p v-if="serverStatusCode">Статус: <span style="color: #16db65;">Online</span></p>
-                    <p v-else>Статус: <span style="color: red;">Offline</span></p>
+                    <h3 class="flex align-items-center gap-2">
+                        Valor - 1.3.6
+                    </h3>
+                    <div class="flex align-items-center gap-2">
+                        <div v-if="serverStatusCode" class="status-indicator online"></div>
+                        <div v-else class="status-indicator offline"></div>
+                        <span v-if="serverStatusCode" class="status-text flex align-items-center gap-1">
+                            <span>онлайн</span>
+                            <span>-</span>
+                            <span>800</span>
+                        </span>
+                        <span v-else class="status-text">офлайн</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,6 +144,52 @@ onMounted(async () => {
             transform: rotate(-45deg);
             font-weight: 700;
             line-height: 0;
+        }
+    }
+
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        
+        &.online {
+            background-color: #16db65;
+            animation: pulse-green 1.2s infinite;
+        }
+        
+        &.offline {
+            background-color: red;
+            animation: pulse-red 1.2s infinite;
+        }
+    }
+
+    .status-text {
+        color: #fff;
+        font-size: 87.5%; /* 14/16 */
+        font-weight: 400;
+    }
+
+    @keyframes pulse-green {
+        0% {
+            box-shadow: 0 0 0 0 rgba(22, 219, 101, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 8px rgba(22, 219, 101, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(22, 219, 101, 0);
+        }
+    }
+
+    @keyframes pulse-red {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 8px rgba(255, 0, 0, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
         }
     }
 </style>
