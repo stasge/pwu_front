@@ -14,7 +14,7 @@ const recoverPassCodeRef = ref<InstanceType<typeof RecoverPassCode> | null>(null
 const registerRef = ref<InstanceType<typeof Register> | null>(null)
 const userStore = useUserStore()
 const {wrapAsyncCall} = useAsyncCallWrapper()
-const serverStatusCode = ref<number>()
+const serverStatusCode = ref<{ online: boolean, count_online: number } | null>(null)
 
 const props = defineProps<{translateY: string}>()
 
@@ -39,12 +39,12 @@ onMounted(async () => {
                         Valor - 1.3.6
                     </h3>
                     <div class="flex align-items-center gap-2">
-                        <div v-if="serverStatusCode" class="status-indicator online"></div>
+                        <div v-if="serverStatusCode && serverStatusCode.online" class="status-indicator online"></div>
                         <div v-else class="status-indicator offline"></div>
-                        <span v-if="serverStatusCode" class="status-text flex align-items-center gap-1">
+                        <span v-if="serverStatusCode && serverStatusCode.online" class="status-text flex align-items-center gap-1">
                             <span>онлайн</span>
-                            <span>-</span>
-                            <span>800</span>
+                            <span>:</span>
+                            <span>{{ serverStatusCode?.count_online }}</span>
                         </span>
                         <span v-else class="status-text">офлайн</span>
                     </div>
