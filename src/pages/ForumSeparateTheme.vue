@@ -11,9 +11,12 @@ import { useRoute } from 'vue-router'
 import { format } from 'date-fns'
 import { useUserStore } from '@/stores/userStore'
 import { useConfirm } from 'primevue/useconfirm';
-import EmojiPicker from '@/components/EmojiPicker.vue';
+// old EmojiPicker removed in favor of ReactionPicker (only supported)
+import ReactionPicker from '@/components/ReactionPicker.vue';
 import { useToast } from 'vue-toastification';
 import type { Emoji } from '@/models/emoji';
+import ReactionBar from '@/components/ReactionBar.vue';
+import type { Emotion } from '@/models/emotion';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
@@ -33,6 +36,22 @@ const showEmojiPicker = ref(false)
 const commetsTotal = ref(0)
 const commentsPage = ref(1)
 const commentsLimit = ref(5)
+
+const availableEmotions = [
+    { id: 1, icon: '@/assets/images/emotions/like.svg', title: 'Подобається' },
+    { id: 2, icon: '@/assets/images/emotions/fire.svg', title: 'Вогонь' },
+    { id: 3, icon: '@/assets/images/emotions/dislike.svg', title: 'Не подобається' },
+    { id: 4, icon: '@/assets/images/emotions/finger-up.svg', title: 'Підтримую' },
+    { id: 5, icon: '@/assets/images/emotions/finger-down.svg', title: 'Не підтримую' },
+    { id: 6, icon: '@/assets/images/emotions/cry.svg', title: 'Плачу' },
+    { id: 7, icon: '@/assets/images/emotions/angry.svg', title: 'Злість' },
+]
+
+const REACTION_ENDPOINT = '/forum/addEmotion' // backend endpoint
+const REMOVE_REACTION_ENDPOINT = '/forum/removeEmotion'
+
+const showThemeEmojiPicker = ref(false)
+const openCommentPickerId = ref<number | null>(null)
 
 const editorConfig = {
     plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
@@ -121,19 +140,11 @@ const confirmRemoval = (event: Event, id: number, message: string, action: (id: 
     });
 }
 
-const addEmoji = (emoji: Emoji) => {
-    createCommentForm.text = createCommentForm.text + emoji.i
-}
-
 const deleteComment = (id: number) => {
     wrapAsyncCall(async () => {
         await fetchPost('/forum/deleteMessage', {id})
         await loadComments()
     })
-}
-
-const toggleEmojiPicker = () => {
-    showEmojiPicker.value = !showEmojiPicker.value
 }
 
 const editingCommentId = ref<number|null>(null);
@@ -160,6 +171,75 @@ const saveEditComment = async (comment: IForumComment) => {
         editingCommentText.value = '';
     }, null, 'Коментар відредаговано');
 };
+
+async function sendReaction(type_mess: 0 | 1, id_message: number, idEmotion: number) {
+    // API expects: { id_message: Long, id_emotion: Long, type_mess: int } where 0 – коментар, 1 – тема
+    await fetchPost(REACTION_ENDPOINT, { id_message, id_emotion: idEmotion, type_mess })
+}
+
+async function removeReaction(type_mess: 0 | 1, id_message: number) {
+    // API expects: { id_message: Long, type_mess: int } where 0 – коментар, 1 – тема
+    await fetchPost(REMOVE_REACTION_ENDPOINT, { id_message, type_mess })
+}
+
+async function onToggleTheme(idEmotion: number, isActive: boolean) {
+    if (!userStore.user?.id) {
+        toast.error('Потрібно авторизуватися')
+        return
+    }
+    if (!theme.value) return
+    // toggle: remove if active by me, otherwise add
+    if (isActive) {
+        await removeReaction(1, themeId.value)
+    } else {
+        await sendReaction(1, themeId.value, idEmotion)
+    }
+    const { data: _theme } = await fetchPost('/forum/getTheme', { id: themeId.value })
+    theme.value = _theme
+}
+
+async function onSelectTheme(idEmotion: number) {
+    // selecting from picker always adds
+    await sendReaction(1, themeId.value, idEmotion)
+    const { data: _theme } = await fetchPost('/forum/getTheme', { id: themeId.value })
+    theme.value = _theme
+}
+
+async function onToggleComment(comment: IForumComment, idEmotion: number, isActive: boolean) {
+    if (!userStore.user?.id) {
+        toast.error('Потрібно авторизуватися')
+        return
+    }
+    if (isActive) {
+        await removeReaction(0, comment.id)
+    } else {
+        await sendReaction(0, comment.id, idEmotion)
+    }
+    await loadComments()
+}
+
+async function onSelectComment(comment: IForumComment, idEmotion: number) {
+    await sendReaction(0, comment.id, idEmotion)
+    await loadComments()
+}
+
+function onOpenThemePicker() {
+    showThemeEmojiPicker.value = !showThemeEmojiPicker.value
+}
+
+function onOpenCommentPicker(commentId: number) {
+    openCommentPickerId.value = openCommentPickerId.value === commentId ? null : commentId
+}
+
+function onThemeEmojiPicked(idEmotion: number) {
+    onSelectTheme(idEmotion)
+    showThemeEmojiPicker.value = false
+}
+
+function onCommentEmojiPicked(comment: IForumComment, idEmotion: number) {
+    onSelectComment(comment, idEmotion)
+    openCommentPickerId.value = null
+}
 </script>
 <template>
     <div class="article flex-grow-1	">
@@ -192,11 +272,30 @@ const saveEditComment = async (comment: IForumComment) => {
                 <small class="text-sm block opacity-50 mb-2">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
                 
                 <div class="article__content flex flex-column flex-grow-1" :innerHTML="theme.text"></div>
+                <div class="mt-2">
+                    <ReactionBar
+                        v-if="theme"
+                        :emotions="theme.emotion"
+                        :availableEmotions="availableEmotions"
+                        @toggle="({ idEmotion, isActive }) => onToggleTheme(idEmotion, isActive)"
+                        @selectNew="({ idEmotion }) => onSelectTheme(idEmotion)"
+                        @openPicker="onOpenThemePicker"
+                    >
+                        <template #picker>
+                            <ReactionPicker
+                                v-if="showThemeEmojiPicker"
+                                :options="availableEmotions"
+                            @select="onThemeEmojiPicked"
+                            />
+                        </template>
+                    </ReactionBar>
+                </div>
                 <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
                 </div>
                 <div class="article__comments comments flex flex-column gap-3">
                     <h2 class="mt-6 mb-4">Коментарі</h2>
-                    <div v-if="comments?.length" v-for="comment of comments" class="comments__item flex">
+                    <div v-if="comments?.length" v-for="comment of comments">
+                        <div  class="comments__item flex">
                         <div class="comments__writer writer flex flex-column align-items-center justify-content-center gap-2">
                             <div class="writer__avatar">
                                 <img v-if="comment.user.avatar" :src="filesBase + comment.user.avatar" alt="">
@@ -224,14 +323,33 @@ const saveEditComment = async (comment: IForumComment) => {
                                 <p v-html="comment.text"></p>
                                 <div class="flex justify-content-between align-items-end">
                                     <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 align-items-center">
+                                        
                                         <Button v-if="isAdmin || userStore.user?.id === comment.user_id" icon="pi pi-pencil" class="primary" size="small" @click="startEditComment(comment)" v-tooltip="'Редагувати коментар'" />
                                         <Button v-if="isAdmin" v-tooltip="'Видалити коментар'" icon="pi pi-trash" @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" class="danger" />
                                     </div>
                                 </div>
                             </template>
                         </div>
+                        
                     </div>
+                        <ReactionBar
+                            :emotions="comment.emotion"
+                            :availableEmotions="availableEmotions"
+                            @toggle="({ idEmotion, isActive }) => onToggleComment(comment, idEmotion, isActive)"
+                            @selectNew="({ idEmotion }) => onSelectComment(comment, idEmotion)"
+                            @openPicker="() => onOpenCommentPicker(comment.id)"
+                        >
+                            <template #picker>
+                                <ReactionPicker
+                                    v-if="openCommentPickerId === comment.id"
+                                    :options="availableEmotions"
+                                    @select="(id:number) => onCommentEmojiPicked(comment, id)"
+                                />
+                            </template>
+                        </ReactionBar>
+                    </div>
+                    
                     <div v-else>
                         <p>Коментарі відсутні</p>
                     </div>
@@ -364,6 +482,7 @@ const saveEditComment = async (comment: IForumComment) => {
     }
     
     &__writer {
+        padding: 10px;
         border: 1px solid rgba(93, 119, 144, 0.1);
     }
     

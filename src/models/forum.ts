@@ -1,4 +1,5 @@
 import type { User } from "./user";
+import type { Emotion } from "./emotion";
 
 export interface IForumCategory {
   id: number;
@@ -43,6 +44,7 @@ export interface IForumTheme {
   views_count: number;
   created_at: string;
   edited_at: string;
+  emotion?: Emotion[];
 }
 
 export interface IForumComment {
@@ -53,5 +55,6 @@ export interface IForumComment {
   user: User;
   created_at: string;
   edited_at: string;
+  emotion?: Emotion[];
 }
 
