@@ -121,9 +121,11 @@ function resolveIcon(icon: string): string | null {
   padding: 5px 10px;
   border-radius: 10px;
   
-  &:hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
       transition: background .15s;
-    background: rgba($color: #000000, $alpha: 0.4);
+      background: rgba($color: #000000, $alpha: 0.4);
+    }
   }
 }
 
