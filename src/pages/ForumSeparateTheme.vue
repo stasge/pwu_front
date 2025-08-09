@@ -38,13 +38,53 @@ const commentsPage = ref(1)
 const commentsLimit = ref(5)
 
 const availableEmotions = [
-    { id: 1, icon: '@/assets/images/emotions/like.svg', title: 'Подобається' },
-    { id: 2, icon: '@/assets/images/emotions/fire.svg', title: 'Вогонь' },
-    { id: 3, icon: '@/assets/images/emotions/dislike.svg', title: 'Не подобається' },
-    { id: 4, icon: '@/assets/images/emotions/finger-up.svg', title: 'Підтримую' },
-    { id: 5, icon: '@/assets/images/emotions/finger-down.svg', title: 'Не підтримую' },
-    { id: 6, icon: '@/assets/images/emotions/cry.svg', title: 'Плачу' },
-    { id: 7, icon: '@/assets/images/emotions/angry.svg', title: 'Злість' },
+    // Новий повний список PNG-іконок зі скріна (SVG видалено)
+    { id: 1,  icon: '@/assets/emotions/+1.png',                              title: '+1' },
+    { id: 2,  icon: '@/assets/emotions/-1.png',                              title: '-1' },
+    { id: 3,  icon: '@/assets/emotions/alien.png',                           title: 'Прибулець' },
+    { id: 4,  icon: '@/assets/emotions/blue_heart.png',                      title: 'Синє серце' },
+    { id: 5,  icon: '@/assets/emotions/broken_heart.png',                    title: 'Розбите серце' },
+    { id: 6,  icon: '@/assets/emotions/clown_face.png',                      title: 'Клоун' },
+    { id: 7,  icon: '@/assets/emotions/cry.png',                             title: 'Плачу' },
+    { id: 8,  icon: '@/assets/emotions/crying_cat_face.png',                 title: 'Кіт плаче' },
+    { id: 9,  icon: '@/assets/emotions/exploding_head.png',                  title: 'Вибух мозку' },
+    { id: 10, icon: '@/assets/emotions/expressionless.png',                  title: 'Беземоційний' },
+    { id: 11, icon: '@/assets/emotions/eyes.png',                            title: 'Очі' },
+    { id: 12, icon: '@/assets/emotions/face_vomiting.png',                   title: 'Нудить' },
+    { id: 13, icon: '@/assets/emotions/face_with_raised_eyebrow.png',        title: 'Піднята брова' },
+    { id: 14, icon: '@/assets/emotions/face_with_symbols_on_mouth.png',      title: 'Лайка' },
+    { id: 15, icon: '@/assets/emotions/flag-ua.png',                          title: 'Прапор України' },
+    { id: 16, icon: '@/assets/emotions/flushed.png',                         title: 'Збентеження' },
+    { id: 17, icon: '@/assets/emotions/ghost.png',                           title: 'Привид' },
+    { id: 18, icon: '@/assets/emotions/grin.png',                            title: 'Усмішка' },
+    { id: 19, icon: '@/assets/emotions/grinning.png',                        title: 'Широка усмішка' },
+    { id: 20, icon: '@/assets/emotions/handshake.png',                       title: 'Рукостискання' },
+    { id: 21, icon: '@/assets/emotions/hear_no_evil.png',                    title: 'Не чую зла' },
+    { id: 22, icon: '@/assets/emotions/heart.png',                           title: 'Серце' },
+    { id: 23, icon: '@/assets/emotions/heart_eyes.png',                      title: 'Закоханий' },
+    { id: 24, icon: '@/assets/emotions/heart_eyes_cat.png',                  title: 'Кіт закоханий' },
+    { id: 25, icon: '@/assets/emotions/hugging_face.png',                    title: 'Обійми' },
+    { id: 26, icon: '@/assets/emotions/joy.png',                             title: 'Радість' },
+    { id: 27, icon: '@/assets/emotions/joy_cat.png',                         title: 'Кіт радіє' },
+    { id: 28, icon: '@/assets/emotions/kiss.png',                            title: 'Поцілунок' },
+    { id: 29, icon: '@/assets/emotions/neutral_face.png',                    title: 'Нейтральне обличчя' },
+    { id: 30, icon: '@/assets/emotions/ok_hand.png',                         title: 'ОК' },
+    { id: 31, icon: '@/assets/emotions/pray.png',                            title: 'Молитва' },
+    { id: 32, icon: '@/assets/emotions/rage.png',                            title: 'Лють' },
+    { id: 33, icon: '@/assets/emotions/relieved.png',                        title: 'Полегшення' },
+    { id: 34, icon: '@/assets/emotions/rolling_on_the_floor_laughing.png',   title: 'Катаюсь від сміху' },
+    { id: 35, icon: '@/assets/emotions/see_no_evil.png',                     title: 'Не бачу зла' },
+    { id: 36, icon: '@/assets/emotions/smiling_imp.png',                     title: 'Усміх з ріжками' },
+    { id: 37, icon: '@/assets/emotions/smirk.png',                           title: 'Самовдоволена усмішка' },
+    { id: 38, icon: '@/assets/emotions/sob.png',                             title: 'Ридаю' },
+    { id: 39, icon: '@/assets/emotions/speak_no_evil.png',                   title: 'Не говорю зла' },
+    { id: 40, icon: '@/assets/emotions/sunglasses.png',                      title: 'Круто' },
+    { id: 41, icon: '@/assets/emotions/sweat_smile.png',                     title: 'Незручний усміх' },
+    { id: 42, icon: '@/assets/emotions/thinking_face.png',                   title: 'Думаю' },
+    { id: 43, icon: '@/assets/emotions/wink.png',                            title: 'Підморгування' },
+    { id: 44, icon: '@/assets/emotions/yellow_heart.png',                    title: 'Жовте серце' },
+    { id: 45, icon: '@/assets/emotions/zany_face.png',                       title: 'Шалений' },
+    { id: 46, icon: '@/assets/emotions/fire.png',                             title: 'Вогонь' },
 ]
 
 const REACTION_ENDPOINT = '/forum/addEmotion' // backend endpoint
@@ -240,6 +280,14 @@ function onCommentEmojiPicked(comment: IForumComment, idEmotion: number) {
     onSelectComment(comment, idEmotion)
     openCommentPickerId.value = null
 }
+
+function onCloseThemePicker() {
+    showThemeEmojiPicker.value = false
+}
+
+function onCloseCommentPicker() {
+    openCommentPickerId.value = null
+}
 </script>
 <template>
     <div class="article flex-grow-1	">
@@ -285,7 +333,8 @@ function onCommentEmojiPicked(comment: IForumComment, idEmotion: number) {
                             <ReactionPicker
                                 v-if="showThemeEmojiPicker"
                                 :options="availableEmotions"
-                            @select="onThemeEmojiPicked"
+                                @select="onThemeEmojiPicked"
+                                @close="onCloseThemePicker"
                             />
                         </template>
                     </ReactionBar>
@@ -345,6 +394,7 @@ function onCommentEmojiPicked(comment: IForumComment, idEmotion: number) {
                                     v-if="openCommentPickerId === comment.id"
                                     :options="availableEmotions"
                                     @select="(id:number) => onCommentEmojiPicked(comment, id)"
+                                    @close="onCloseCommentPicker"
                                 />
                             </template>
                         </ReactionBar>

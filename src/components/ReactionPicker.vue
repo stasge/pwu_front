@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
 import { getEmotionIconUrl, getEmojiFallback } from '@/utils/emotionIcons'
 interface Option { id: number; icon: string; title?: string }
 const props = defineProps<{ options: Option[] }>()
-const emit = defineEmits<{ (e: 'select', id: number): void }>()
+const emit = defineEmits<{ (e: 'select', id: number): void; (e: 'close'): void }>()
+
+const rootEl = ref<HTMLElement | null>(null)
 
 function resolveIcon(icon: string): string | null {
   const resolved = getEmotionIconUrl(icon)
@@ -13,10 +16,26 @@ function resolveIcon(icon: string): string | null {
   }
   return null
 }
+
+function handleDocumentClick(event: MouseEvent) {
+  const target = event.target as Node | null
+  if (!rootEl.value || !target) return
+  if (!rootEl.value.contains(target)) {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleDocumentClick, { passive: true })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleDocumentClick)
+})
 </script>
 
 <template>
-  <div class="reaction-picker" role="dialog" aria-label="Вибір реакції">
+  <div class="reaction-picker" role="dialog" aria-label="Вибір реакції" ref="rootEl">
     <button
       v-for="opt in props.options"
       :key="opt.id"
@@ -45,13 +64,37 @@ function resolveIcon(icon: string): string | null {
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   z-index: 1000;
-  width: 200px;
+  width: 172px;
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(226, 111, 15, 0.6) transparent; /* Firefox */
 
   &--right {
     left: auto;
     right: 0;
+  }
+
+  /* WebKit */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.12));
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(226,111,15,0.85), rgba(226,111,15,0.55));
+  }
+  &::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, rgba(226,111,15,1), rgba(226,111,15,0.75));
   }
 }
 
