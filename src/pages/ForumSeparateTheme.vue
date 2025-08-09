@@ -304,7 +304,7 @@ function onCommentEmojiPicked(comment: IForumComment, idEmotion: number) {
                                     <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
                                 </svg>
                             </div>
-                            <h3 class="writer__name ">{{ comment.user.username }}</h3>
+                            <h3 class="writer__name text-center">{{ comment.user.username }}</h3>
                             <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
                         </div>
                         <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
