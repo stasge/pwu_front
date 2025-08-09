@@ -41,10 +41,12 @@ onMounted(async () => {
                     <div class="flex align-items-center gap-2">
                         <div v-if="serverStatusCode && serverStatusCode.online" class="status-indicator online"></div>
                         <div v-else class="status-indicator offline"></div>
-                        <span v-if="serverStatusCode && serverStatusCode.online" class="status-text flex align-items-center gap-1">
+                        <span v-if="serverStatusCode && serverStatusCode.online" class="status-text flex align-items-center">
                             <span>онлайн</span>
-                            <span>:</span>
-                            <span>{{ serverStatusCode?.count_online }}</span>
+                            <div v-if="serverStatusCode?.count_online" class="flex align-items-center gap-1">
+                                <span>:</span>
+                                <span>{{ serverStatusCode?.count_online }}</span>
+                            </div>
                         </span>
                         <span v-else class="status-text">офлайн</span>
                     </div>
