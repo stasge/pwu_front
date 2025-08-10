@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Emotion } from '@/models/emotion'
 import { useUserStore } from '@/stores/userStore'
 import { getEmotionIconUrl, getEmojiFallback } from '@/utils/emotionIcons'
+import UsersListModal from '@/components/modals/UsersListModal.vue'
 
 interface Props {
   emotions?: Emotion[]
@@ -25,6 +26,25 @@ const emit = defineEmits<{
 const userStore = useUserStore()
 
 const myUserId = computed(() => userStore.user?.id)
+
+// Tooltip state
+const tooltipVisible = ref(false)
+const tooltipData = ref<{
+  users: { id: number; name: string }[]
+  icon: string
+  emotionId: number
+} | null>(null)
+const tooltipPosition = ref({ x: 0, y: 0 })
+const isOverTooltip = ref(false)
+const hideTooltipTimeout = ref<number | null>(null)
+
+// Modal state
+const usersModalVisible = ref(false)
+const selectedEmotionData = ref<{
+  users: { id: number; name: string }[]
+  icon: string
+  emotionId: number
+} | null>(null)
 
 function isActiveByMe(idEmotion: number): boolean {
   if (!myUserId.value) return false
@@ -58,6 +78,134 @@ function resolveIcon(icon: string): string | null {
   }
   return null
 }
+
+// Tooltip functions
+function showTooltip(event: MouseEvent, emotionId: number) {
+  // Clear any existing hide timeout
+  if (hideTooltipTimeout.value) {
+    clearTimeout(hideTooltipTimeout.value)
+    hideTooltipTimeout.value = null
+  }
+  
+  const emotion = props.emotions?.find(e => e.id_emotion === emotionId)
+  if (!emotion || !emotion.users?.length) return
+
+  const availableEmotion = props.availableEmotions?.find(ae => ae.id === emotionId)
+  if (!availableEmotion) return
+
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
+  tooltipPosition.value = {
+    x: rect.left + rect.width / 2,
+    y: rect.top - 20
+  }
+
+  tooltipData.value = {
+    users: emotion.users,
+    icon: availableEmotion.icon,
+    emotionId: emotionId
+  }
+  
+  tooltipVisible.value = true
+  isOverTooltip.value = false
+}
+
+function hideTooltip() {
+  // Clear any existing timeout
+  if (hideTooltipTimeout.value) {
+    clearTimeout(hideTooltipTimeout.value)
+  }
+  
+  // Add a small delay to allow moving cursor to tooltip
+  hideTooltipTimeout.value = window.setTimeout(() => {
+    if (!isOverTooltip.value) {
+      tooltipVisible.value = false
+      tooltipData.value = null
+    }
+    hideTooltipTimeout.value = null
+  }, 100)
+}
+
+function onTooltipMouseEnter() {
+  isOverTooltip.value = true
+}
+
+function onTooltipMouseLeave() {
+  isOverTooltip.value = false
+  // Clear any existing timeout
+  if (hideTooltipTimeout.value) {
+    clearTimeout(hideTooltipTimeout.value)
+  }
+  // Hide tooltip when leaving tooltip
+  hideTooltipTimeout.value = window.setTimeout(() => {
+    if (!isOverTooltip.value) {
+      tooltipVisible.value = false
+      tooltipData.value = null
+    }
+    hideTooltipTimeout.value = null
+  }, 100)
+}
+
+// Function to open users modal
+function openUsersModal(emotionId: number) {
+  // Clear any existing hide timeout
+  if (hideTooltipTimeout.value) {
+    clearTimeout(hideTooltipTimeout.value)
+    hideTooltipTimeout.value = null
+  }
+  
+  const emotion = props.emotions?.find(e => e.id_emotion === emotionId)
+  if (!emotion || !emotion.users?.length) return
+
+  const availableEmotion = props.availableEmotions?.find(ae => ae.id === emotionId)
+  if (!availableEmotion) return
+
+  selectedEmotionData.value = {
+    users: emotion.users,
+    icon: availableEmotion.icon,
+    emotionId: emotionId
+  }
+  usersModalVisible.value = true
+  // Hide tooltip after opening modal
+  hideTooltip()
+}
+
+// Function to close users modal
+function closeUsersModal() {
+  usersModalVisible.value = false
+  selectedEmotionData.value = null
+}
+
+// Get display names for tooltip
+function getDisplayNames(users: { id: number; name: string }[], maxVisible: number = 3) {
+  if (users.length <= maxVisible) {
+    return { names: users.map(u => u.name).join(', '), hasMore: false }
+  }
+  
+  const visibleUsers = users.slice(0, maxVisible)
+  const remainingCount = users.length - maxVisible
+  const names = visibleUsers.map(u => u.name).join(', ')
+  
+  return { 
+    names, 
+    hasMore: true, 
+    moreText: `та ще ${remainingCount} ${getUkrainianWordForm(remainingCount, 'людина', 'людини', 'людей')} додали реакцію` 
+  }
+}
+
+// Ukrainian word forms helper
+function getUkrainianWordForm(count: number, form1: string, form2: string, form5: string): string {
+  if (count % 10 === 1 && count % 100 !== 11) return form1
+  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) return form2
+  return form5
+}
+
+function getEmotionTitle(emotionId: number): string {
+  const availableEmotion = props.availableEmotions?.find(ae => ae.id === emotionId)
+  if (availableEmotion?.title) {
+    return availableEmotion.title
+  }
+  return 'Реакція'
+}
 </script>
 
 <template>
@@ -70,7 +218,8 @@ function resolveIcon(icon: string): string | null {
         class="reaction-chip"
         :class="{ active: isActiveByMe(opt.id) }"
         @click="onClickExisting(opt.id)"
-        :title="opt.title"
+        @mouseenter="showTooltip($event, opt.id)"
+        @mouseleave="hideTooltip"
       >
         <span class="icon">
           <img v-if="resolveIcon(opt.icon)" :src="resolveIcon(opt.icon) as string" alt="" />
@@ -93,6 +242,54 @@ function resolveIcon(icon: string): string | null {
         <slot name="picker" />
       </div>
     </div>
+
+    <!-- Tooltip -->
+    <Transition name="tooltip">
+      <div
+        v-if="tooltipVisible && tooltipData"
+        class="emotion-tooltip"
+        :style="{
+          left: `${tooltipPosition.x}px`,
+          top: `${tooltipPosition.y}px`
+        }"
+        @mouseenter="onTooltipMouseEnter"
+        @mouseleave="onTooltipMouseLeave"
+      >
+        <div class="tooltip-content" @click.stop>
+          <div class="tooltip-emoji">
+            <img 
+              v-if="resolveIcon(tooltipData.icon)" 
+              :src="resolveIcon(tooltipData.icon) as string" 
+              alt="" 
+            />
+            <span v-else>{{ getEmojiFallback(tooltipData.icon) }}</span>
+          </div>
+          <div class="tooltip-text">
+            <div class="user-names">
+              {{ getDisplayNames(tooltipData.users).names }}
+            </div>
+            <div 
+              v-if="getDisplayNames(tooltipData.users).hasMore"
+              class="more-users clickable"
+              @click="openUsersModal(tooltipData.emotionId)"
+            >
+              {{ getDisplayNames(tooltipData.users).moreText }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Users List Modal -->
+    <UsersListModal
+      v-if="usersModalVisible && selectedEmotionData"
+      :showed="usersModalVisible"
+      :users="selectedEmotionData.users"
+      :emotion-icon="selectedEmotionData.icon"
+      :emotion-name="getEmotionTitle(selectedEmotionData.emotionId)"
+      @update:showed="(value) => usersModalVisible = value"
+      @close-dia="closeUsersModal"
+    />
   </div>
   
 </template>
@@ -102,6 +299,7 @@ function resolveIcon(icon: string): string | null {
   display: flex;
   align-items: center;
   margin-top: 10px;
+  position: relative;
 }
 
 .reaction-list {
@@ -155,6 +353,104 @@ function resolveIcon(icon: string): string | null {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+// Tooltip styles
+.emotion-tooltip {
+  position: fixed;
+  z-index: 1000;
+  transform: translate(-25px, -100%);
+  pointer-events: auto;
+  margin-bottom: 8px;
+}
+
+.tooltip-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 300px;
+}
+
+.tooltip-emoji {
+  flex-shrink: 0;
+  
+  img, span {
+    width: 22px;
+    height: 22px;
+    display: block;
+    font-size: 32px;
+    line-height: 1;
+  }
+}
+
+.tooltip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-names {
+  color: #ffffff;
+  font-size: 80%;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more-users {
+  color: #4a9eff;
+  font-size: 80%;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #6b46c1;
+    text-decoration: underline;
+  }
+}
+
+.reaction-text {
+  color: #b0b0b0;
+  font-size: 12px;
+  line-height: 1.3;
+  
+  .highlight {
+    color: #4a9eff;
+    font-weight: 500;
+  }
+}
+
+
+// Tooltip animations
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: all 0.2s ease;
+}
+
+.tooltip-enter-from {
+  opacity: 0;
+  transform: translate(-25px, -100%);
+}
+
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translate(-25px, -100%);
+}
+
+.tooltip-enter-to,
+.tooltip-leave-from {
+  opacity: 1;
+  transform: translate(-25px, -100%);
 }
 </style>
 
