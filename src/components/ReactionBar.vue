@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Emotion } from '@/models/emotion'
 import { useUserStore } from '@/stores/userStore'
 import { getEmotionIconUrl, getEmojiFallback } from '@/utils/emotionIcons'
@@ -26,6 +26,11 @@ const emit = defineEmits<{
 const userStore = useUserStore()
 
 const myUserId = computed(() => userStore.user?.id)
+
+// Watch for changes in emotions to update tooltip
+watch(() => props.emotions, () => {
+  updateTooltipIfVisible()
+}, { deep: true })
 
 // Tooltip state
 const tooltipVisible = ref(false)
@@ -59,10 +64,14 @@ function totalFor(idEmotion: number): number {
 
 function onClickExisting(idEmotion: number) {
   emit('toggle', { idEmotion, isActive: isActiveByMe(idEmotion) })
+  // Update tooltip if it's currently visible for this emotion
+  setTimeout(() => updateTooltipIfVisible(), 0)
 }
 
 function onSelectNew(idEmotion: number) {
   emit('selectNew', { idEmotion })
+  // Update tooltip if it's currently visible for this emotion
+  setTimeout(() => updateTooltipIfVisible(), 0)
 }
 
 const visibleOptions = computed(() => {
@@ -173,6 +182,23 @@ function openUsersModal(emotionId: number) {
 function closeUsersModal() {
   usersModalVisible.value = false
   selectedEmotionData.value = null
+}
+
+// Function to update tooltip if it's currently visible
+function updateTooltipIfVisible() {
+  if (tooltipVisible.value && tooltipData.value) {
+    const emotion = props.emotions?.find(e => e.id_emotion === tooltipData.value!.emotionId)
+    if (emotion && emotion.users?.length) {
+      const availableEmotion = props.availableEmotions?.find(ae => ae.id === tooltipData.value!.emotionId)
+      if (availableEmotion) {
+        tooltipData.value = {
+          users: emotion.users,
+          icon: availableEmotion.icon,
+          emotionId: tooltipData.value.emotionId
+        }
+      }
+    }
+  }
 }
 
 // Get display names for tooltip
