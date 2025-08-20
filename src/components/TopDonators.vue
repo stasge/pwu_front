@@ -10,7 +10,7 @@ const donators = ref([
     'Mars',
     'Агамант', 
     'Magix', 
-    'Інкогніто',
+    'XipoMaHT',
     'AnalogowNET',
 ]);
 </script>
