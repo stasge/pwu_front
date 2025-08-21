@@ -4,29 +4,33 @@ import Modal from '@/components/base/modal.vue'
 import {reactive, ref} from 'vue'
 import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
-import { required } from '@vuelidate/validators';
+import { required, sameAs } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const isDiaShown = ref(false)
 const passwordHidden = ref(true)
 const gameAccPassHidden = ref(true)
+const repeatPasswordHidden = ref(true)
 
 interface Form {
     main_pass: string;
     id_user_game: number | null;
     pass: string;
+    repeat_pass: string;
 }
 
 const form = reactive<Form>({
     main_pass: '',
     id_user_game: null,
-    pass: ''
+    pass: '',
+    repeat_pass: ''
 })
 
 const rules = {
     main_pass: { required },
     pass: { required },
+    repeat_pass: { required, sameAs: (val: string) => val === form.pass }
 }
 
 const v$ = useVuelidate(rules, form, {$stopPropagation: true})
@@ -47,7 +51,7 @@ const showDia = (id: number) => {
 }
 
 const reset = () => {
-    form.main_pass = form.pass = ''
+    form.main_pass = form.pass = form.repeat_pass = ''
     form.id_user_game = null
     v$.value.$reset()
 }
@@ -92,6 +96,22 @@ defineExpose({
                         <div class="absolute right-10px top-0 flex align-items-center h-full">
                             <img v-show="gameAccPassHidden" @click="gameAccPassHidden = !gameAccPassHidden" src="@/assets/images/show-pass.svg" alt="">
                             <img v-show="!gameAccPassHidden" @click="gameAccPassHidden = !gameAccPassHidden" src="@/assets/images/hide-pass.svg" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="field w-full">
+                    <label for="repeat-password">Повторіть пароль</label>
+                    <div class="relative">
+                        <input 
+                            v-model="form.repeat_pass" 
+                            id="repeat-password" 
+                            :type="repeatPasswordHidden ? 'password' : 'text'"
+                            :class="{invalid: v$.repeat_pass.$error}" 
+                            class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                        >
+                        <div class="absolute right-10px top-0 flex align-items-center h-full">
+                            <img v-show="repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/show-pass.svg" alt="">
+                            <img v-show="!repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/hide-pass.svg" alt="">
                         </div>
                     </div>
                 </div>
