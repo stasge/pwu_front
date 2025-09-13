@@ -32,7 +32,7 @@ export const useUserStore = defineStore('userStore', () => {
   const user = ref<User | null>(null)
   const unreadCount = ref(0)
   const router = useRouter()
-
+  const serverStatusCode = ref<{ online: boolean, count_online: number } | null>(null)
   const isAdmin = computed(() => user.value?.role === 1)
   const isLoggedIn = computed(() => !!user.value)
 
@@ -47,6 +47,11 @@ export const useUserStore = defineStore('userStore', () => {
     } catch (error) {
       user.value = null
     }
+  }
+
+  async function getOnline() {
+      const {data} = await fetchGet('online')
+      serverStatusCode.value = data
   }
 
   async function loginUser(username: string, password: string) {
@@ -83,5 +88,7 @@ export const useUserStore = defineStore('userStore', () => {
     isAdmin,
     getUnreadCount,
     unreadCount,
+    serverStatusCode,
+    getOnline
   }
 })

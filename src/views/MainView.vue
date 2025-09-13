@@ -9,9 +9,7 @@ import BurgerMenu from '@/components/BurgerMenu.vue'
         <BurgerMenu />
         <Header class="w-full" />
         <div class="container">
-            <div class="px-5">
-                <router-view></router-view>
-            </div>
+            <router-view></router-view>
         </div>
         <Footer />
     </div>
