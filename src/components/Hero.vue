@@ -26,13 +26,20 @@ onMounted(() => {
                 
             </div>
             <div class="hero__content-right w-full">
-                <img src="@/assets/images/hero-logo.png" alt="hero right">
+                <img class="hero__content-right-logo" src="@/assets/images/hero-logo.png" alt="hero right">
                 <h1 class="hero__content-right-title">
                     Perfect World, 
                     <br>
                     Якого Ти Чекав!
                 </h1>
                 <TopDonators />
+                <div class="hero__content-right-buttons">
+                    <button class="fantasy-btn"><span>Реєстрація</span></button>
+                    <button class="fantasy-btn">
+                        <span>Завантажити </span>
+                        <span class="client-text">Клієнт</span>
+                    </button>
+                </div>
             </div>
         </div>
         <img src="@/assets/images/hero-mask.png" class="hero__mask" alt="hero mask">
@@ -66,10 +73,16 @@ onMounted(() => {
 
     &__content {
         position: relative;
-        z-index: 2;
+        z-index: 5;
         color: white;
         text-align: center;
         width: 100%;
+
+        &-right {
+            &-logo {
+                width: clamp(170px, 20vw, 274px);
+            }
+        }
     }
 
     &__mask {
@@ -89,7 +102,11 @@ onMounted(() => {
             line-height: 100%;
             letter-spacing: -0.07em;
             text-align: center;
-            margin-top: 50px;
+            margin-top: clamp(20px, 3vw, 50px);
+
+            @media (max-width: 768px) {
+                font-size: 36px;
+            }
         }
         &-online {
             font-size: 24px;
@@ -101,6 +118,23 @@ onMounted(() => {
                 font-size: 36px;
                 font-weight: 600;
             }
+        }
+        &-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px 50px;
+            margin-top: clamp(0px, 3vw, 20px);
+
+          
+        }
+    }
+
+    .client-text {
+
+        @media (max-width: 768px) {
+            display: none;
         }
     }
 }

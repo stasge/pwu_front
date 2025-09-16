@@ -76,6 +76,72 @@ a {
   color: #fff;
 }
 
+.fantasy-btn {
+  background: url("@/assets/images/button-bg.svg") no-repeat center / cover;
+  border: none;
+  font-weight: 400;
+  font-size: 24px;
+  padding: 14px 0px;
+  position: relative;
+  cursor: pointer;
+
+  span {
+    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 2;
+    transition: filter 0.3s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover span {
+      filter: drop-shadow(0 0 2px #fad7a1) drop-shadow(0 0 10px #fbd298) drop-shadow(0 0 20px rgba(251, 210, 152, 0.5));
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 19px;
+  }
+
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+
+    @media (max-width: 768px) {
+      height: 51.9px;
+      left: -18px;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+
+    @media (max-width: 768px) {
+      height: 51.9px;
+      right: -19px;
+    }
+  }
+
+}
+
 .btn {
   user-select: none;
   display: flex;

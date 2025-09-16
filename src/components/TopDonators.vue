@@ -16,7 +16,7 @@ const donators = ref([
 </script>
 
 <template>
-    <div class="top-donators mb-6">
+    <div class="top-donators">
         <div class="top-donators__inner">
             <div class="top-donators__container relative">
                 <h2 class="top-donators__title text-center">Легенди підтримки:</h2>
@@ -42,15 +42,18 @@ const donators = ref([
 .top-donators {
     position: relative;
     z-index: 2;
-    height: 120px;
     max-width: 442px;
-    margin: 50px auto 0;
+    margin: clamp(20px, 3vw, 50px) auto 0 auto;
     overflow: hidden;
 
     &__title {
         font-size: 24px;
         font-weight: 400;
         color: #f8f8f8;
+
+        @media (max-width: 768px) {
+            font-size: 18px;
+        }
     }
 
     &__swiper {
@@ -94,6 +97,10 @@ const donators = ref([
         position: relative;
         white-space: nowrap;
         font-size: 20px;
+
+        @media (max-width: 768px) {
+            font-size: 16px;
+        }
     }
 
     .top-1-nick {
