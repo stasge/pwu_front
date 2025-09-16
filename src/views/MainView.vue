@@ -6,7 +6,7 @@ import BurgerMenu from '@/components/BurgerMenu.vue'
 
 <template>
     <div class="wrapper">
-        <BurgerMenu />
+        <!-- <BurgerMenu /> -->
         <Header class="w-full" />
         <div class="container">
             <router-view></router-view>

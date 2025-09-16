@@ -47,6 +47,11 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    margin-top: 88px;
+
+    @media (max-width: 1024px) {
+        margin-top: 50px;
+    }
 
     &__video {
         position: absolute;
