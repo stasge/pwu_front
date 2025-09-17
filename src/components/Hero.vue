@@ -60,6 +60,10 @@ onMounted(() => {
         margin-top: 50px;
     }
 
+    @media (max-width: 768px) {
+        height: calc(90vh - 54px);
+    }
+
     &__video {
         position: absolute;
         top: 0;
@@ -78,9 +82,22 @@ onMounted(() => {
         text-align: center;
         width: 100%;
 
+        @media (max-width: 768px) {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
         &-right {
             &-logo {
                 width: clamp(170px, 20vw, 274px);
+            }
+
+            &-buttons {
+                @media (max-width: 768px) {
+                    flex-direction: column;
+                }
             }
         }
     }
@@ -129,13 +146,6 @@ onMounted(() => {
             margin-right: 20px;
 
           
-        }
-    }
-
-    .client-text {
-
-        @media (max-width: 768px) {
-            display: none;
         }
     }
 }

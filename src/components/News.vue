@@ -184,6 +184,17 @@ const deleteNews = async (id: number) => {
                  >
                      <img src="/src/assets/images/arrow-prev.svg" alt="Previous" />
                  </button>
+                 <div class="slider-pagination mobile">
+                    <button 
+                        v-for="(item, index) in visibleNews" 
+                        :key="index"
+                        @click="goToSlide(index)"
+                        class="pagination-dot"
+                        :class="{ 'active': index === currentSlide }"
+                    >
+                        <img src="/src/assets/images/slider-radiobutton.svg" alt="Slide" />
+                    </button>
+                </div>
                  <button 
                      @click="nextSlide" 
                      class="nav-arrow next"
@@ -194,7 +205,7 @@ const deleteNews = async (id: number) => {
              </div>
              
              <!-- Пагінація -->
-             <div class="slider-pagination">
+             <div class="slider-pagination desktop">
                  <button 
                      v-for="(item, index) in visibleNews" 
                      :key="index"
@@ -222,6 +233,11 @@ const deleteNews = async (id: number) => {
     max-width: 1110px;
     padding: 0 15px;
     margin: 0 auto;
+    padding-top: 50px;
+
+    @media (max-width: 768px) {
+        padding-top: 0;
+    }
     
     .admin-btn {
         position: absolute;
@@ -240,6 +256,7 @@ const deleteNews = async (id: number) => {
         @media (max-width: 768px) {
             flex-direction: column;
             gap: 50px;
+            height: 600px;
         }
     }
 
@@ -391,12 +408,20 @@ const deleteNews = async (id: number) => {
         
         @media (max-width: 768px) {
             gap: 15px;
+            flex-direction: column;
+            align-items: center;
         }
     }
     
     .slider-navigation {
         display: flex;
         gap: 30px;
+
+        @media (max-width: 768px) {
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
         
         .nav-arrow {
             border: none;
@@ -406,6 +431,14 @@ const deleteNews = async (id: number) => {
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+
+            img {
+                
+                @media (max-width: 768px) {
+                    width: 40px;
+                    height: 40px;
+                }
+            }
 
             &:active {
                 transform: scale(0.8);
@@ -425,6 +458,21 @@ const deleteNews = async (id: number) => {
     .slider-pagination {
         display: flex;
         gap: 8px;
+
+        &.desktop {
+
+            @media (max-width: 768px) {
+                display: none;
+            }
+        }
+
+        &.mobile {
+            display: none;
+
+            @media (max-width: 768px) {
+                display: flex;
+            }
+        }
         
         .pagination-dot {
             width: 18px;
