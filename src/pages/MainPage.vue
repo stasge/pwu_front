@@ -8,9 +8,9 @@ import TopDonators from '@/components/TopDonators.vue';
 <template>
     <div class="content">
         <Hero />
+        <News />
         <!-- <TopDonators /> -->
         <!-- <div class="flex flex gap-5 justify-content-between">
-            <News />
             <SideMenu :translateY="'-10%'"/>
         </div> -->
     </div>

@@ -126,6 +126,7 @@ onMounted(() => {
             justify-content: center;
             gap: 10px 50px;
             margin-top: clamp(0px, 3vw, 20px);
+            margin-right: 20px;
 
           
         }
