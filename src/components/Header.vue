@@ -1,12 +1,30 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
 import { onMounted, ref } from 'vue';
+import Login from '@/components/modals/login.vue';
+import Register from '@/components/modals/register.vue';
+import RecoverPass from '@/components/modals/RecoverPass.vue';
+import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
+import { fetchGet } from '@/utils/fetchApi';
 
 const userStore = useUserStore()
 const isBurgerOpen = ref(false)
 
-onMounted(() => {
-    userStore.getOnline()
+const loginRef = ref<InstanceType<typeof Login> | null>(null)
+const registerRef = ref<InstanceType<typeof Register> | null>(null)
+const recoverRef = ref<InstanceType<typeof RecoverPass> | null>(null)
+const recoverPassCodeRef = ref<InstanceType<typeof RecoverPassCode> | null>(null)
+
+const { wrapAsyncCall } = useAsyncCallWrapper()
+const serverStatusCode = ref<{ online: boolean; count_online: number } | null>(null)
+
+onMounted(async () => {
+    await userStore.getOnline()
+    await wrapAsyncCall(async () => {
+        const { data } = await fetchGet('online')
+        serverStatusCode.value = data
+    })
 })
 
 function toggleBurger() {
@@ -23,27 +41,29 @@ function toggleBurger() {
                 <nav class="header-menu">
                     <ul class="header-menu__list flex align-items-center">
                         <li class="header-menu__item">
-                            <router-link to="/">Про Сервер</router-link>
+                            <router-link :to="{ name: 'separate-theme', params: { theme_id: 2, cat_id: 1 } }">Про Сервер</router-link>
                         </li>
                         <li class="header-menu__item">
-                            <router-link to="/">Таблиця Лідерів</router-link>
+                            <router-link :to="{ name: 'leaderboard' }">Таблиця Лідерів</router-link>
                         </li>
                         <li class="header-menu__item">
-                            <router-link to="/">Підтримка Проєкту</router-link>
+                            <router-link :to="{ name: 'support-project' }">Підтримка Проєкту</router-link>
                         </li>
                         <li class="header-menu__item">
-                            <router-link to="/">Форум</router-link>
+                            <router-link :to="{ name: 'forum' }">Форум</router-link>
                         </li>
                     </ul>
                 </nav>
             </div>
             <div class="header-right flex align-items-center">
                 <div class="header-right__online flex align-items-center gap-1">
-                    <img src="@/assets/images/online-indicator.svg" alt="online indicator"></img>
+                    <img v-if="serverStatusCode && serverStatusCode.online" src="@/assets/images/online-indicator.svg" alt="online indicator">
+                    <img v-else src="@/assets/images/offline-indicator.svg" alt="offline indicator">
                     <div class="header-right__online-content flex align-items-center gap-1">
-                        <span>Онлайн:</span>
-                        <span>{{ userStore.serverStatusCode?.count_online }}</span>
-                        <span class="header-right__online-content-players">гравців</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online">Онлайн:</span>
+                        <span v-else>Офлайн</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online">{{ serverStatusCode?.count_online }}</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online" class="header-right__online-content-players">гравців</span>
                     </div>
                 </div>
                 <svg class="header-right__separator" width="2" height="20" viewBox="0 0 2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,19 +71,19 @@ function toggleBurger() {
                 </svg>
                 <div class="social-media flex align-items-center gap-4">
                     
-                    <a href="#">
-                        <img src="@/assets/images/discord-icon.svg" alt="facebook">
+                    <a href="https://discord.gg/zPKh4BUskKX" target="_blank" rel="noopener noreferrer">
+                        <img src="@/assets/images/discord-icon.svg" alt="discord">
                     </a>
-                    <a href="#">
-                        <img src="@/assets/images/telegram-icon.svg" alt="facebook">
+                    <a href="https://t.me/valor_pw" target="_blank" rel="noopener noreferrer">
+                        <img src="@/assets/images/telegram-icon.svg" alt="telegram">
                     </a>
                 </div>
                 <svg class="header-right__separator" width="2" height="20" viewBox="0 0 2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.3" d="M1 0V20" stroke="#F8F8F8" />
                 </svg>
                 <div class="header-right__login flex align-items-center">
-                    <a href="#">Увійти</a>
-                    <a href="#">Реєстрація</a>
+                    <a @click="loginRef?.showDia()" class="cursor-pointer">Увійти</a>
+                    <a @click="registerRef?.showDia()" class="cursor-pointer">Реєстрація</a>
                 </div>
                 <button @click="toggleBurger" class="header-burger">
                     <img src="@/assets/images/burger-icon.svg" alt="menu" class="header-burger-icon" :class="{ 'header-burger-icon--hidden': isBurgerOpen }">
@@ -79,38 +99,44 @@ function toggleBurger() {
             <div class="header-burger-menu">
                 <ul class="header-burger-list">
                     <li class="header-burger-item">
-                        <router-link to="/" @click="isBurgerOpen = false">Про Сервер</router-link>
+                        <router-link :to="{ name: 'separate-theme', params: { theme_id: 2, cat_id: 1 } }" @click="isBurgerOpen = false">Про Сервер</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <router-link to="/" @click="isBurgerOpen = false">Таблиця Лідерів</router-link>
+                        <router-link :to="{ name: 'leaderboard' }" @click="isBurgerOpen = false">Таблиця Лідерів</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <router-link to="/" @click="isBurgerOpen = false">Підтримка Проєкту</router-link>
+                        <router-link :to="{ name: 'support-project' }" @click="isBurgerOpen = false">Підтримка Проєкту</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <router-link to="/" @click="isBurgerOpen = false">Форум</router-link>
+                        <router-link :to="{ name: 'forum' }" @click="isBurgerOpen = false">Форум</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <router-link to="/" @click="isBurgerOpen = false">Вхід / Реєстрація</router-link>
+                        <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item flex flex-row align-items-center justify-content-center gap-5">
-                        <router-link to="/" @click="isBurgerOpen = false">
+                        <a href="https://discord.gg/zPKh4BUskKX" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
                             <img width="40" src="@/assets/images/discord-icon.svg" alt="discord">
-                        </router-link>
-                        <router-link to="/" @click="isBurgerOpen = false">
+                        </a>
+                        <a href="https://t.me/valor_pw" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
                             <img width="35" src="@/assets/images/telegram-icon.svg" alt="telegram">
-                        </router-link>
+                        </a>
                     </li>
                 </ul>
             </div>
             
         </div>
     </div>
+    
+    <!-- Modal Components -->
+    <Login ref="loginRef" @openRegistration="registerRef?.showDia" @openRecoverPass="recoverRef?.showDia"/>
+    <Register ref="registerRef" @openLogin="loginRef?.showDia" />
+    <RecoverPass ref="recoverRef" @openLogin="loginRef?.showDia" @openRecoverPassCode="recoverPassCodeRef?.showDia"/>
+    <RecoverPassCode ref="recoverPassCodeRef" />
 </template>
 
 <style scoped lang="scss">
@@ -230,6 +256,9 @@ function toggleBurger() {
         &__login {
             gap: 30px;
             
+            a {
+                cursor: pointer;
+            }
             
             @media (max-width: 1024px) {
                 gap: 5px;
@@ -343,6 +372,12 @@ function toggleBurger() {
             font-size: 24px;
             text-align: center;
         }
+
+        span {
+            color: #f8f8f8;
+            font-size: 24px;
+            text-align: center;
+        }
     }
 
     &-burger-divider {
@@ -367,5 +402,6 @@ function toggleBurger() {
         opacity: 0.3;
     }
 }
+
 
 </style>
