@@ -390,6 +390,13 @@ const deleteNews = async (id: number) => {
             &:hover {
                 opacity: 0.8;
             }
+            
+            // Прибрати hover ефект для мобільних пристроїв
+            @media (hover: none) and (pointer: coarse) {
+                &:hover {
+                    opacity: 1;
+                }
+            }
         }
     }
     
@@ -448,6 +455,13 @@ const deleteNews = async (id: number) => {
                 opacity: 0.5;
             }
             
+            // Прибрати hover ефект для мобільних пристроїв
+            @media (hover: none) and (pointer: coarse) {
+                &:hover:not(:disabled) {
+                    opacity: 1;
+                }
+            }
+            
             &:disabled {
                 opacity: 0.3;
                 cursor: not-allowed;
@@ -499,6 +513,13 @@ const deleteNews = async (id: number) => {
             
             &:hover:not(.active) img {
                 transform: scale(1.1);
+            }
+            
+            // Прибрати hover ефект для мобільних пристроїв
+            @media (hover: none) and (pointer: coarse) {
+                &:hover:not(.active) img {
+                    transform: scale(1);
+                }
             }
         }
     }
@@ -584,6 +605,15 @@ const deleteNews = async (id: number) => {
              background: rgba(255, 215, 0, 0.1);
              border-color: #ffd700;
              color: #ffd700;
+         }
+         
+         // Прибрати hover ефект для мобільних пристроїв
+         @media (hover: none) and (pointer: coarse) {
+             &:hover {
+                 background: rgba(0, 0, 0, 0.7);
+                 border-color: #444;
+                 color: #fff;
+             }
          }
      }
     
