@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import TopDonators from '@/components/TopDonators.vue';
+import RegisterModal from '@/components/modals/register.vue';
+import { useRouter } from 'vue-router';
 
 const userStore = useUserStore()
+const router = useRouter()
+const registerModal = ref()
 
 onMounted(() => {
     userStore.getOnline()
 })
+
+const handleRegister = () => {
+    registerModal.value?.showDia()
+}
+
+const handleDownload = () => {
+    router.push({ name: 'download-page' })
+}
 
 </script>
 <template>
@@ -28,14 +40,14 @@ onMounted(() => {
             <div class="hero__content-right w-full">
                 <img class="hero__content-right-logo" src="@/assets/images/hero-logo.png" alt="hero right">
                 <h1 class="hero__content-right-title">
-                    Perfect World, 
+                    Сервер, 
                     <br>
                     Якого Ти Чекав!
                 </h1>
                 <TopDonators />
                 <div class="hero__content-right-buttons">
-                    <button class="fantasy-btn"><span>Реєстрація</span></button>
-                    <button class="fantasy-btn">
+                    <button class="fantasy-btn" @click="handleRegister"><span>Реєстрація</span></button>
+                    <button class="fantasy-btn" @click="handleDownload">
                         <span>Завантажити </span>
                         <span class="client-text">Клієнт</span>
                     </button>
@@ -43,6 +55,7 @@ onMounted(() => {
             </div>
         </div>
         <img src="@/assets/images/hero-mask.png" class="hero__mask" alt="hero mask">
+        <RegisterModal ref="registerModal" />
     </div>
 </template>
 <style scoped lang="scss">

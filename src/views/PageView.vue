@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import Footer from '@/components/Footer.vue'
-import SideMenu from '@/components/SideMenu.vue'
+import Header from '@/components/Header.vue'
 import BurgerMenu from '@/components/BurgerMenu.vue'
 </script>
 
 <template>
-    <BurgerMenu />
     <div class="wrapper">
-        <div class="container">
-            <div class="px-0 sm:px-5 flex justify-content-between pb-8 pt-6 gap-5">
+        <Header />
+        <div class="container" style="margin-top: 120px;">
+            <div class="px-0 sm:px-5 flex justify-content-center pb-8 pt-6 gap-5">
                 <router-view></router-view>
-                <SideMenu :translateY="'0'"/>
             </div>
         </div>
         <Footer />

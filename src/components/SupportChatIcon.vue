@@ -14,11 +14,11 @@ onMounted(() => {
         <router-link :to="{name: 'support-chat'}" class="support-chat-icon fixed ">
             <div class="support-icon"></div>
         </router-link>
-        <div v-if="userStore.unreadCount > 0" class="unread-indicator">
+        <!-- <div v-if="userStore.unreadCount > 0" class="unread-indicator">
             <p class="text-white text-sm font-bold">
                 {{ userStore.unreadCount }}  
             </p>
-        </div>
+        </div> -->
     </div>
 </template>
 <style scoped lang="scss">

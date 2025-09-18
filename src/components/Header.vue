@@ -37,7 +37,9 @@ function toggleBurger() {
         <div class="header-inner w-full">
         <div class="header-container flex align-items-center justify-content-between">
             <div class="header-left flex align-items-center">
-                <img class="header-left__logo" src="@/assets/images/header-logo.png" alt="header-logo">
+                <router-link :to="{ name: 'home' }">
+                    <img class="header-left__logo" src="@/assets/images/header-logo.png" alt="header-logo">
+                </router-link>
                 <nav class="header-menu">
                     <ul class="header-menu__list flex align-items-center">
                         <li class="header-menu__item">
@@ -82,8 +84,16 @@ function toggleBurger() {
                     <path opacity="0.3" d="M1 0V20" stroke="#F8F8F8" />
                 </svg>
                 <div class="header-right__login flex align-items-center">
-                    <a @click="loginRef?.showDia()" class="cursor-pointer">Увійти</a>
-                    <a @click="registerRef?.showDia()" class="cursor-pointer">Реєстрація</a>
+                    <template v-if="!userStore.isLoggedIn">
+                        <a @click="loginRef?.showDia()" class="cursor-pointer">Увійти</a>
+                        <a @click="registerRef?.showDia()" class="cursor-pointer">Реєстрація</a>
+                    </template>
+                    <template v-else>
+                        <router-link :to="{ name: 'profile' }" class="header-right__profile flex align-items-center gap-3">
+                            <span>Особистий кабінет</span>
+                            <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-right__profile-arrow">
+                        </router-link>
+                    </template>
                 </div>
                 <button @click="toggleBurger" class="header-burger">
                     <img src="@/assets/images/burger-icon.svg" alt="menu" class="header-burger-icon" :class="{ 'header-burger-icon--hidden': isBurgerOpen }">
@@ -115,7 +125,15 @@ function toggleBurger() {
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
+                        <template v-if="!userStore.isLoggedIn">
+                            <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
+                        </template>
+                        <template v-else>
+                            <router-link to="/profile" @click="isBurgerOpen = false" class="header-burger-profile flex align-items-center gap-2">
+                                <span>Особистий кабінет</span>
+                                <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-burger-profile-arrow">
+                            </router-link>
+                        </template>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item flex flex-row align-items-center justify-content-center gap-5">
@@ -175,11 +193,12 @@ function toggleBurger() {
         gap: clamp(5px, 1vw, 30px);
 
         &__logo {
-            max-width: clamp(80px, 1vw, 112px);
+            max-width: clamp(80px, 6vw, 112px);
         }
     }
 
     &-menu {
+        margin-left: clamp(1px, 2vw, 30px);
 
         @media (max-width: 768px) {
             display: none;
@@ -197,6 +216,11 @@ function toggleBurger() {
 
         &__item {
             width: fit-content;
+            transition: all 0.3s ease;
+            opacity: 1;
+            &:hover {
+                opacity: 0.7;
+            }
         }
     }
 
@@ -246,6 +270,12 @@ function toggleBurger() {
             
             a {
                 max-height: clamp(15px, 2vw, 20px);
+                transition: all 0.3s ease;
+                opacity: 1;
+
+                &:hover {
+                    opacity: 0.7;
+                }
             }
 
             img {
@@ -258,6 +288,12 @@ function toggleBurger() {
             
             a {
                 cursor: pointer;
+                transition: all 0.3s ease;
+                opacity: 1;
+
+                &:hover {
+                    opacity: 0.7;
+                }
             }
             
             @media (max-width: 1024px) {
@@ -266,6 +302,49 @@ function toggleBurger() {
 
             @media (max-width: 768px) {
                 display: none !important;
+            }
+        }
+
+        &__profile {
+            transition: all 0.3s ease;
+            opacity: 1;
+
+            @media (max-width: 1024px) {
+                gap: 5px !important;
+            }
+
+            span {
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 100%;
+                letter-spacing: -0.09em;
+                text-align: center;
+                background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+
+                @media (max-width: 1024px) {
+                    font-size: 10px;
+                }
+            }
+
+            img {
+                width: 18px;
+                height: auto;
+
+                @media (max-width: 1024px) {
+                    width: 10px;
+                }
+            }
+
+            &:hover {
+                opacity: 0.7;
+            }
+
+            &-arrow {
+                width: 20px;
+                height: auto;
             }
         }
 
@@ -377,6 +456,24 @@ function toggleBurger() {
             color: #f8f8f8;
             font-size: 24px;
             text-align: center;
+        }
+    }
+
+    &-burger-profile {
+        color: #f8f8f8;
+        text-decoration: none;
+        font-size: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+        opacity: 1;
+
+        &:hover {
+            opacity: 0.7;
+        }
+
+        &-arrow {
+            width: 24px;
+            height: auto;
         }
     }
 

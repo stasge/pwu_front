@@ -255,6 +255,12 @@ const show = () => {
                                     class="primary" 
                                     @click="promoCodeRef.showDia()" 
                                 />
+                                <Button 
+                                    label="Вийти" 
+                                    icon="pi pi-sign-out" 
+                                    class="danger" 
+                                    @click="userStore.logoutUser()" 
+                                />
                             </div>
                         </div>
                     </div>

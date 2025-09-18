@@ -218,7 +218,7 @@ const deleteNews = async (id: number) => {
              </div>
              
              <!-- Кнопка "ВСІ НОВИНИ" -->
-             <router-link to="/news" class="fantasy-btn">
+             <router-link to="#" class="fantasy-btn" aria-disabled="true">
                  <span>Всі Новини</span>
              </router-link>
          </div>
@@ -231,7 +231,7 @@ const deleteNews = async (id: number) => {
     width: 100%;
     min-height: 500px;
     max-width: 1110px;
-    padding: 0 15px;
+    padding: 0 15px 50px 15px;
     margin: 0 auto;
     padding-top: 50px;
 
