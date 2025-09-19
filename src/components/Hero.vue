@@ -31,14 +31,25 @@ const handleDownload = () => {
             loop 
             playsinline
         >
-            <source src="@/assets/video/Hero_Bg_Fin.webm" type="video/webm">
+            <source src="@/assets/video/Hero_BG_New_Smoke_Fix_compressed.webm" type="video/webm">
         </video>
         <div class="hero__content flex align-items-center justify-content-between">
             <div class="hero__content-left w-full">
                 
             </div>
             <div class="hero__content-right w-full">
-                <img class="hero__content-right-logo" src="@/assets/images/hero-logo.png" alt="hero right">
+                <div class="hero__content-right-logo-container">
+                    <video 
+                        class="hero__content-right-logo-video" 
+                        autoplay 
+                        muted 
+                        loop 
+                        playsinline
+                    >
+                        <source src="@/assets/video/Fireball.webm" type="video/webm">
+                    </video>
+                    <img class="hero__content-right-logo" src="@/assets/images/hero-logo.png" alt="hero right">
+                </div>
                 <h1 class="hero__content-right-title">
                     Сервер, 
                     <br>
@@ -103,9 +114,44 @@ const handleDownload = () => {
         }
 
         &-right {
-            &-logo {
-                width: clamp(170px, 20vw, 274px);
-            }
+            &-logo-container {
+  position: relative;
+  display: inline-block;
+  width: clamp(170px, 20vw, 274px);
+  isolation: isolate;
+}
+
+/* фоновий статичний логотип (нормальний режим) */
+&-logo {
+  position: relative;
+  width: 100%;
+  height: auto;
+  z-index: 1;
+}
+
+/* відео зверху, обрізане маскою логотипа */
+&-logo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+
+  /* маска з PNG-лого (має бути з прозорістю) */
+  -webkit-mask-image: url('@/assets/images/hero-logo.png');
+  mask-image: url('@/assets/images/hero-logo.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  filter: contrast(1.6) brightness(1.2);
+}
 
             &-buttons {
                 @media (max-width: 768px) {

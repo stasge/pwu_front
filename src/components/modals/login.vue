@@ -71,9 +71,11 @@ defineExpose({showDia})
 </script>
 <template>
     <Modal v-model:showed="showed" @closeDia="needVerification = false">
+        <template #header>
+            <h2 class="modal__title mb-5">Увійти</h2>
+        </template>
         <template #body>
             <form v-if="!needVerification" @submit.prevent="login" class="flex flex-column justify-content-center w-full">
-                <h2 class="modal__title mb-5">Увійти</h2>
                 <div class="field w-full">
                     <label for="login" class="w-full">Логін</label>
                     <input 
