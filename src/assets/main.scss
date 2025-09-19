@@ -66,7 +66,6 @@ input[type="text"] {
   position: relative;
   display: inline-block;
   width: 100%;
-  max-width: 400px;
   height: 44px;
   
   input {
@@ -82,6 +81,11 @@ input[type="text"] {
     opacity: 0.5;
     position: relative;
     z-index: 2;
+    height: 44px;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
     
     &::placeholder {
       color: #999;
@@ -121,6 +125,11 @@ input[type="text"] {
     background: url("@/assets/images/input-bg-left.svg") no-repeat center / contain;
     z-index: 1;
     pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      left: 2px;
+    }
   }
   
   // Права частина
@@ -134,6 +143,11 @@ input[type="text"] {
     background: url("@/assets/images/input-bg-right.svg") no-repeat center / contain;
     z-index: 1;
     pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      right: 2px;
+    }
   }
   
   // Середня частина (фон) - використовуємо додатковий елемент
@@ -146,6 +160,10 @@ input[type="text"] {
     background: url("@/assets/images/input-bg-mid.svg") repeat-x center / cover;
     z-index: 0;
     pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
   }
   
   // Стани фокусу
@@ -163,91 +181,6 @@ input[type="text"] {
     }
   }
   
-  // Стан помилки
-  &.error {
-    &::before {
-      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
-    }
-    
-    &::after {
-      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
-    }
-    
-    .input-bg {
-      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
-    }
-  }
-  
-  // Стан успіху
-  &.success {
-    &::before {
-      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
-    }
-    
-    &::after {
-      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
-    }
-    
-    .input-bg {
-      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
-    }
-  }
-  
-  // Відключений стан
-  &.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-    
-    input {
-      color: #999;
-      cursor: not-allowed;
-    }
-  }
-  
-  // Різні розміри
-  &.input-sm {
-    height: 36px;
-    max-width: 300px;
-    
-    &::before,
-    &::after {
-      height: 36px;
-      width: 14px;
-    }
-    
-    .input-bg {
-      height: 36px;
-      left: 14px;
-      right: 14px;
-    }
-    
-    input {
-      padding: 0 16px;
-      font-size: 14px;
-    }
-  }
-  
-  &.input-lg {
-    height: 52px;
-    max-width: 500px;
-    
-    &::before,
-    &::after {
-      height: 52px;
-      width: 18px;
-    }
-    
-    .input-bg {
-      height: 52px;
-      left: 18px;
-      right: 18px;
-    }
-    
-    input {
-      padding: 0 24px;
-      font-size: 18px;
-    }
-  }
   
   // Адаптивність
   @media (max-width: 768px) {
@@ -257,6 +190,27 @@ input[type="text"] {
       font-size: 14px;
       padding: 0 16px;
     }
+  }
+  
+  // Стилі для помилок
+  &.error {
+    &::before,
+    &::after,
+    .input-bg {
+      filter: hue-rotate(0deg) saturate(2) brightness(0.8) contrast(1.2);
+    }
+  }
+}
+
+// Стилі для label при помилці в custom-input
+.field {
+  label {
+    transition: color 0.3s ease;
+  }
+  
+  // Коли custom-input має клас error, label стає червоним
+  &:has(.custom-input.error) label {
+    color: #ff4444;
   }
 }
 
@@ -306,10 +260,6 @@ a {
     }
   }
 
-  @media (max-width: 768px) {
-    font-size: 19px;
-  }
-
 
   &::before {
     content: '';
@@ -321,11 +271,6 @@ a {
     height: 56px;
     background: url("@/assets/images/button-bg-left.svg") no-repeat center / contain;
     z-index: 1;
-
-    @media (max-width: 768px) {
-      height: 51.9px;
-      left: -18px;
-    }
   }
 
   &::after {
@@ -339,10 +284,6 @@ a {
     background: url("@/assets/images/button-bg-right.svg") no-repeat center / contain;
     z-index: 1;
 
-    @media (max-width: 768px) {
-      height: 51.9px;
-      right: -19px;
-    }
   }
 
 }
