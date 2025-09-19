@@ -35,7 +35,7 @@ html {
 }
 
 body {
-
+  background: #0A0A0A;
 }
 
 .wrapper {
@@ -59,6 +59,205 @@ body {
 
 input[type="text"] {
   transition: all 0.3s;
+}
+
+// Кастомні інпути з SVG фоном
+.custom-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 400px;
+  height: 44px;
+  
+  input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 20px;
+    font-family: "VollkornSC", sans-serif;
+    font-size: 16px;
+    color: #f8f8f8;
+    opacity: 0.5;
+    position: relative;
+    z-index: 2;
+    
+    &::placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    
+    &:focus {
+      opacity: 1;
+    }
+    
+    // Приховування автозаповнення браузера
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+      -webkit-text-fill-color: #f8f8f8 !important;
+      background: transparent !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    
+    // Для Firefox
+    &:-moz-autofill {
+      background: transparent !important;
+      color: #fff !important;
+    }
+  }
+  
+  // Ліва частина
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  // Права частина
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  // Середня частина (фон) - використовуємо додатковий елемент
+  .input-bg {
+    position: absolute;
+    left: 16px;
+    top: 0;
+    right: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-mid.svg") repeat-x center / cover;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  // Стани фокусу
+  &:focus-within {
+    &::before {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    &::after {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    .input-bg {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  // Стан помилки
+  &.error {
+    &::before {
+      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
+    }
+    
+    &::after {
+      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
+    }
+    
+    .input-bg {
+      filter: hue-rotate(0deg) saturate(2) brightness(1.2);
+    }
+  }
+  
+  // Стан успіху
+  &.success {
+    &::before {
+      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
+    }
+    
+    &::after {
+      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
+    }
+    
+    .input-bg {
+      filter: hue-rotate(120deg) saturate(1.5) brightness(1.1);
+    }
+  }
+  
+  // Відключений стан
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    
+    input {
+      color: #999;
+      cursor: not-allowed;
+    }
+  }
+  
+  // Різні розміри
+  &.input-sm {
+    height: 36px;
+    max-width: 300px;
+    
+    &::before,
+    &::after {
+      height: 36px;
+      width: 14px;
+    }
+    
+    .input-bg {
+      height: 36px;
+      left: 14px;
+      right: 14px;
+    }
+    
+    input {
+      padding: 0 16px;
+      font-size: 14px;
+    }
+  }
+  
+  &.input-lg {
+    height: 52px;
+    max-width: 500px;
+    
+    &::before,
+    &::after {
+      height: 52px;
+      width: 18px;
+    }
+    
+    .input-bg {
+      height: 52px;
+      left: 18px;
+      right: 18px;
+    }
+    
+    input {
+      padding: 0 24px;
+      font-size: 18px;
+    }
+  }
+  
+  // Адаптивність
+  @media (max-width: 768px) {
+    max-width: 100%;
+    
+    input {
+      font-size: 14px;
+      padding: 0 16px;
+    }
+  }
 }
 
 // h2,
