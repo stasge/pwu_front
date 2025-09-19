@@ -78,7 +78,7 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title mb-5">{{ form.id_main ? 'Редагування розділу' : 'Створення розділу' }}</h2>
+            <h2 class="modal__title">{{ form.id_main ? 'Редагування розділу' : 'Створення розділу' }}</h2>
         </template>
         <template #body>
             <form @submit.prevent="createOrUpdate" class="change-sub flex flex-column justify-content-center w-full gap-3">

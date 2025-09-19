@@ -81,7 +81,7 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title mb-5">Створення теми</h2>
+            <h2 class="modal__title">Створення теми</h2>
         </template>
         <template #body>
             <form @submit.prevent="create" class="create-theme flex flex-column justify-content-center w-full">

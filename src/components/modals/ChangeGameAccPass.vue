@@ -63,7 +63,7 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title mb-5">Зміна пароля для ігрового акаунту</h2>
+            <h2 class="modal__title">Зміна пароля для ігрового акаунту</h2>
         </template>
         <template #body>
             <form @submit.prevent="update" class="flex flex-column justify-content-center w-full">

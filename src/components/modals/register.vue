@@ -97,87 +97,100 @@ defineExpose({showDia})
 </script>
 <template>
     <Modal v-model:showed="showed" @closeDia="needVerification = false">
+        <template #header>
+            <h2 class="modal__title">Реєстрація</h2>
+        </template>
         <template #body>
             <form v-if="!needVerification" @submit.prevent="register" class="flex flex-column align-items-center w-full">
-                <h2 class="modal__title mb-5">Реєстрація</h2>
                 <div class="field w-full">
                     <label for="email" class="w-full">Ваш email</label>
-                    <input 
-                        v-model="form.email" 
-                        id="email" 
-                        type="email" 
-                        :class="{invalid: v$.email.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{error: v$.email.$error}">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.email" 
+                            id="email" 
+                            type="email" 
+                            placeholder="Введіть email"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="login" class="w-full">Логін</label>
-                    <input 
-                        v-model="form.username" 
-                        id="login" 
-                        type="text" 
-                        :class="{invalid: v$.username.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{error: v$.username.$error}">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.username" 
+                            id="login" 
+                            type="text" 
+                            placeholder="Введіть логін"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="name" class="w-full">Ім'я для форуму</label>
-                    <input 
-                        v-model="form.name" 
-                        id="name" 
-                        type="text" 
-                        :class="{invalid: v$.name.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                >
+                    <div class="custom-input w-full" :class="{error: v$.name.$error}">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.name" 
+                            id="name" 
+                            type="text" 
+                            placeholder="Введіть ім'я для форуму"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
-                    <label for="ref" class="w-full">Реферальний код (необов’язково)</label>
-                    <input 
-                        v-model="form.ref" 
-                        id="ref" 
-                        type="text" 
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <label for="ref" class="w-full">Реферальний код (необов'язково)</label>
+                    <div class="custom-input w-full">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.ref" 
+                            id="ref" 
+                            type="text" 
+                            placeholder="Введіть реферальний код"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="phone" class="w-full">Номер телефону</label>
-                    <input 
-                        v-model="form.phone" 
-                        id="phone" 
-                        type="text" 
-                        :class="{invalid: v$.phone.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{error: v$.phone.$error}">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.phone" 
+                            id="phone" 
+                            type="text" 
+                            placeholder="Введіть номер телефону"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
-                    <label for="password">Пароль</label>
-                    <div class="relative">
+                    <label for="password" class="w-full">Пароль</label>
+                    <div class="custom-input w-full" :class="{error: v$.pass.$error}">
+                        <div class="input-bg"></div>
                         <input 
                             v-model="form.pass" 
                             id="password" 
                             :type="passwordHidden ? 'password' : 'text'" 
-                            :class="{invalid: v$.pass.$error}"
-                            class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                            placeholder="Введіть пароль"
                         >
-                        <div class="absolute right-10px top-0 flex align-items-center h-full">
-                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="">
-                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="">
+                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
+                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                         </div>
                     </div>
                 </div>
                 <div class="field w-full">
                     <label for="repeat-password">Повторіть пароль</label>
-                    <div class="relative">
+                    <div class="custom-input w-full" :class="{error: v$.repeat_pass.$error}">
+                        <div class="input-bg"></div>
                         <input 
                             v-model="form.repeat_pass" 
                             id="repeat-password" 
                             :type="repeatPasswordHidden ? 'password' : 'text'" 
-                            :class="{invalid: v$.repeat_pass.$error}"
-                            class="text-base p-2 text-color surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                            placeholder="Повторіть пароль"
                         >
-                        <div class="absolute right-10px top-0 flex align-items-center h-full">
-                            <img v-show="repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/show-pass.svg" alt="">
-                            <img v-show="!repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/hide-pass.svg" alt="">
+                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <img v-show="repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
+                            <img v-show="!repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                         </div>
                     </div>
                 </div>
@@ -197,5 +210,29 @@ defineExpose({showDia})
     </Modal>
 </template>
 <style scoped lang='scss'>
- 
+.custom-input {
+  position: relative;
+  
+  .absolute {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    z-index: 3;
+    
+    img {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
 </style>

@@ -34,12 +34,10 @@ function closeModal(e: Event) {
                 <div class="absolute cursor-pointer" style="top: 20px;right: 20px;">
                     
                 </div>
-                <div class="modal__header w-full flex justify-content-between">
+                <div class="modal__header w-full flex justify-content-between align-items-center mb-5">
                     <slot name="header"></slot>
-                    <svg @click="emit('update:showed', false), emit('closeDia')" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0.999978 1L18 19" stroke="white" stroke-width="2"/>
-                        <path d="M18.2496 1.00007L1.24963 19.5002" stroke="white" stroke-width="2"/>
-                    </svg>
+                    
+                    <img width="36" class="cursor-pointer" @click="emit('update:showed', false), emit('closeDia')" src="@/assets/images/burger-icon-close.svg" alt="close" />
                 </div>
                 <div class="modal__body w-full flex flex-column align-items-center">
                     <slot name="body"></slot>
@@ -60,7 +58,7 @@ function closeModal(e: Event) {
     z-index: 100;
 }
 .modal {
-    background: linear-gradient(180deg, #16171b 20%, rgba(39, 50, 68, 1.51) 100%);
+    background: url('@/assets/images/modal-bg.jpg') no-repeat center / cover;
     position: relative;
     z-index: 101;
     color: #FFF;
@@ -69,6 +67,15 @@ function closeModal(e: Event) {
     min-width: 500px;
     cursor: default;
     padding: 50px;
+
+    ::v-deep(.modal__title)  {
+        font-weight: 400;
+        font-size: 40px;        
+        line-height: 100%;
+        letter-spacing: -0.07em;
+        text-align: center;
+        color: #f8f8f8;
+    }
 
     @media (max-width: 550px) {
         min-width: auto;

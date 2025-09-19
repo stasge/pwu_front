@@ -72,33 +72,35 @@ defineExpose({showDia})
 <template>
     <Modal v-model:showed="showed" @closeDia="needVerification = false">
         <template #header>
-            <h2 class="modal__title mb-5">Увійти</h2>
+            <h2 class="modal__title">Вхід</h2>
         </template>
         <template #body>
             <form v-if="!needVerification" @submit.prevent="login" class="flex flex-column justify-content-center w-full">
                 <div class="field w-full">
                     <label for="login" class="w-full">Логін</label>
-                    <input 
-                        v-model="form.username" 
-                        id="login" 
-                        type="text"
-                        :class="{invalid: v$.username.$error}" 
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{error: v$.username.$error}">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.username" 
+                            id="login" 
+                            type="text"
+                            placeholder="Введіть логін"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="password">Пароль</label>
-                    <div class="relative">
+                    <div class="custom-input w-full" :class="{error: v$.pass.$error}">
+                        <div class="input-bg"></div>
                         <input 
                             v-model="form.pass" 
                             id="password" 
                             :type="passwordHidden ? 'password' : 'text'"
-                            :class="{invalid: v$.pass.$error}" 
-                            class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                            placeholder="Введіть пароль"
                         >
-                        <div class="absolute right-10px top-0 flex align-items-center h-full">
-                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="">
-                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="">
+                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
+                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                         </div>
                     </div>
                 </div>
@@ -110,12 +112,36 @@ defineExpose({showDia})
                     <span>Забули пароль?</span>
                     <span @click="emit('openRecoverPass'), showed = false" class="underline cursor-pointer">Відновити пароль</span>
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Увійти</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Увійти</span></button>
             </form>
             <VerificationForm v-else  @verificationDone="onVerificationDone"/>
         </template>
     </Modal>
 </template>
 <style scoped lang='scss'>
-
+.custom-input {
+  position: relative;
+  
+  .absolute {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    z-index: 3;
+    
+    img {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}
 </style>

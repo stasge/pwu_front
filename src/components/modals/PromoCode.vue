@@ -88,7 +88,7 @@ defineExpose({
 <template>
   <Modal v-model:showed="showModal" @closeDia="closeModal">
     <template #header>
-      <h2 class="modal__title mb-5 w-full">
+      <h2 class="modal__title w-full">
         <span v-if="!availableAccounts.length">Введіть промокод</span>
         <span v-else-if="availableAccounts.length && !form.game_id" class="block text-center">Оберіть ігровий акаунт</span>
         <div v-else>
