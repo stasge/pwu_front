@@ -71,7 +71,7 @@ defineExpose({showDia})
                 <div class="flex gap-1">
                     <span @click="emit('openLogin'), showed = false" class="underline cursor-pointer">Повернутися до входу</span>
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Надіслати код</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Надіслати код</span></button>
             </form>
         </template>
     </Modal>

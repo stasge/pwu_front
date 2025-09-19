@@ -92,7 +92,7 @@ defineExpose({
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Змінити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Змінити</span></button>
             </form>
         </template>
     </Modal>

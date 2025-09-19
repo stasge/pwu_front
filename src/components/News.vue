@@ -218,9 +218,11 @@ const deleteNews = async (id: number) => {
              </div>
              
              <!-- Кнопка "ВСІ НОВИНИ" -->
-             <router-link to="#" class="fantasy-btn" aria-disabled="true">
-                 <span>Всі Новини</span>
-             </router-link>
+             <div>
+                <router-link to="#" class="fantasy-btn" style="display: none;" aria-disabled="true">
+                    <span>Всі Новини</span>
+                </router-link>
+             </div>
          </div>
     </div>
 </template>

@@ -116,7 +116,7 @@ defineExpose({
                     </div>
                 </div>
                 <p class="mb-4 w-full font-bold">ВАЖЛИВО! Змінювати пароль можна раз на 3 дні.</p>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Змінити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Змінити</span></button>
             </form>
         </template>
     </Modal>

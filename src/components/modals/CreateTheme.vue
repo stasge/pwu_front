@@ -103,7 +103,7 @@ defineExpose({
                         :config="editorConfig"
                     />
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Створити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Створити</span></button>
             </form>
         </template>
     </Modal>

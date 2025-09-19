@@ -91,7 +91,7 @@ defineExpose({showDia})
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Змінити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Змінити</span></button>
             </form>
         </template>
     </Modal>

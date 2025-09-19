@@ -330,7 +330,7 @@ const show = () => {
     </div>
     <Modal v-model:showed="showed">
         <template #header>
-            <h2 class="modal__title mb-5">Створення ігрового акаунту</h2>
+            <h2 class="modal__title">Створення ігрового акаунту</h2>
         </template>
         <template #body>
             <form @submit.prevent="addGameUser" class="flex flex-column justify-content-center w-full" autocomplete="off">

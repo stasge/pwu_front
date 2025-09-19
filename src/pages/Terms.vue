@@ -4,8 +4,7 @@ import Footer from "@/components/Footer.vue";
 
 <template>
   <div>
-    <router-link :to="{ name: 'home' }" class="fixed btn btn-sm no-underline text-xl text-white">На
-      головну</router-link>
+    <router-link :to="{ name: 'home' }" class="fixed fantasy-btn no-underline"><span>На головну</span></router-link>
     <h1>Користувацька угода Valor</h1>
     <h3>
       Підключаючись до сервера, переглядаючи сайт та використовуючи його, ви
@@ -227,7 +226,6 @@ a:hover {
 
 div {
   padding: 20px 50px 50px 50px;
-  background: linear-gradient(180deg, #16171b 20%, rgb(39, 50, 68) 100%);
   color: #fff;
 }
 

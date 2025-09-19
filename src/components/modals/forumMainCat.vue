@@ -80,7 +80,7 @@ defineExpose({
                     <input v-model="form.position" id="position" type="number" :class="{ invalid: v$.name.$error }"
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full">
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id ? 'Редагувати' : 'Створити' }}</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>{{ form.id ? 'Редагувати' : 'Створити' }}</span></button>
             </form>
         </template>
     </Modal>

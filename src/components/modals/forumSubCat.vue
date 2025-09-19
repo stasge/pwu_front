@@ -118,7 +118,7 @@ defineExpose({
                         placeholder="Оберіть тип"
                     />
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id_main ? 'Редагувати' : 'Створити' }}</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>{{ form.id_main ? 'Редагувати' : 'Створити' }}</span></button>
             </form>
         </template>
     </Modal>
