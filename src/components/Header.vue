@@ -46,13 +46,16 @@ function toggleBurger() {
                             <router-link :to="{ name: 'separate-theme', params: { theme_id: 2, cat_id: 1 } }">Про Сервер</router-link>
                         </li>
                         <li class="header-menu__item">
-                            <router-link :to="{ name: 'leaderboard' }">Таблиця Лідерів</router-link>
+                            <router-link :to="{ name: 'leaderboard' }">Лідери</router-link>
                         </li>
                         <li class="header-menu__item">
-                            <router-link :to="{ name: 'support-project' }">Підтримка Проєкту</router-link>
+                            <router-link :to="{ name: 'support-project' }">Підтримка проєкту</router-link>
                         </li>
                         <li class="header-menu__item">
                             <router-link :to="{ name: 'forum' }">Форум</router-link>
+                        </li>
+                        <li class="header-menu__item">
+                            <a href="https://db.valor.in.ua/" target="_blank" rel="noopener noreferrer">База даних</a>
                         </li>
                     </ul>
                 </nav>
@@ -86,7 +89,6 @@ function toggleBurger() {
                 <div class="header-right__login flex align-items-center">
                     <template v-if="!userStore.isLoggedIn">
                         <a @click="loginRef?.showDia()" class="cursor-pointer">Увійти</a>
-                        <a @click="registerRef?.showDia()" class="cursor-pointer">Реєстрація</a>
                     </template>
                     <template v-else>
                         <router-link :to="{ name: 'profile' }" class="header-right__profile flex align-items-center gap-3">
@@ -129,7 +131,7 @@ function toggleBurger() {
                             <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
                         </template>
                         <template v-else>
-                            <router-link to="/profile" @click="isBurgerOpen = false" class="header-burger-profile flex align-items-center gap-2">
+                            <router-link :to="{ name: 'profile' }" @click="isBurgerOpen = false" class="header-burger-profile flex align-items-center gap-2">
                                 <span>Особистий кабінет</span>
                                 <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-burger-profile-arrow">
                             </router-link>
@@ -279,7 +281,7 @@ function toggleBurger() {
             }
 
             img {
-                max-height: clamp(15px, 2vw, 20px);
+                max-height: clamp(10px, 2vw, 20px);
             }
         }
 
