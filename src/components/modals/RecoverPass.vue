@@ -60,13 +60,15 @@ defineExpose({showDia})
             <form @submit.prevent="recover" class="flex flex-column justify-content-center w-full">
                 <div class="field w-full">
                     <label for="email" class="w-full">Email</label>
-                    <input 
-                        v-model="form.email" 
-                        id="email" 
-                        type="text"
-                        :class="{invalid: v$.email.$error}" 
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{ error: v$.email.$error }">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.email" 
+                            id="email" 
+                            type="text"
+                            placeholder="Введіть email"
+                        >
+                    </div>
                 </div>
                 <div class="flex gap-1">
                     <span @click="emit('openLogin'), showed = false" class="underline cursor-pointer">Повернутися до входу</span>

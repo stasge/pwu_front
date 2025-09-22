@@ -7,8 +7,8 @@ import BurgerMenu from '@/components/BurgerMenu.vue'
 <template>
     <div class="wrapper">
         <Header />
-        <div class="container" style="margin-top: 120px;">
-            <div class="px-0 sm:px-5 flex justify-content-center pb-8 pt-6 gap-5">
+        <div class="container">
+            <div class="px-3 sm:px-5 flex justify-content-center pb-8 pt-0 md:pt-6 gap-5">
                 <router-view></router-view>
             </div>
         </div>
@@ -19,9 +19,10 @@ import BurgerMenu from '@/components/BurgerMenu.vue'
 <style scoped lang="scss">
 
     .container {
+        margin-top: 120px;
         
         @media (max-width: 768px) {
-            margin-top: 40px;
+            margin-top: 100px;
         }
     }
 </style>

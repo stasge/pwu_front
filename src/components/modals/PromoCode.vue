@@ -109,13 +109,15 @@ defineExpose({
       >
         <div class="field w-full">
           <label for="promoCode" class="w-full">Промокод</label>
-          <input
-            v-model="form.code"
-            id="promoCode"
-            type="text"
-            class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-            :class="{ invalid: v$.code.$error }"
-          />
+          <div class="custom-input w-full" :class="{ error: v$.code.$error }">
+            <div class="input-bg"></div>
+            <input
+              v-model="form.code"
+              id="promoCode"
+              type="text"
+              placeholder="Введіть промокод"
+            />
+          </div>
         </div>
         <button type="submit" class="fantasy-btn mt-3 align-self-center">
           <span>Застосувати</span>

@@ -68,27 +68,29 @@ defineExpose({
             <form @submit.prevent="update" class="flex flex-column justify-content-center w-full">
                 <div class="field w-full">
                     <label for="phone" class="w-full">Новий номер телефону</label>
-                    <input 
-                        v-model="form.phone" 
-                        id="phone" 
-                        type="text" 
-                        :class="{invalid: v$.phone.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{ error: v$.phone.$error }">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.phone" 
+                            id="phone" 
+                            type="text" 
+                            placeholder="Введіть номер телефону"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="password">Пароль від основного акаунту</label>
-                    <div class="relative">
+                    <div class="custom-input w-full relative" :class="{ error: v$.pass.$error }">
+                        <div class="input-bg"></div>
                         <input 
                             v-model="form.pass" 
                             id="password" 
                             :type="passwordHidden ? 'password' : 'text'"
-                            :class="{invalid: v$.pass.$error}" 
-                            class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
+                            placeholder="Введіть пароль"
                         >
-                        <div class="absolute right-10px top-0 flex align-items-center h-full">
-                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="">
-                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="">
+                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
+                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                         </div>
                     </div>
                 </div>

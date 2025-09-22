@@ -34,7 +34,7 @@ function closeModal(e: Event) {
                 <div class="absolute cursor-pointer" style="top: 20px;right: 20px;">
                     
                 </div>
-                <div class="modal__header w-full flex justify-content-between align-items-center md:mb-5 mb-1">
+                <div class="modal__header w-full flex justify-content-between align-items-center md:mb-5 mb-1 gap-3">
                     <slot name="header"></slot>
                     
                     <img width="36" class="cursor-pointer" @click="emit('update:showed', false), emit('closeDia')" src="@/assets/images/burger-icon-close.svg" alt="close" />
@@ -70,23 +70,23 @@ function closeModal(e: Event) {
 
     ::v-deep(.modal__title)  {
         font-weight: 400;
-        font-size: 40px;        
+        font-size: 32px;        
         line-height: 100%;
         letter-spacing: -0.07em;
         text-align: center;
         color: #f8f8f8;
 
         @media (max-width: 768px) {
-            font-size: 30px;
+            font-size: 24px;
         }
     }
     @media (max-width: 768px) {
-        padding: 30px;
+        padding: 15px 10px;
+        width: 90%;
     }
 
     @media (max-width: 550px) {
         min-width: auto;
-        width: 90%;
     }
 }
 
@@ -96,6 +96,11 @@ function closeModal(e: Event) {
     height: 40px;
     z-index: 102;
     pointer-events: none;
+
+    @media (max-width: 768px) {
+        width: 25px;
+        height: 25px;
+    }
 
     img {
         width: 100%;

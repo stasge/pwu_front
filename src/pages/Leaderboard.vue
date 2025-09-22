@@ -69,7 +69,9 @@ onMounted(async () => {
         }
 
         ::v-deep(table) {
-            width: 95%;
+            width: 100%;
+            max-width: 1390px;
+            margin: 0 auto;
 
             @media (max-width: 768px) {
                 width: 100%;
@@ -91,6 +93,11 @@ onMounted(async () => {
                 padding: 15px 10px;
                 font-size: 22px;
 
+                @media (max-width: 768px) {
+                    font-size: 12px;
+                    padding: 10px 5px;
+                }
+
                 * {
                     // color: #e26f0f !important;
 
@@ -99,6 +106,10 @@ onMounted(async () => {
 
             td {
                 padding: 10px;
+
+                @media (max-width: 768px) {
+                    padding: 5px;
+                }
             }
         }
     }
