@@ -78,7 +78,7 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title mb-5">{{ form.id_main ? 'Редагування розділу' : 'Створення розділу' }}</h2>
+            <h2 class="modal__title">{{ form.id_main ? 'Редагування розділу' : 'Створення розділу' }}</h2>
         </template>
         <template #body>
             <form @submit.prevent="createOrUpdate" class="change-sub flex flex-column justify-content-center w-full gap-3">
@@ -118,7 +118,7 @@ defineExpose({
                         placeholder="Оберіть тип"
                     />
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">{{ form.id_main ? 'Редагувати' : 'Створити' }}</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>{{ form.id_main ? 'Редагувати' : 'Створити' }}</span></button>
             </form>
         </template>
     </Modal>

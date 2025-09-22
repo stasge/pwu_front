@@ -1,7 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&display=swap");
 @import url("/node_modules/primeflex/primeflex.css");
-@import url("https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+// Підключення локальних шрифтів
+@font-face {
+  font-family: 'Candara';
+  src: url('@/assets/fonts/Candara.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VollkornSC';
+  src: url('@/assets/fonts/VollkornSC-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 * {
   margin: 0;
@@ -11,17 +26,16 @@
 
 html {
   font-size: clamp(10px, 1vw, 16px);
-  font-family: "Roboto", sans-serif;
+  font-family: "VollkornSC", sans-serif;
   font-weight: 400;
   font-style: normal;
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
   scroll-margin-top: 100px;
-  overflow-x: hidden;
 }
 
 body {
-  overflow-x: hidden;
+  background: #0A0A0A;
 }
 
 .wrapper {
@@ -30,11 +44,10 @@ body {
   justify-content: space-between;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(180deg, #16171b 20%, rgba(39, 50, 68, 1.51) 100%);
+  background: #0A0A0A;
 }
 
 .container {
-  max-width: 1434px;
   width: 100%;
 }
 
@@ -46,6 +59,159 @@ body {
 
 input[type="text"] {
   transition: all 0.3s;
+}
+
+// Кастомні інпути з SVG фоном
+.custom-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 44px;
+  
+  input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 20px;
+    font-family: "VollkornSC", sans-serif;
+    font-size: 16px;
+    color: #f8f8f8;
+    opacity: 0.5;
+    position: relative;
+    z-index: 2;
+    height: 44px;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
+    
+    &::placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    
+    &:focus {
+      opacity: 1;
+    }
+    
+    // Приховування автозаповнення браузера
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+      -webkit-text-fill-color: #f8f8f8 !important;
+      background: transparent !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    
+    // Для Firefox
+    &:-moz-autofill {
+      background: transparent !important;
+      color: #fff !important;
+    }
+  }
+  
+  // Ліва частина
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      left: 2px;
+    }
+  }
+  
+  // Права частина
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      right: 2px;
+    }
+  }
+  
+  // Середня частина (фон) - використовуємо додатковий елемент
+  .input-bg {
+    position: absolute;
+    left: 16px;
+    top: 0;
+    right: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-mid.svg") repeat-x center / cover;
+    z-index: 0;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
+  }
+  
+  // Стани фокусу
+  &:focus-within {
+    &::before {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    &::after {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    .input-bg {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  
+  // Адаптивність
+  @media (max-width: 768px) {
+    max-width: 100%;
+    
+    input {
+      font-size: 14px;
+      padding: 0 16px;
+    }
+  }
+  
+  // Стилі для помилок
+  &.error {
+    &::before,
+    &::after,
+    .input-bg {
+      filter: hue-rotate(0deg) saturate(2) brightness(0.8) contrast(1.2);
+    }
+  }
+}
+
+// Стилі для label при помилці в custom-input
+.field {
+  label {
+    transition: color 0.3s ease;
+  }
+  
+  // Коли custom-input має клас error, label стає червоним
+  &:has(.custom-input.error) label {
+    color: #ff4444;
+  }
 }
 
 // h2,
@@ -61,6 +227,65 @@ input[type="text"] {
 a {
   text-decoration: none;
   color: #fff;
+}
+
+.fantasy-btn {
+  background: url("@/assets/images/button-bg.svg") no-repeat center / cover;
+  border: none;
+  font-weight: 400;
+  font-size: 24px;
+  padding: 11px 0px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  span {
+    font-family: "VollkornSC", sans-serif;
+    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 2;
+    transition: filter 0.3s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover span {
+      filter: drop-shadow(0 0 2px #fad7a1) drop-shadow(0 0 10px #fbd298) drop-shadow(0 0 20px rgba(251, 210, 152, 0.5));
+    }
+  }
+
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+
+  }
+
 }
 
 .btn {

@@ -62,7 +62,7 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title mb-5">{{ isEdit ? 'Зміна номера телефону' : 'Додавання номера телефону' }}</h2>
+            <h2 class="modal__title">{{ isEdit ? 'Зміна номера телефону' : 'Додавання номера телефону' }}</h2>
         </template>
         <template #body>
             <form @submit.prevent="update" class="flex flex-column justify-content-center w-full">
@@ -92,7 +92,7 @@ defineExpose({
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Змінити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Змінити</span></button>
             </form>
         </template>
     </Modal>

@@ -88,7 +88,7 @@ defineExpose({
 <template>
   <Modal v-model:showed="showModal" @closeDia="closeModal">
     <template #header>
-      <h2 class="modal__title mb-5 w-full">
+      <h2 class="modal__title w-full">
         <span v-if="!availableAccounts.length">Введіть промокод</span>
         <span v-else-if="availableAccounts.length && !form.game_id" class="block text-center">Оберіть ігровий акаунт</span>
         <div v-else>
@@ -117,8 +117,8 @@ defineExpose({
             :class="{ invalid: v$.code.$error }"
           />
         </div>
-        <button type="submit" class="btn btn-sm mt-3 align-self-center">
-          Застосувати
+        <button type="submit" class="fantasy-btn mt-3 align-self-center">
+          <span>Застосувати</span>
         </button>
       </form>
       <div v-else-if="availableAccounts.length && !form.game_id" class="w-full">
@@ -152,11 +152,11 @@ defineExpose({
       </div>
       <button
         v-if="availableAccounts.length && form.game_id && form.role_id"
-        class="btn btn-sm"
+        class="fantasy-btn"
         :class="{ disabled: form.game_id && form.role_id }"
         @click="applyPromo()"
       >
-        Застосувати
+        <span>Застосувати</span>
       </button>
     </template>
   </Modal>

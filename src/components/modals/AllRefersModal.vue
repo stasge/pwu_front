@@ -178,9 +178,11 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
 </script>
 <template>
     <Modal v-model:showed="showed">
+        <template #header>
+            <h2 class="modal__title">Всі реферали</h2>
+        </template>
         <template #body>
             <div class="flex flex-column justify-content-center w-full">
-                <h2 class="modal__title mb-5">Всі реферали</h2>
                 <div class="ref-table-wrapper">
                     <table class="ref-table">
                         <thead>

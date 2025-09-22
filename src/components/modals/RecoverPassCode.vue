@@ -56,9 +56,11 @@ defineExpose({showDia})
 </script>
 <template>
     <Modal v-model:showed="showed">
+        <template #header>
+            <h2 class="modal__title">Зміна пароля</h2>
+        </template>
         <template #body>
             <form @submit.prevent="recover" class="flex flex-column justify-content-center w-full">
-                <h2 class="modal__title mb-5">Зміна пароля</h2>
                 <div class="field w-full">
                     <label for="email" class="w-full">Email</label>
                     <input 
@@ -89,7 +91,7 @@ defineExpose({showDia})
                         class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
                     >
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Змінити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Змінити</span></button>
             </form>
         </template>
     </Modal>
