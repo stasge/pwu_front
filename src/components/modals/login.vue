@@ -98,7 +98,7 @@ defineExpose({showDia})
                             :type="passwordHidden ? 'password' : 'text'"
                             placeholder="Введіть пароль"
                         >
-                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                        <div class="password-toggle flex align-items-center" style="z-index: 3;">
                             <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
                             <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                         </div>
@@ -106,11 +106,11 @@ defineExpose({showDia})
                 </div>
                 <div class="flex gap-1">
                     <span>Ще не зареєструвалися?</span>
-                    <span @click="emit('openRegistration'), showed = false" class="underline cursor-pointer">Зареєструватися</span>
+                    <a @click="emit('openRegistration'), showed = false" class="underline cursor-pointer">Зареєструватися</a>
                 </div>
                 <div class="flex gap-1 mt-2">
                     <span>Забули пароль?</span>
-                    <span @click="emit('openRecoverPass'), showed = false" class="underline cursor-pointer">Відновити пароль</span>
+                    <a @click="emit('openRecoverPass'), showed = false" class="underline cursor-pointer">Відновити пароль</a>
                 </div>
                 <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Увійти</span></button>
             </form>

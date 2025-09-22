@@ -3,11 +3,17 @@ import { useUserStore } from '@/stores/userStore';
 import { onMounted, ref } from 'vue';
 import TopDonators from '@/components/TopDonators.vue';
 import RegisterModal from '@/components/modals/register.vue';
+import LoginModal from '@/components/modals/login.vue';
+import RecoverPass from '@/components/modals/RecoverPass.vue';
+import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useRouter } from 'vue-router';
 
 const userStore = useUserStore()
 const router = useRouter()
 const registerModal = ref()
+const loginModal = ref()
+const recoverModal = ref()
+const recoverCodeModal = ref()
 
 onMounted(() => {
     userStore.getOnline()
@@ -66,7 +72,10 @@ const handleDownload = () => {
             </div>
         </div>
         <img src="@/assets/images/hero-mask.png" class="hero__mask" alt="hero mask">
-        <RegisterModal ref="registerModal" />
+    <RegisterModal ref="registerModal" @openLogin="loginModal?.showDia()" />
+    <LoginModal ref="loginModal" @openRegistration="registerModal?.showDia()" @openRecoverPass="recoverModal?.showDia()" />
+    <RecoverPass ref="recoverModal" @openLogin="loginModal?.showDia()" @openRecoverPassCode="recoverCodeModal?.showDia()" />
+    <RecoverPassCode ref="recoverCodeModal" />
     </div>
 </template>
 <style scoped lang="scss">

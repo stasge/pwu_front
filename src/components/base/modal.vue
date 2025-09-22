@@ -64,7 +64,7 @@ function closeModal(e: Event) {
     color: #FFF;
     border: 1px solid #2e2e2e;
     border-radius: 10px;
-    max-width: 800px;
+    max-width: 90%;
     cursor: default;
     padding: 50px;
 
@@ -80,6 +80,25 @@ function closeModal(e: Event) {
             font-size: 24px;
         }
     }
+
+    ::v-deep(label) {
+        font-family: "Candara", sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 90%;
+        letter-spacing: -0.01em;
+        color: #f8f8f8;
+        padding-left: 15px;
+    }
+
+    ::v-deep(a) {
+        text-decoration: underline;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
     @media (max-width: 768px) {
         padding: 15px 10px;
         width: 90%;

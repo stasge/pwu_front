@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import RegisterModal from '@/components/modals/register.vue';
+import LoginModal from '@/components/modals/login.vue';
+import RecoverPass from '@/components/modals/RecoverPass.vue';
+import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
 const registerModal = ref()
+const loginModal = ref()
+const recoverModal = ref()
+const recoverCodeModal = ref()
 
 const handleRegister = () => {
     registerModal.value?.showDia()
@@ -34,7 +40,10 @@ const handleDownload = () => {
         <!-- Заглушки для масок -->
         <img src="@/assets/images/CTA-mask.png" class="cta__mask-top" alt="cta mask top">
         <img src="@/assets/images/CTA-mask.png" class="cta__mask-bottom" alt="cta mask bottom">
-        <RegisterModal ref="registerModal" />
+    <RegisterModal ref="registerModal" @openLogin="loginModal?.showDia()" />
+    <LoginModal ref="loginModal" @openRegistration="registerModal?.showDia()" @openRecoverPass="recoverModal?.showDia()" />
+    <RecoverPass ref="recoverModal" @openLogin="loginModal?.showDia()" @openRecoverPassCode="recoverCodeModal?.showDia()" />
+    <RecoverPassCode ref="recoverCodeModal" />
     </div>
 </template>
 

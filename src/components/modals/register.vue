@@ -130,29 +130,29 @@ defineExpose({showDia})
                 </div>
                 <div class="flex gap-3 flex-wrap md:flex-nowrap w-full">
                     <div class="field w-full mb-0 md:mb-2">
-                    <label for="name" class="w-full">Ім'я для форуму</label>
-                    <div class="custom-input w-full" :class="{error: v$.name.$error}">
-                        <div class="input-bg"></div>
-                        <input 
-                            v-model="form.name" 
-                            id="name" 
-                            type="text" 
-                            placeholder="Введіть ім'я для форуму"
-                        >
+                        <label for="name" class="w-full">Ім'я для форуму</label>
+                        <div class="custom-input w-full" :class="{error: v$.name.$error}">
+                            <div class="input-bg"></div>
+                            <input 
+                                v-model="form.name" 
+                                id="name" 
+                                type="text" 
+                                placeholder="Введіть ім'я для форуму"
+                            >
+                        </div>
                     </div>
-                </div>
-                <div class="field w-full mb-0 md:mb-2">
-                    <label for="ref" class="w-full">Реферальний код</label>
-                    <div class="custom-input w-full">
-                        <div class="input-bg"></div>
-                        <input 
-                            v-model="form.ref" 
-                            id="ref" 
-                            type="text" 
-                            placeholder="Введіть реферальний код"
-                        >
+                    <div class="field w-full">
+                        <label for="phone" class="w-full">Номер телефону</label>
+                        <div class="custom-input w-full" :class="{error: v$.phone.$error}">
+                            <div class="input-bg"></div>
+                            <input 
+                                v-model="form.phone" 
+                                id="phone" 
+                                type="text" 
+                                placeholder="Введіть номер телефону"
+                            >
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="flex gap-0 md:gap-3 flex-wrap md:flex-nowrap w-full">
                     <div class="field w-full mb-0 md:mb-2">
@@ -165,7 +165,7 @@ defineExpose({showDia})
                                 :type="passwordHidden ? 'password' : 'text'" 
                                 placeholder="Введіть пароль"
                             >
-                            <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <div class="password-toggle flex align-items-center" style="z-index: 3;">
                                 <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
                                 <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                             </div>
@@ -181,22 +181,22 @@ defineExpose({showDia})
                                 :type="repeatPasswordHidden ? 'password' : 'text'" 
                                 placeholder="Повторіть пароль"
                             >
-                            <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <div class="password-toggle flex align-items-center" style="z-index: 3;">
                                 <img v-show="repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
                                 <img v-show="!repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="field w-full">
-                    <label for="phone" class="w-full">Номер телефону</label>
-                    <div class="custom-input w-full" :class="{error: v$.phone.$error}">
+                <div class="field w-full mb-0 md:mb-2">
+                    <label for="ref" class="w-full">Реферальний код (Необов'язково)</label>
+                    <div class="custom-input w-full">
                         <div class="input-bg"></div>
                         <input 
-                            v-model="form.phone" 
-                            id="phone" 
+                            v-model="form.ref" 
+                            id="ref" 
                             type="text" 
-                            placeholder="Введіть номер телефону"
+                            placeholder="Введіть реферальний код"
                         >
                     </div>
                 </div>
@@ -209,7 +209,7 @@ defineExpose({showDia})
                 <div class="flex gap-1 md:gap-6 flex-column-reverse md:flex-row align-items-center justify-content-between w-full">
                     <div class="flex gap-1">
                         <span>Вже зареєструвалися?</span>
-                        <span @click="emit('openLogin'), showed = false" class="underline cursor-pointer">Увійти</span>
+                        <a @click="emit('openLogin'), showed = false" class="underline cursor-pointer">Увійти</a>
                     </div>
                     <button type="submit" class="fantasy-btn mt-2 ml-4"><span>Зареєструватися</span></button>
                 </div>

@@ -14,11 +14,11 @@ onMounted(() => {
         <router-link :to="{name: 'support-chat'}" class="support-chat-icon fixed ">
             <div class="support-icon"></div>
         </router-link>
-        <!-- <div v-if="userStore.unreadCount > 0" class="unread-indicator">
+        <div v-if="userStore.unreadCount > 0" class="unread-indicator">
             <p class="text-white text-sm font-bold">
                 {{ userStore.unreadCount }}  
             </p>
-        </div> -->
+        </div>
     </div>
 </template>
 <style scoped lang="scss">
@@ -34,6 +34,11 @@ onMounted(() => {
     height: 130px;
     border-radius: 100%;
     transition: all .3s ease-in-out;
+
+    @media (max-width: 768px) {
+        width: 100px;
+        height: 100px;
+    }
 }
 
 .support-icon {
@@ -62,8 +67,8 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     position: fixed;
-    bottom: 85px;
-    right: 25px;
+    bottom: 72px;
+    right: 32px;
     width: 20px;
     height: 20px;
     background-color: red;
@@ -72,6 +77,13 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     animation: pulse 1.2s infinite;
+
+    @media (max-width: 768px) {
+        bottom: 55px;
+        right: 26px;
+        width: 15px;
+        height: 15px;
+    }
     
     span {
         line-height: 100%;
