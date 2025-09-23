@@ -127,6 +127,10 @@ function toggleBurger() {
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
+                        <a href="https://db.valor.in.ua/" target="_blank" rel="noopener noreferrer">База даних</a>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
+                    </li>
+                    <li class="header-burger-item">
                         <template v-if="!userStore.isLoggedIn">
                             <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
                         </template>
@@ -136,7 +140,6 @@ function toggleBurger() {
                                 <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-burger-profile-arrow">
                             </router-link>
                         </template>
-                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item flex flex-row align-items-center justify-content-center gap-5">
                         <a href="https://discord.gg/zPKh4BUskKX" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
