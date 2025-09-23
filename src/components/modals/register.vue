@@ -103,7 +103,7 @@ defineExpose({showDia})
         <template #body>
             <form v-if="!needVerification" @submit.prevent="register" class="flex flex-column align-items-center w-full">
                 <div class="flex gap-0 md:gap-3 flex-wrap md:flex-nowrap w-full">
-                    <div class="field w-full mb-0 md:mb-2">
+                    <div class="field w-full mb-2">
                     <label for="email" class="w-full">Ваш email</label>
                     <div class="custom-input w-full" :class="{error: v$.email.$error}">
                         <div class="input-bg"></div>
@@ -115,7 +115,7 @@ defineExpose({showDia})
                         >
                     </div>
                 </div>
-                <div class="field w-full mb-0 md:mb-2">
+                <div class="field w-full mb-2">
                     <label for="login" class="w-full">Логін</label>
                     <div class="custom-input w-full" :class="{error: v$.username.$error}">
                         <div class="input-bg"></div>
@@ -129,7 +129,7 @@ defineExpose({showDia})
                 </div>
                 </div>
                 <div class="flex gap-3 flex-wrap md:flex-nowrap w-full">
-                    <div class="field w-full mb-0 md:mb-2">
+                    <div class="field w-full mb-2">
                         <label for="name" class="w-full">Ім'я для форуму</label>
                         <div class="custom-input w-full" :class="{error: v$.name.$error}">
                             <div class="input-bg"></div>
@@ -155,7 +155,7 @@ defineExpose({showDia})
                     </div>
                 </div>
                 <div class="flex gap-0 md:gap-3 flex-wrap md:flex-nowrap w-full">
-                    <div class="field w-full mb-0 md:mb-2">
+                    <div class="field w-full mb-2">
                         <label for="password" class="w-full">Пароль</label>
                         <div class="custom-input w-full" :class="{error: v$.pass.$error}">
                             <div class="input-bg"></div>
@@ -171,7 +171,7 @@ defineExpose({showDia})
                             </div>
                         </div>
                     </div>
-                    <div class="field w-full mb-0 md:mb-2">
+                    <div class="field w-full mb-2">
                         <label for="repeat-password">Повторіть пароль</label>
                         <div class="custom-input w-full" :class="{error: v$.repeat_pass.$error}">
                             <div class="input-bg"></div>
@@ -188,7 +188,7 @@ defineExpose({showDia})
                         </div>
                     </div>
                 </div>
-                <div class="field w-full mb-0 md:mb-2">
+                <div class="field w-full mb-2">
                     <label for="ref" class="w-full">Реферальний код (Необов'язково)</label>
                     <div class="custom-input w-full">
                         <div class="input-bg"></div>

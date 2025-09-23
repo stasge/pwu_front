@@ -87,13 +87,15 @@ defineExpose({
             <form @submit.prevent="create" class="create-theme flex flex-column justify-content-center w-full">
                 <div class="field w-full">
                     <label for="name" class="w-full">Назва теми</label>
-                    <input 
-                        v-model="form.name" 
-                        id="name" 
-                        type="text" 
-                        :class="{invalid: v$.name.$error}"
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                    >
+                    <div class="custom-input w-full" :class="{ error: v$.name.$error }">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.name" 
+                            id="name" 
+                            type="text" 
+                            placeholder="Введіть назву теми"
+                        >
+                    </div>
                 </div>
                 <div class="field w-full">
                     <label for="text" class="w-full">Текст теми</label>
