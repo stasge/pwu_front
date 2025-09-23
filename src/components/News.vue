@@ -537,6 +537,13 @@ const deleteNews = async (id: number) => {
         display: flex;
         align-items: center;
         justify-content: center;
+
+        @media (max-width: 768px) {
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+        }
         
         .frame-image {
             width: 100%;
