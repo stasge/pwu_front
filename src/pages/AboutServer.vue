@@ -108,6 +108,62 @@ const rightColumnQuestions = computed(() => {
                     </div>
                 </div>
             </div>
+
+            <div class="about__promo">
+                <img class="about__promo-img w-full" src="@/assets/images/about-promo-img.jpg" alt="promo">
+                <div class="about__promo-content">
+                    <h3 class="about__promo-title">Промокод для Нових Гравців:</h3>
+                    <div class="about__promo-main">
+                        <span class="about__promo-start">Start_23.05.2025</span>
+                    </div>
+                    <div class="about__promo-separator">
+                        <svg width="360" height="9" viewBox="0 0 360 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M182.666 4.3122V5.30433L180.496 7.47494L179.504 7.47494L177.333 5.30439V4.31214L179.504 2.1416H180.496L182.666 4.3122Z" fill="url(#paint0_linear_282_1898)" />
+                            <path d="M184 4.0645V5.55269L180.744 8.80859H179.256L176 5.55278V4.06441L179.256 0.808594L180.744 0.808594L184 4.0645ZM177.395 4.64235V4.97484L179.834 7.41325H180.166L182.605 4.97475V4.64244L180.166 2.20394H179.834L177.395 4.64235Z" fill="url(#paint1_linear_282_1898)" />
+                            <path d="M0.673746 2.80858C4.09209 2.80858 173.87 4.05892 174 4.05892V5.55913C173.87 5.55913 4.08817 6.80858 0.669819 6.80858C-0.225822 5.44426 -0.222024 4.17264 0.673746 2.80858Z" fill="url(#paint2_linear_282_1898)" />
+                            <path d="M359.326 2.8086C355.908 2.8086 186.13 4.05892 186 4.05892V5.55913C186.13 5.55913 355.912 5.8086 359.33 5.8086C360.226 4.44428 360.222 4.17266 359.326 2.8086Z" fill="url(#paint3_linear_282_1898)" />
+                            <defs>
+                                <linearGradient id="paint0_linear_282_1898" x1="180" y1="2.52255" x2="180" y2="7.09398" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#17181D" />
+                                <stop offset="0.317308" stop-color="#1D1E22" />
+                                <stop offset="1" />
+                                </linearGradient>
+                                <linearGradient id="paint1_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#F8F8F8" />
+                                <stop offset="0.7" stop-color="#FADFAE" />
+                                <stop offset="1" stop-color="#FBD298" />
+                                </linearGradient>
+                                <linearGradient id="paint2_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#F8F8F8" />
+                                <stop offset="0.7" stop-color="#FADFAE" />
+                                <stop offset="1" stop-color="#FBD298" />
+                                </linearGradient>
+                                <linearGradient id="paint3_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#F8F8F8" />
+                                <stop offset="0.7" stop-color="#FADFAE" />
+                                <stop offset="1" stop-color="#FBD298" />
+                                </linearGradient>
+                            </defs>
+                            </svg>
+                    </div>
+                    <div class="about__promo-rewards">
+                        <div class="about__promo-reward">
+                            <img src="@/assets/images/hp-amulet.png" alt="Золотий Амулет" class="about__promo-reward-icon">
+                            <span class="about__promo-reward-text">Золотий Амулет</span>
+                        </div>
+                        <div class="about__promo-reward">
+                            <img src="@/assets/images/mp-amulet.png" alt="Золотий Ідол" class="about__promo-reward-icon">
+                            <span class="about__promo-reward-text">Золотий Ідол</span>
+                        </div>
+                        <div class="about__promo-reward">
+                            <img src="@/assets/images/rupor.png" alt="Рупор x5" class="about__promo-reward-icon">
+                            <span class="about__promo-reward-text">Рупор x5</span>
+                        </div>
+                    </div>
+                </div>
+                <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-top" alt="promo mask top">
+                <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-bottom" alt="promo mask bottom">
+            </div>
             
             <div class="about__faq">
                 <h2 class="about__faq-title"><span>Часті</span> <span>запитання:</span></h2>
@@ -179,61 +235,7 @@ const rightColumnQuestions = computed(() => {
                 </div>
             </div>
 
-            <div class="about__promo">
-                <img class="about__promo-img w-full" src="@/assets/images/about-promo-img.jpg" alt="promo">
-                <div class="about__promo-content">
-                    <h3 class="about__promo-title">Промокод для Нових Гравців:</h3>
-                    <div class="about__promo-main">
-                        <span class="about__promo-start">Start_23.05.2025</span>
-                    </div>
-                    <div class="about__promo-separator">
-                        <svg width="360" height="9" viewBox="0 0 360 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M182.666 4.3122V5.30433L180.496 7.47494L179.504 7.47494L177.333 5.30439V4.31214L179.504 2.1416H180.496L182.666 4.3122Z" fill="url(#paint0_linear_282_1898)" />
-                            <path d="M184 4.0645V5.55269L180.744 8.80859H179.256L176 5.55278V4.06441L179.256 0.808594L180.744 0.808594L184 4.0645ZM177.395 4.64235V4.97484L179.834 7.41325H180.166L182.605 4.97475V4.64244L180.166 2.20394H179.834L177.395 4.64235Z" fill="url(#paint1_linear_282_1898)" />
-                            <path d="M0.673746 2.80858C4.09209 2.80858 173.87 4.05892 174 4.05892V5.55913C173.87 5.55913 4.08817 6.80858 0.669819 6.80858C-0.225822 5.44426 -0.222024 4.17264 0.673746 2.80858Z" fill="url(#paint2_linear_282_1898)" />
-                            <path d="M359.326 2.8086C355.908 2.8086 186.13 4.05892 186 4.05892V5.55913C186.13 5.55913 355.912 5.8086 359.33 5.8086C360.226 4.44428 360.222 4.17266 359.326 2.8086Z" fill="url(#paint3_linear_282_1898)" />
-                            <defs>
-                                <linearGradient id="paint0_linear_282_1898" x1="180" y1="2.52255" x2="180" y2="7.09398" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#17181D" />
-                                <stop offset="0.317308" stop-color="#1D1E22" />
-                                <stop offset="1" />
-                                </linearGradient>
-                                <linearGradient id="paint1_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#F8F8F8" />
-                                <stop offset="0.7" stop-color="#FADFAE" />
-                                <stop offset="1" stop-color="#FBD298" />
-                                </linearGradient>
-                                <linearGradient id="paint2_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#F8F8F8" />
-                                <stop offset="0.7" stop-color="#FADFAE" />
-                                <stop offset="1" stop-color="#FBD298" />
-                                </linearGradient>
-                                <linearGradient id="paint3_linear_282_1898" x1="169.793" y1="-5.1914" x2="169.793" y2="11.5733" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#F8F8F8" />
-                                <stop offset="0.7" stop-color="#FADFAE" />
-                                <stop offset="1" stop-color="#FBD298" />
-                                </linearGradient>
-                            </defs>
-                            </svg>
-                    </div>
-                    <div class="about__promo-rewards">
-                        <div class="about__promo-reward">
-                            <img src="@/assets/images/hp-amulet.png" alt="Золотий Амулет" class="about__promo-reward-icon">
-                            <span class="about__promo-reward-text">Золотий Амулет</span>
-                        </div>
-                        <div class="about__promo-reward">
-                            <img src="@/assets/images/mp-amulet.png" alt="Золотий Ідол" class="about__promo-reward-icon">
-                            <span class="about__promo-reward-text">Золотий Ідол</span>
-                        </div>
-                        <div class="about__promo-reward">
-                            <img src="@/assets/images/rupor.png" alt="Рупор x5" class="about__promo-reward-icon">
-                            <span class="about__promo-reward-text">Рупор x5</span>
-                        </div>
-                    </div>
-                </div>
-                <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-top" alt="promo mask top">
-                <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-bottom" alt="promo mask bottom">
-            </div>
+            
         </div>
     </div>
     <Footer />
