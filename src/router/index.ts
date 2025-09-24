@@ -18,6 +18,8 @@ import SupportChat from "@/pages/SupportChat.vue";
 import SupportChatTheme from "@/pages/SupportChatTheme.vue";
 import SupportProject from "@/pages/SupportProject.vue";
 import Download from "@/pages/Download.vue";
+import About from "@/pages/AboutServer.vue";
+import AboutServer from "@/pages/AboutServer.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -118,6 +120,11 @@ const router = createRouter({
           component: AdminPanel,
         },
       ],
+    },
+    {
+      path: "/about-server",
+      name: "about-server",
+      component: AboutServer,
     },
     {
       path: "/terms",

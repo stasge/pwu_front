@@ -43,7 +43,7 @@ function toggleBurger() {
                 <nav class="header-menu">
                     <ul class="header-menu__list flex align-items-center">
                         <li class="header-menu__item">
-                            <router-link :to="{ name: 'separate-theme', params: { theme_id: 2, cat_id: 1 } }">Про Сервер</router-link>
+                            <router-link :to="{ name: 'about-server' }">Про Сервер</router-link>
                         </li>
                         <li class="header-menu__item">
                             <router-link :to="{ name: 'leaderboard' }">Лідери</router-link>
@@ -111,7 +111,7 @@ function toggleBurger() {
             <div class="header-burger-menu">
                 <ul class="header-burger-list">
                     <li class="header-burger-item">
-                        <router-link :to="{ name: 'separate-theme', params: { theme_id: 2, cat_id: 1 } }" @click="isBurgerOpen = false">Про Сервер</router-link>
+                        <router-link :to="{ name: 'about-server' }" @click="isBurgerOpen = false">Про Сервер</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
