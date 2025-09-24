@@ -83,6 +83,10 @@ const donators = ref([
     .donator-slide {
         margin-right: 20px;
         flex-shrink: 0;
+
+        @media (max-width: 768px) {
+            margin-right: 0px;
+        }
     }
 
     .donator-nick {

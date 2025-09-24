@@ -213,7 +213,9 @@ const handleDownload = () => {
             margin-top: clamp(0px, 3vw, 20px);
             margin-right: 20px;
 
-          
+            @media (max-width: 768px) {
+                margin-right: 0;
+            }
         }
     }
 }
