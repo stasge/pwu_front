@@ -43,7 +43,6 @@ const donators = ref([
     position: relative;
     z-index: 2;
     max-width: 442px;
-    margin: clamp(20px, 3vw, 50px) auto 0 auto;
     overflow: hidden;
 
     &__title {
