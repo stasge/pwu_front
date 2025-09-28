@@ -67,6 +67,7 @@ const copyToClipboard = (text: string) => {
                         </p>
                     </div>
                     <h3 class="my-2">УВАГА! Обовʼязково <b> завантажте квитанцію та логін ІГРОВОГО акаунту (використовується для входу в гру) в приватні повідомлення discord - Oleksandr (volvan_007)</b>, щоб отримати бонус.</h3>
+                    <p>Посилання на нього можна знайти тут - <a href="https://discord.com/channels/1182237382695714857/1372646945889325177" target="_blank" rel="noopener noreferrer">Oleksandr (volvan_007)</a></p>
                     <p class="text-center font-bold">QR код для приват24</p>
                     <img class="block" src="@/assets/images/qr-bank.png" alt="" width="300">
                     <p>Це не продаж ігрових цінностей, а вдячність за допомогу, яку ми щиро цінуємо 🙏</p>
