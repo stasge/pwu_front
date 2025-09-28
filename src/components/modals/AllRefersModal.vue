@@ -325,9 +325,11 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
 
     <!-- Reward Selection Modal -->
     <Modal v-model:showed="rewardModalVisible">
+        <template #header>
+            <h2 class="modal__title">Вибір акаунта та персонажа</h2>
+        </template>
         <template #body>
             <div class="select-acc-modal flex flex-column justify-content-center w-full">
-                <h2 class="modal__title mb-5">Вибір акаунта та персонажа</h2>
                 <div v-if="accounts.length === 0" class="text-center text-secondary">
                     Немає доступних акаунтів для вибору.
                 </div>
@@ -355,14 +357,14 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                         />
                     </div>
                 </div>
-                <div class="flex justify-content-start gap-2">
+                <div class="flex justify-content-center gap-2">
                     <button
-                        class="btn btn-sm btn-primary"
+                        class="fantasy-btn"
                         @click="confirmReward"
                         :disabled="loadingReward || !selectedAccount || !selectedRole"
                     >
                         <span v-if="loadingReward" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Відправити
+                        <span>Відправити</span>
                     </button>
                 </div>
             </div>

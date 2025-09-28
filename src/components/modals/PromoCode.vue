@@ -91,12 +91,8 @@ defineExpose({
       <h2 class="modal__title w-full">
         <span v-if="!availableAccounts.length">Введіть промокод</span>
         <span v-else-if="availableAccounts.length && !form.game_id" class="block text-center">Оберіть ігровий акаунт</span>
-        <div v-else>
-            <Button 
-                class="primary absolute" 
-                icon="pi pi-chevron-left" 
-                @click.stop="form.game_id = form.role_id = null" 
-            />
+        <div v-else class="flex align-items-center gap-3">
+            <img width="22" src="@/assets/images/arrow-prev.svg" alt="back" class="cursor-pointer" @click.stop="form.game_id = form.role_id = null" />
             <span class="block text-center">Оберіть персонажа</span>
         </div>
       </h2>
@@ -154,7 +150,7 @@ defineExpose({
       </div>
       <button
         v-if="availableAccounts.length && form.game_id && form.role_id"
-        class="fantasy-btn"
+        class="fantasy-btn mt-3"
         :class="{ disabled: form.game_id && form.role_id }"
         @click="applyPromo()"
       >
