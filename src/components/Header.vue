@@ -76,7 +76,7 @@ function toggleBurger() {
                 </svg>
                 <div class="social-media flex align-items-center gap-4">
                     
-                    <a href="https://discord.gg/zPKh4BUskKX" target="_blank" rel="noopener noreferrer">
+                    <a href="https://discord.gg/3Ma5DaMUzQ" target="_blank" rel="noopener noreferrer">
                         <img src="@/assets/images/discord-icon.svg" alt="discord">
                     </a>
                     <a href="https://t.me/valor_pw" target="_blank" rel="noopener noreferrer">
@@ -142,7 +142,7 @@ function toggleBurger() {
                         </template>
                     </li>
                     <li class="header-burger-item flex flex-row align-items-center justify-content-center gap-5">
-                        <a href="https://discord.gg/zPKh4BUskKX" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
+                        <a href="https://discord.gg/3Ma5DaMUzQ" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
                             <img width="40" src="@/assets/images/discord-icon.svg" alt="discord">
                         </a>
                         <a href="https://t.me/valor_pw" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">
