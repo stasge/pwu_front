@@ -528,6 +528,7 @@ oembed {
   }
 
   & > * {
+    font-family: "Candara", sans-serif;
     color: #000;
   }
 
@@ -573,6 +574,10 @@ oembed {
 .image-style-align-right {
   float: right;
   margin-left: 1rem;
+}
+
+textarea {
+  font-family: "Candara", sans-serif !important;
 }
 
 
