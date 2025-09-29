@@ -249,6 +249,7 @@ watch([state, page, limit], ([newState]) => {
         }
 
         &__text {
+            font-family: "Candara", sans-serif;
             padding: 10px;
             background-color: rgba(93, 119, 144, 0.2);
             border-radius: 5px;
@@ -269,6 +270,7 @@ watch([state, page, limit], ([newState]) => {
         }
 
         &__last-text {
+            font-family: "Candara", sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: space-between;

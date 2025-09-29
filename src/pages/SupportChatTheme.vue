@@ -269,6 +269,7 @@ const closeImageFullscreen = () => {
     }
 
     .messages {
+        font-family: "Candara", sans-serif;
         color: black;
         display: flex;
         flex-direction: column;
