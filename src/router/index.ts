@@ -92,11 +92,6 @@ const router = createRouter({
           component: Leaderboard,
         },
         {
-          path: "/page/support-project",
-          name: "support-project",
-          component: SupportProject,
-        },
-        {
           path: "/page/download",
           name: "download-page",
           component: Download,
@@ -125,6 +120,11 @@ const router = createRouter({
       path: "/about-server",
       name: "about-server",
       component: AboutServer,
+    },
+    {
+      path: "/support-project",
+      name: "support-project",
+      component: SupportProject,
     },
     {
       path: "/terms",
