@@ -101,6 +101,7 @@ const rightColumnQuestions = computed(() => {
                         <h3 class="about__content-section-title">Особливості проєкту:</h3>
                         <div class="about__content-features">
                             <div class="about__content-feature">Україномовний контент</div>
+                            <div class="about__content-feature">Власна база даних - <a href="https://db.valor.in.ua/" target="_blank">https://db.valor.in.ua/</a></div>
                             <div class="about__content-feature">Спрощена система реєстрації для декількох акаунтів</div>
                             <div class="about__content-feature">Змінена нагорода для щомісячних перегонів</div>
                             <div class="about__content-feature">Автошлях, 109 данж відсутній</div>
@@ -377,7 +378,7 @@ const rightColumnQuestions = computed(() => {
         font-family: 'Candara', serif;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 5px;
         margin-top: 20px;
     }
 
@@ -386,6 +387,15 @@ const rightColumnQuestions = computed(() => {
         color: #f8f8f8;
         font-weight: 400;
         line-height: 1.4;
+
+        a {
+            color: #fbd298;
+            transition: opacity 0.3s ease;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
     }
 
     &__faq {
