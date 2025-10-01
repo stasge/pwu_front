@@ -87,11 +87,6 @@ const router = createRouter({
           component: SingleNews,
         },
         {
-          path: "/page/leaderboard",
-          name: "leaderboard",
-          component: Leaderboard,
-        },
-        {
           path: "/page/download",
           name: "download-page",
           component: Download,
@@ -115,6 +110,11 @@ const router = createRouter({
           component: AdminPanel,
         },
       ],
+    },
+    {
+      path: "/leaderboard",
+      name: "leaderboard",
+      component: Leaderboard,
     },
     {
       path: "/about-server",
