@@ -8,6 +8,9 @@ import type { CharStats } from '@/models/rating';
 import { Race } from '@/models/rating';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
+import Leaderboard1stIcon from '@/assets/images/leaderboard-1st.svg';
+import Leaderboard2ndIcon from '@/assets/images/leaderboard-2nd.svg';
+import Leaderboard3rdIcon from '@/assets/images/leaderboard-3rd.svg';
 
 const RaceNames = new Map<Race, string>([
   [Race.Warrior, "Воїн"],
@@ -84,20 +87,83 @@ onMounted(async () => {
             </div>
             
             <DataTable :value="leadersWithIndex">
-                <Column header="#" style="width: 50px">
+                <Column header="№" style="width: 50px">
                     <template #body="slotProps">
-                        <div>{{ slotProps.data.index + 1 }}</div>
+                        <div 
+                            class="position-cell"
+                            :class="{
+                                'row-1st': slotProps.data.index === 0,
+                                'row-2nd': slotProps.data.index === 1,
+                                'row-3rd': slotProps.data.index === 2
+                            }"
+                        >
+                            <img 
+                                v-if="slotProps.data.index === 0" 
+                                :src="Leaderboard1stIcon" 
+                                alt="1st place" 
+                                class="position-icon"
+                            />
+                            <img 
+                                v-else-if="slotProps.data.index === 1" 
+                                :src="Leaderboard2ndIcon" 
+                                alt="2nd place" 
+                                class="position-icon"
+                            />
+                            <img 
+                                v-else-if="slotProps.data.index === 2" 
+                                :src="Leaderboard3rdIcon" 
+                                alt="3rd place" 
+                                class="position-icon"
+                            />
+                            <span v-else>{{ slotProps.data.index + 1 }}</span>
+                        </div>
                     </template>
                 </Column>
                 <Column field="race" header="Раса">
                     <template #body="slotProps">
-                        <div>{{ RaceNames.get(slotProps.data.race) || "Невідомо" }}
+                        <div 
+                            :class="{
+                                'row-1st': slotProps.data.index === 0,
+                                'row-2nd': slotProps.data.index === 1,
+                                'row-3rd': slotProps.data.index === 2
+                            }"
+                        >{{ RaceNames.get(slotProps.data.race) || "Невідомо" }}
                         </div>
                     </template>
                 </Column>
-                <Column field="name" header="Нік"></Column>
-                <Column field="level" header="Рівень"></Column>
-                <Column field="exp" header="Досвід"></Column>
+                <Column field="name" header="Нік">
+                    <template #body="slotProps">
+                        <div 
+                            :class="{
+                                'row-1st': slotProps.data.index === 0,
+                                'row-2nd': slotProps.data.index === 1,
+                                'row-3rd': slotProps.data.index === 2
+                            }"
+                        >{{ slotProps.data.name }}</div>
+                    </template>
+                </Column>
+                <Column field="level" header="Рівень">
+                    <template #body="slotProps">
+                        <div 
+                            :class="{
+                                'row-1st': slotProps.data.index === 0,
+                                'row-2nd': slotProps.data.index === 1,
+                                'row-3rd': slotProps.data.index === 2
+                            }"
+                        >{{ slotProps.data.level }}</div>
+                    </template>
+                </Column>
+                <Column field="exp" header="Досвід">
+                    <template #body="slotProps">
+                        <div 
+                            :class="{
+                                'row-1st': slotProps.data.index === 0,
+                                'row-2nd': slotProps.data.index === 1,
+                                'row-3rd': slotProps.data.index === 2
+                            }"
+                        >{{ slotProps.data.exp }}</div>
+                    </template>
+                </Column>
                 <template #empty>
                     <p class="text-center p-2">Список лідерів пустий</p>   
                 </template>
@@ -185,6 +251,23 @@ onMounted(async () => {
             width: 100%;
             max-width: 1390px;
             margin: 0 auto;
+        }
+
+        .position-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            .position-icon {
+                width: 40px;
+                height: 24px;
+                object-fit: contain;
+
+                @media (max-width: 768px) {
+                    width: 30px;
+                    height: auto;
+                }
+            }
         }
 
         .corner-icon {
@@ -282,10 +365,47 @@ onMounted(async () => {
                 padding: 15px 10px;
                 font-size: 22px;
 
+                .p-datatable-column-title {
+                    font-weight: 400;
+                }
+
                 @media (max-width: 768px) {
                     font-size: 12px;
                     padding: 10px 5px;
                 }
+            }
+
+            .row-1st {
+                font-size: 120%;
+                font-weight: 400;
+                line-height: 100%;
+                letter-spacing: -0.04em;
+                background: linear-gradient(180deg, #f8f8f8 0%, #ffd485 70%, #986d2f 100%);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .row-2nd {
+                font-size: 120%;
+                font-weight: 400;
+                line-height: 100%;
+                letter-spacing: -0.04em;
+                background: linear-gradient(180deg, #f8f8f8 0%, #d4d4d4 70%, #636363 100%);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .row-3rd {
+                font-size: 120%;
+                font-weight: 400;
+                line-height: 100%;
+                letter-spacing: -0.04em;
+                background: linear-gradient(180deg, #f8f8f8 0%, #e0a280 70%, #d67457 100%);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
 
             td {
