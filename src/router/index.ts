@@ -87,11 +87,6 @@ const router = createRouter({
           component: SingleNews,
         },
         {
-          path: "/page/download",
-          name: "download-page",
-          component: Download,
-        },
-        {
           path: "/page/support-chat",
           name: "support-chat",
           meta: { requiresAuth: true },
@@ -125,6 +120,11 @@ const router = createRouter({
       path: "/support-project",
       name: "support-project",
       component: SupportProject,
+    },
+    {
+      path: "/download",
+      name: "download-page",
+      component: Download,
     },
     {
       path: "/terms",
