@@ -214,7 +214,7 @@ const copyToClipboard = (text: string) => {
 
             &-image {
                 width: clamp(22px, 2vw, 32px);
-                height: auto;
+                height: clamp(22px, 2vw, 32px);
             }
             
             &-text {
