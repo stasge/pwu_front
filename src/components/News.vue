@@ -13,6 +13,13 @@ const news = ref<News[]>([])
 const currentSlide = ref(0)
 const isAnimating = ref(false)
 const userStore = useUserStore()
+
+// Touch events для свайпу
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const touchEndX = ref(0)
+const touchEndY = ref(0)
+const minSwipeDistance = 50 // Мінімальна відстань для визнання свайпу
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const router = useRouter()
 const emitter = useMitt()
@@ -84,6 +91,49 @@ const deleteNews = async (id: number) => {
         }
     })
 }
+
+// Touch event handlers для свайпу
+const handleTouchStart = (e: TouchEvent) => {
+    touchStartX.value = e.touches[0].clientX
+    touchStartY.value = e.touches[0].clientY
+}
+
+const handleTouchMove = (e: TouchEvent) => {
+    // Запобігаємо скролу сторінки під час горизонтального свайпу
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX.value)
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.value)
+    
+    if (deltaX > deltaY) {
+        e.preventDefault()
+    }
+}
+
+const handleTouchEnd = (e: TouchEvent) => {
+    touchEndX.value = e.changedTouches[0].clientX
+    touchEndY.value = e.changedTouches[0].clientY
+    handleSwipe()
+}
+
+const handleSwipe = () => {
+    // Перевіряємо, чи це мобільний пристрій
+    const isMobile = window.innerWidth <= 768
+    
+    if (!isMobile) return // Не обробляємо свайп на десктопі
+    
+    const deltaX = touchEndX.value - touchStartX.value
+    const deltaY = touchEndY.value - touchStartY.value
+    
+    // Перевіряємо, чи це горизонтальний свайп (більше горизонтального руху ніж вертикального)
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+        if (deltaX > 0) {
+            // Свайп вправо - попередній слайд
+            prevSlide()
+        } else {
+            // Свайп вліво - наступний слайд
+            nextSlide()
+        }
+    }
+}
 </script>
 
 <template>
@@ -96,7 +146,13 @@ const deleteNews = async (id: number) => {
             class="success admin-btn"
         />
         
-        <div v-if="visibleNews.length > 0" class="slider-container">
+        <div 
+            v-if="visibleNews.length > 0" 
+            class="slider-container"
+            @touchstart="handleTouchStart"
+            @touchmove="handleTouchMove"
+            @touchend="handleTouchEnd"
+        >
             <!-- Ліва панель з текстом -->
             <div class="slider-content-container">
                 <div class="slider-content">
@@ -254,6 +310,9 @@ const deleteNews = async (id: number) => {
         border-radius: 12px;
         overflow: hidden;
         position: relative;
+        user-select: none; // Запобігає виділенню тексту при свайпі
+        -webkit-user-select: none;
+        -webkit-touch-callout: none; // Відключає контекстне меню на iOS
         
         @media (max-width: 768px) {
             flex-direction: column;
