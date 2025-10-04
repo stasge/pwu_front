@@ -145,7 +145,7 @@ watch([state, page, limit], ([newState]) => {
                                         <div>
                                             <span class="text-base font-bold">{{ theme.last.user.username + ': '
                                                 }}</span>
-                                            <span class="text-base" v-html="truncateText(theme.last.text)"></span>
+                                            <span class="text-base" v-html="truncateText(theme.last.text, 100)"></span>
                                         </div>
                                         <div v-if="theme.last" class="flex justify-content-end mt-2">
                                             <span class="text-xs">{{ format(theme.last.created_at, 'dd-MM-yyyy hh:mm')
@@ -259,7 +259,6 @@ watch([state, page, limit], ([newState]) => {
             display: flex;
             gap: 5px;
             height: 100%;
-
         }
 
         &__last-romb {
@@ -287,6 +286,10 @@ watch([state, page, limit], ([newState]) => {
             span {
                 font-size: 16px;
                 line-height: 130%;
+            }
+
+            ::v-deep(a) {
+                color: #e26f0f !important;
             }
         }
     }
