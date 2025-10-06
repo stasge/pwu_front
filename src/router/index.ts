@@ -20,6 +20,7 @@ import SupportProject from "@/pages/SupportProject.vue";
 import Download from "@/pages/Download.vue";
 import About from "@/pages/AboutServer.vue";
 import AboutServer from "@/pages/AboutServer.vue";
+import NotFound from "@/pages/NotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -150,6 +151,11 @@ const router = createRouter({
       path: "/terms",
       component: Terms,
       name: "terms",
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      name: "not-found",
+      component: NotFound,
     },
   ],
 });
