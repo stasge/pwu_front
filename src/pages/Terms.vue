@@ -1,19 +1,33 @@
 <script setup lang="ts">
+import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
 </script>
 
 <template>
-  <div>
-    <router-link :to="{ name: 'home' }" class="fixed fantasy-btn no-underline"><span>На головну</span></router-link>
-    <h1>Користувацька угода Valor</h1>
-    <h3>
+  <Header />
+  <div class="terms-page">
+    <div class="terms-page__img">
+      <img src="@/assets/images/terms-main-img.jpg" class="terms-page__img-img" alt="terms page bg">
+      <div class="terms-page__logo-container">
+        <video class="terms-page__logo-video" autoplay muted loop playsinline>
+          <source src="@/assets/video/Fireball.webm" type="video/webm">
+        </video>
+        <img class="terms-page__logo" src="@/assets/images/hero-logo.png" alt="terms page logo">
+      </div>
+      <img src="@/assets/images/CTA-mask.png" class="terms-page__mask-bottom" alt="terms page mask bottom">
+    </div>
+    <div class="terms-page__inner">
+    <h1 class="terms-page__title">Користувацька  <br> Угода Valor</h1>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
+    <h3 class="terms-page__intro-text">
       Підключаючись до сервера, переглядаючи сайт та використовуючи його, ви
       залишаєтеся гостем цього ресурсу, маєте право перебувати на ресурсі та
       користуватися ним, підключатися до сервера та знаходитися на ньому доти,
       доки не порушите будь-яку з умов або правил, описаних нижче.
     </h3>
-    <h2>1. Загальні положення</h2>
-    <ol>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
+    <h2 class="terms-page__section-title">1. Загальні положення</h2>
+    <ol class="terms-page__list">
       <li>
         Адміністрація залишає за собою право вносити будь-які зміни та оновлення
         на сервері без попереднього повідомлення гравців.
@@ -52,23 +66,20 @@ import Footer from "@/components/Footer.vue";
         За використання мови агресора - попередження, після ігнорування якого бан. 
       </li>
     </ol>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
 
-    <h2>2. Ігровий процес</h2>
-    <ol>
+    <h2 class="terms-page__section-title">2. Ігровий процес</h2>
+    <ol class="terms-page__list">
       <li>
         Заборонено використання програмного забезпечення (або поширення
         інформації про нього), яке впливає будь-яким чином на роботу сервера або
         ігровий процес.
-        <ul class="mt-1 pl-5">
-          <li>
-        <span>За використання ботів для автоматизації ігрових дій:</span>
-        <ul class="mt-1 pl-5">
+        <br>За використання ботів для автоматизації ігрових дій:
+        <ul>
           <li>1 порушення — блокування акаунта на 1 годину</li>
           <li>2 порушення — блокування акаунта на 12 годин</li>
           <li>3 порушення — блокування акаунта на 24 години</li>
           <li>4 і більше порушень — перманентне блокування акаунта</li>
-        </ul>
-          </li>
         </ul>
       </li>
       <li>Заборонено використання багів гри або серверного ПЗ.</li>
@@ -101,16 +112,18 @@ import Footer from "@/components/Footer.vue";
       а також заохочення подібних дій і висловлювань.
     </li>
   </ul>
-
-  <p><strong>Важливо:</strong> Це правило <em>не стосується ігрових моментів</em>, пов’язаних із змагальністю чи діями персонажів у грі, якщо вони не переходять у сферу особистих образ чи цькування.</p>
+  
+  <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
+  <p><strong style="color: #cb3d16;">Важливо:</strong> Це правило <em>не стосується ігрових моментів</em>, пов’язаних із змагальністю чи діями персонажів у грі, якщо вони не переходять у сферу особистих образ чи цькування.</p>
   <p class="mt-1">За порушення даного правила накладається тимчасове блокування чату (БЧ) з поступовим збільшенням терміну:</p>
-  <ol>
+  <ol class="terms-page__list">
     <li>1 година</li>
     <li>3 години</li>
     <li>24 години</li>
     <li>3 доби</li>
   </ol>
   <p>У разі систематичних чи особливо грубих порушень — <strong>блокування персонажа</strong>.</p>
+  <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
 </li>
       <li>
         Заборонено флуд (багаторазово повторювані або безглузді повідомлення) в
@@ -156,8 +169,9 @@ import Footer from "@/components/Footer.vue";
         Порушення цього правила може призвести до тимчасового або постійного блокування акаунта.
       </li>
     </ol>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
 
-    <h2>3. Гільдії</h2>
+    <h2 class="terms-page__section-title">3. Гільдії</h2>
     <ol>
       <li>
         Гравці мають право створювати, видаляти, керувати гільдіями необмежено
@@ -175,8 +189,9 @@ import Footer from "@/components/Footer.vue";
         Заборонено створювати гільдії з назвою, що співпадає або навмисно імітує назву вже існуючої гільдії. Це правило застосовується незалежно від регістру літер, використання символів, пробілів або схожих за написанням символів.
       </li>
     </ol>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
 
-    <h2>4. Взаємодія з адміністрацією</h2>
+    <h2 class="terms-page__section-title">4. Взаємодія з адміністрацією</h2>
     <ol>
       <li>
         Заборонено звертатися до Адміністрації або GM сервера без крайньої
@@ -212,44 +227,145 @@ import Footer from "@/components/Footer.vue";
         скріншотом або відеофайлом.
       </li>
     </ol>
-
-    <p>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
+    <p class="terms-page__footer-text">
       Наш сервер є фанатським, демонстраційним і використовує неоновлену версію
       гри. Якщо ви хочете грати в повну версію гри, вам потрібно перейти на
       офіційний сервер
-      <a href="https://www.playpwi.com/en/">https://www.playpwi.com/en/</a>.
+      <a class="terms-page__footer-text-link" href="https://www.playpwi.com/en/">https://www.playpwi.com/en/</a>.
     </p>
+    <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
+    </div>
   </div>
   <Footer />
 </template>
 <style scoped lang="scss">
-h1,
-h2,
-h3 {
-  margin: 0 0 10px 0;
-  text-align: center;
-  margin-top: 40px;
-}
-a {
-  text-decoration: none;
-  color: rgb(85, 85, 234);
-}
 
-a:hover {
-  text-decoration: underline;
-}
 
-div {
-  padding: 20px 50px 50px 50px;
-  color: #fff;
-}
+.terms-page {
 
-ol {
-  margin-left: 20px;
-  margin-top: 20px;
-}
+  &__inner {
+    max-width: 630px;
+    margin: 0 auto;
+    padding: 0 15px;
+    color: #f8f8f8;
+    font-family: "Candara", sans-serif;
+  }
 
-li {
-  margin-bottom: 10px;
+  &__title {
+    font-family: "Vollkorn SC", serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 400;
+  }
+  &__intro-text {
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 400;
+  }
+
+  &__section-title {
+    font-family: "Vollkorn SC", serif;
+    font-size: clamp(24px, 2vw, 32px);
+    font-weight: 400;
+    margin-bottom: clamp(20px, 6vw, 50px);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 25px);
+    padding-left: 20px;
+  }
+
+  &__footer-text {
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 400;
+  }
+
+  &__footer-text-link {
+    text-decoration: underline;
+    text-decoration-skip-ink: none;
+    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  ol,
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 25px);
+    padding-left: 20px;
+    margin: clamp(10px, 6vw, 20px) 0;
+  }
+
+  &__divider {
+    width: 100%;
+    margin-bottom: clamp(20px, 6vw, 50px);
+    margin-top: clamp(20px, 6vw, 50px);
+    
+  }
+
+  &__img {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(20px, 6vw, 100px);
+
+    &-img {
+      object-fit: cover;
+      min-width: 100%;
+    }
+  }
+
+  &__logo-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-block;
+    width: clamp(170px, 20vw, 274px);
+    isolation: isolate;
+    z-index: 4;
+  }
+
+  &__logo {
+    position: relative;
+    width: 100%;
+    height: auto;
+    z-index: 1;
+  }
+
+  &__logo-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    pointer-events: none;
+    mix-blend-mode: screen;
+
+    /* маска з PNG-лого (має бути з прозорістю) */
+    -webkit-mask-image: url('@/assets/images/hero-logo.png');
+    mask-image: url('@/assets/images/hero-logo.png');
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    filter: contrast(1.6) brightness(1.2);
+  }
+
+  &__mask-bottom {
+    transform: rotate(180deg);
+    position: absolute;
+    bottom: -1px;
+    left: -1px;
+    width: 100%;
+    height: clamp(50px, 10vw, 197px);
+    z-index: 3;
+  }
 }
 </style>

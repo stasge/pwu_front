@@ -98,11 +98,6 @@ const router = createRouter({
           component: SupportProject,
         },
         {
-          path: "/page/download",
-          name: "download-page",
-          component: Download,
-        },
-        {
           path: "/page/support-chat",
           name: "support-chat",
           meta: { requiresAuth: true },
