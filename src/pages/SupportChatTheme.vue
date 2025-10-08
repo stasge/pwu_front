@@ -5,17 +5,15 @@ import type { Message } from '@/models/theme';
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import { format } from 'date-fns';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
-import Textarea from 'primevue/textarea';
-import EmojiPicker from '@/components/EmojiPicker.vue';
-import type { Emoji } from '@/models/emoji';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
 
 const userStore = useUserStore()
 const route = useRoute()
+const router = useRouter()
 const filesBase = import.meta.env.VITE_FILES_URL
 const showEmojiPicker = ref(false)
 
@@ -71,45 +69,55 @@ const getMessages = async (reload = false) => {
     if (reload) {
         page.value = 1;
     }
-    // Отримати всі теми і відфільтрувати по theme_id
-    const { data: themesData } = await fetchPost('/support/getThemes', { page: 1, limit: 100000000 });
-    const foundTheme = (themesData.themes || []).find((t: any) => t.id == route.params.theme_id);
-    theme.value = foundTheme || null;
+    
+    try {
+        // Отримати всі теми і відфільтрувати по theme_id
+        const { data: themesData } = await fetchPost('/support/getThemes', { page: 1, limit: 100000000 });
+        const foundTheme = (themesData.themes || []).find((t: any) => t.id == route.params.theme_id);
+        theme.value = foundTheme || null;
 
-    const { data: messagesData } = await fetchPost('/support/getMessages', { page: page.value, limit: limit.value, id_theme: route.params.theme_id });
+        const { data: messagesData } = await fetchPost('/support/getMessages', { page: page.value, limit: limit.value, id_theme: route.params.theme_id });
 
-    let loadedMessages = reload ? messagesData.messages.reverse() : [...messagesData.messages, ...messages.value];
-    // Додаємо theme.text як перше повідомлення лише при reload і якщо theme існує
-    if (reload && theme.value && theme.value.text) {
-        loadedMessages = [
-            {
-                id: 'theme-text',
-                text: theme.value.text,
-                created_at: theme.value.created_at,
-                user: theme.value.user ? { username: theme.value.user.username, avatar: theme.value.user.avatar || null } : { username: 'Тема', avatar: null },
-                is_admin: false,
-                // ...інші поля за потреби
-            },
-            ...loadedMessages
-        ];
+        let loadedMessages = reload ? messagesData.messages.reverse() : [...messagesData.messages, ...messages.value];
+        // Додаємо theme.text як перше повідомлення лише при reload і якщо theme існує
+        if (reload && theme.value && theme.value.text) {
+            loadedMessages = [
+                {
+                    id: 'theme-text',
+                    text: theme.value.text,
+                    created_at: theme.value.created_at,
+                    user: theme.value.user ? { username: theme.value.user.username, avatar: theme.value.user.avatar || null } : { username: 'Тема', avatar: null },
+                    is_admin: false,
+                    // ...інші поля за потреби
+                },
+                ...loadedMessages
+            ];
+        }
+        if (reload) {
+            page.value = 1;
+            messages.value = loadedMessages;
+            total.value = messagesData.total || 0;
+            markAsRead(messagesData.messages.map((message: Message) => message.id));
+            nextTick(() => scrollToBottom());
+        } else {
+            messages.value = loadedMessages;
+            total.value = messagesData.total || 0;
+            markAsRead(messagesData.messages.map((message: Message) => message.id));
+            nextTick(() => {
+                if (messagesContainer.value) {
+                    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight - prevHeight + prevScroll;
+                }
+            });
+        }
+    } catch (error: any) {
+        // Перевіряємо чи це помилка 404 з повідомленням "Theme not found"
+        if (error?.status === 404 && error?.data?.msg === 'Theme not found') {
+            router.push({ name: 'support-chat' });
+            return;
+        }
+    } finally {
+        isLoading.value = false;
     }
-    if (reload) {
-        page.value = 1;
-        messages.value = loadedMessages;
-        total.value = messagesData.total || 0;
-        markAsRead(messagesData.messages.map((message: Message) => message.id));
-        nextTick(() => scrollToBottom());
-    } else {
-        messages.value = loadedMessages;
-        total.value = messagesData.total || 0;
-        markAsRead(messagesData.messages.map((message: Message) => message.id));
-        nextTick(() => {
-            if (messagesContainer.value) {
-                messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight - prevHeight + prevScroll;
-            }
-        });
-    }
-    isLoading.value = false;
 };
 
 const messagesContainer = ref<HTMLElement | null>(null);
@@ -150,13 +158,6 @@ const markAsRead = async (ids: number[]) => {
     userStore.getUnreadCount()
 }
 
-const toggleEmojiPicker = () => {
-    showEmojiPicker.value = !showEmojiPicker.value
-}
-
-const addEmoji = (emoji: Emoji) => {
-    form.text = form.text + emoji.i
-}
 
 const fullscreenImage = ref<string | null>(null);
 
