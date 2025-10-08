@@ -62,13 +62,13 @@ function toggleBurger() {
             </div>
             <div class="header-right flex align-items-center">
                 <div class="header-right__online flex align-items-center gap-1">
-                    <img v-if="serverStatusCode && serverStatusCode.online" src="@/assets/images/online-indicator.svg" alt="online indicator">
+                    <img v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" src="@/assets/images/online-indicator.svg" alt="online indicator">
                     <img v-else src="@/assets/images/offline-indicator.svg" alt="offline indicator">
                     <div class="header-right__online-content flex align-items-center gap-1">
-                        <span v-if="serverStatusCode && serverStatusCode.online">Онлайн:</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online">Онлайн:</span>
                         <span v-else>Офлайн</span>
-                        <span v-if="serverStatusCode && serverStatusCode.online">{{ serverStatusCode?.count_online }}</span>
-                        <span v-if="serverStatusCode && serverStatusCode.online" class="header-right__online-content-players">гравців</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online">{{ serverStatusCode?.count_online }}</span>
+                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" class="header-right__online-content-players">гравців</span>
                     </div>
                 </div>
                 <svg class="header-right__separator" width="2" height="20" viewBox="0 0 2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
