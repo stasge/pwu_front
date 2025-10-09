@@ -4,14 +4,14 @@ import { ref } from 'vue';
 const donators = ref([
     'Рома', 
     'PalpatinTOP',
+    'Інкогніто',
     'POVEZLO', 
     'Mars',
     'Decim', 
     'ECMA262', 
-    'Агамант', 
+    'Інкогніто', 
+    'Інкогніто', 
     'xUltrAx', 
-    'XipoMaHT',
-    'AnalogowNET',
 ]);
 </script>
 
