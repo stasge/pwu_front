@@ -56,16 +56,18 @@ const getThemes = async (stateParam: null | number = null) => {
     syncQueryWithPagination();
 };
 
-const toggleSingleState = async (id: number, state: number) => {
+const toggleSingleState = async (id: number, newState: number) => {
     const params = {
         id,
-        state: state ? 1 : 0
-    }
+        state: newState ? 1 : 0
+    };
     wrapAsyncCall(async () => {
-        await fetchPost('/support/state', params)
-        getThemes()
-    })
-}
+        await fetchPost('/support/state', params);
+        // reload themes preserving currently selected filter from the `state` ref
+        getThemes(state.value);
+        userStore.getUnreadCount();
+    });
+};
 
 const onPageChange = (event: any) => {
     page.value = event.page + 1
