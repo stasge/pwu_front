@@ -175,6 +175,7 @@ watch([state, page, limit], ([newState]) => {
                 </div>
                 <Paginator
                     v-if="total > limit"
+                    :first="(page - 1) * limit"
                     :rows="limit"
                     :totalRecords="total"
                     :rowsPerPageOptions="[5, 10, 20, 30]"
