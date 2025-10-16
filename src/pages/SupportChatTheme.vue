@@ -71,10 +71,9 @@ const getMessages = async (reload = false) => {
     }
     
     try {
-        // Отримати всі теми і відфільтрувати по theme_id
-        const { data: themesData } = await fetchPost('/support/getThemes', { page: 1, limit: 100000000 });
-        const foundTheme = (themesData.themes || []).find((t: any) => t.id == route.params.theme_id);
-        theme.value = foundTheme || null;
+        // Отримати тему по id
+        const { data } = await fetchPost('/support/getTheme', { id_theme: route.params.theme_id });
+        theme.value = data?.theme || null;
 
         const { data: messagesData } = await fetchPost('/support/getMessages', { page: page.value, limit: limit.value, id_theme: route.params.theme_id });
 
