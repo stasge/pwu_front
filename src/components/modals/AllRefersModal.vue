@@ -220,7 +220,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                 <td>
                                     <div class="progressbar-inline">
                                         <img src="@/assets/images/start-ref.png" width="35"  alt="start">
-                                        <div class="relative">
+                                        <div class="relative progress-slot">
                                             <span class="progress-line-mini-bg"></span>
                                             <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 1) + '%'}"></span>
                                         </div>
@@ -241,7 +241,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                             >
                                             <img v-else v-tooltip.top="'Нагороду отримано'" src="@/assets/images/chest-empty.png" width="35" alt="">
                                         </span>
-                                        <div class="relative">
+                                        <div class="relative progress-slot">
                                             <span class="progress-line-mini-bg"></span>
                                             <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 2) + '%'}"></span>
                                         </div>
@@ -262,7 +262,7 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
                                             >
                                             <img v-else v-tooltip.top="'Нагороду отримано'" src="@/assets/images/chest-empty.png" width="35">
                                         </span>
-                                        <div class="relative">
+                                        <div class="relative progress-slot">
                                             <span class="progress-line-mini-bg"></span>
                                             <span class="progress-line-mini checkpoint-active" :style="{width: getProgressPercent(ref.lvl, 3) + '%'}"></span>
                                         </div>
@@ -413,6 +413,16 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
     justify-content: center;
 }
 
+.progress-slot {
+    position: relative;
+    width: 25px;
+    min-width: 25px;
+    height: 5px;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: 2px;
+}
+
 .checkpoint-mini {
     border-radius: 50%;
     display: flex;
@@ -463,22 +473,24 @@ function getProgressPercent(lvl: number, checkpoint: number): number {
 
 
 .progress-line-mini {
-    width: 25px;
     height: 5px;
     border-radius: 2px;
     background: #ccc;
-    transition: background 0.2s;
+    transition: background 0.2s, width 0.25s ease;
     position: absolute;
     left: 0;
-    bottom: 3px;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
 }
 .progress-line-mini-bg {
-    display: inline-block;
-    width: 25px;
+    display: block;
+    width: 100%;
     height: 5px;
     border-radius: 2px;
     background: #e0e0e0;
     position: relative;
+    z-index: 1;
 }
 
 .progress-line-mini.checkpoint-active {
