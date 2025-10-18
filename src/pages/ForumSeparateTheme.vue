@@ -441,6 +441,7 @@ function onCloseCommentPicker() {
     }
 
     &__content {
+        font-family: "Candara", sans-serif;
         padding: 20px;
         border-radius: 10px;
         background: #fff;
@@ -538,6 +539,7 @@ function onCloseCommentPicker() {
     }
     
     &__text {
+        font-family: "Candara", sans-serif;
         word-break: break-all;
 
         * {
