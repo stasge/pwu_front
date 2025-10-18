@@ -105,9 +105,8 @@ const copyToClipboard = (text: string) => {
                     Обов'язково завантажте <i>Квитанцію</i> та <i>Логін ІГРОВОГО Акаунту</i> (використовується для входу в гру) в приватні повідомлення discord — Oleksandr (volvan_007), щоб отримати бонус.
                 </p>
                 <p class="support-project__payment-instructions-link">
-                    Посилання на нього можна знайти тут: 
-                    <br>
-                    <a href="https://discord.com/channels/1182237382695714857/1372646945889325177" target="_blank" class="support-project__payment-discord-link">OLEKSANDR (VOLVAN_007)</a>
+                    Посилання на нього можна знайти у розділі "правила" нашого <a class="support-project__payment-discord-link" href="https://discord.gg/3Ma5DaMUzQ">дискорду</a>
+                    
                 </p>
             </div>
         </div>
