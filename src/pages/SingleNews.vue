@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref, computed, watch, nextTick } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchGet} from '@/utils/fetchApi'
 import { useRoute } from 'vue-router'
@@ -85,6 +85,24 @@ watch(() => route.params.id, () => {
     loadNewsData()
 })
 
+// Image preview like in SupportChatTheme.vue
+const fullscreenImage = ref<string | null>(null)
+const openImageFullscreen = (src: string) => {
+    fullscreenImage.value = src
+    nextTick(() => {
+        const el = document.getElementById('fullscreen-image-modal')
+        if (el && (el as any).requestFullscreen) {
+            (el as any).requestFullscreen()
+        }
+    })
+}
+const closeImageFullscreen = () => {
+    fullscreenImage.value = null
+    if (document.fullscreenElement) {
+        document.exitFullscreen()
+    }
+}
+
 </script>
 <template>
     <Header />
@@ -134,7 +152,9 @@ watch(() => route.params.id, () => {
                 </div>
                  <div class="single-news__text-container">
                      <img src="@/assets/images/single-news-text-divider.svg" class="single-news__text-img" alt="news text img"></img>
-                     <p class="single-news__text" v-html="singleNews?.text.replace(/\n/g, '<br>')"></p>
+                     <p class="single-news__text" v-html="singleNews?.text.replace(/\n/g, '<br>')" 
+                        @click="(e) => { const t = e.target as HTMLElement; if (t && t.tagName === 'IMG') { openImageFullscreen((t as HTMLImageElement).src) } }"
+                     ></p>
                      <img src="@/assets/images/single-news-text-divider.svg" class="single-news__text-img" alt="news text img"></img>
                  </div>
              </div>
@@ -181,6 +201,11 @@ watch(() => route.params.id, () => {
          </div>
      </div>
      <Footer />
+
+    <div v-if="fullscreenImage" id="fullscreen-image-modal" class="fullscreen-image-modal" @click.self="closeImageFullscreen">
+        <img :src="fullscreenImage" alt="image" />
+        <button class="close-btn" @click="closeImageFullscreen">×</button>
+    </div>
 </template>
 <style scoped lang='scss'>
 .single-news {
@@ -327,6 +352,20 @@ watch(() => route.params.id, () => {
          ::v-deep img {
             max-width: 100%;
             height: auto;
+            cursor: zoom-in;
+         }
+
+         ::v-deep ul,
+         ::v-deep ol {
+            padding-left: 15px;
+         }
+
+         ::v-deep figure {
+            width: 100% !important;
+         }
+
+         ::v-deep figure img {
+            border-radius: 10px;
          }
      }
 }
@@ -476,6 +515,48 @@ watch(() => route.params.id, () => {
         &:hover {
             color: #D4AF37;
         }
+    }
+}
+
+.fullscreen-image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: zoom-out;
+    transition: background 0.2s;
+
+    img {
+        width: auto;
+        max-width: 95vw;
+        max-height: 90vh;
+        border-radius: 10px;
+        box-shadow: 0 0 20px #000a;
+        background: #fff;
+        cursor: default;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 30px;
+        right: 40px;
+        font-size: 2.5rem;
+        color: #fff;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 10001;
+        transition: color 0.2s;
+    }
+
+    .close-btn:hover {
+        color: #e26f0f;
     }
 }
 </style>

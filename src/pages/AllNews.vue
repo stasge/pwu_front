@@ -109,6 +109,7 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 }
 
@@ -527,6 +528,7 @@ watch(selectedFilter, (newFilter) => {
         height: 100%;
         object-fit: cover;
         object-position: center;
+        border-radius: 16px;
     }
     
     &__image-gradient {
@@ -718,6 +720,7 @@ watch(selectedFilter, (newFilter) => {
         height: 100%;
         object-fit: cover;
         object-position: center;
+        border-radius: 16px;
     }
 
     &__image-frame {

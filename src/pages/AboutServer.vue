@@ -83,6 +83,7 @@ const totalUpdatesPages = computed(() => {
 const goToUpdatesPage = (page: number) => {
     if (page >= 1 && page <= totalUpdatesPages.value) {
         currentUpdatesPage.value = page
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 }
 
@@ -413,7 +414,7 @@ onMounted(() => {
 
     /* Updates grid copied/adapted from AllNews */
     .about-news-grid {
-        padding: clamp(20px, 5vw, 100px) 15px 40px 15px;
+        padding: 0 15px 0px 15px;
         max-width: 1110px;
         margin: 0 auto;
 
@@ -443,7 +444,7 @@ onMounted(() => {
         &__card { border-radius: 8px; overflow: hidden; position: relative; }
 
         &__image-container { position: relative; width: 100%; height: 200px; overflow: hidden; }
-        &__image { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+        &__image { width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: 16px; }
         &__image-frame { position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; }
         &__frame-image { width: 100%; height: 100%; object-position: center; }
 
