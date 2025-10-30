@@ -109,7 +109,6 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 }
 

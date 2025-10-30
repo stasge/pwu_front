@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
+import { fetchGet } from '@/utils/fetchApi'
+import type { News } from '@/models/news';
 
 const openQuestions = ref<Set<number>>(new Set());
 
@@ -55,6 +58,56 @@ const leftColumnQuestions = computed(() => {
 const rightColumnQuestions = computed(() => {
     return faqData.slice(Math.ceil(faqData.length / 2));
 });
+
+// Updates-only news grid under promo
+const { wrapAsyncCall } = useAsyncCallWrapper()
+const baseURL = import.meta.env.VITE_BASE_URL
+const updatesNews = ref<News[]>([])
+const currentUpdatesPage = ref(1)
+const updatesPerPage = 3 // one row, 3 items
+
+const filteredUpdates = computed(() => {
+    return updatesNews.value.filter(n => !n.isHidden)
+})
+
+const paginatedUpdates = computed(() => {
+    const start = (currentUpdatesPage.value - 1) * updatesPerPage
+    const end = start + updatesPerPage
+    return filteredUpdates.value.slice(start, end)
+})
+
+const totalUpdatesPages = computed(() => {
+    return Math.ceil(filteredUpdates.value.length / updatesPerPage)
+})
+
+const goToUpdatesPage = (page: number) => {
+    if (page >= 1 && page <= totalUpdatesPages.value) {
+        currentUpdatesPage.value = page
+    }
+}
+
+const prevUpdatesPage = () => {
+    if (currentUpdatesPage.value > 1) {
+        goToUpdatesPage(currentUpdatesPage.value - 1)
+    }
+}
+
+const nextUpdatesPage = () => {
+    if (currentUpdatesPage.value < totalUpdatesPages.value) {
+        goToUpdatesPage(currentUpdatesPage.value + 1)
+    }
+}
+
+const loadUpdates = async () => {
+    await wrapAsyncCall(async () => {
+        const { data } = await fetchGet('getNews', { options: 'updates' })
+        updatesNews.value = data
+    })
+}
+
+onMounted(() => {
+    loadUpdates()
+})
 </script>
 <template>
     <Header />
@@ -166,6 +219,89 @@ const rightColumnQuestions = computed(() => {
                 <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-bottom" alt="promo mask bottom">
             </div>
             
+            <!-- Updates grid under promo -->
+            <div class="about-news-grid">
+                <div class="about-news-grid__header">
+                    <h2 class="about-news-grid__title">Оновлення на Сервері:</h2>
+                </div>
+                <div v-if="paginatedUpdates.length > 0" class="about-news-grid__container">
+                    <div 
+                        v-for="newsItem in paginatedUpdates" 
+                        :key="newsItem.id"
+                        class="about-news-grid__card"
+                    >
+                        <div class="about-news-grid__image-container">
+                            <img 
+                                :src="baseURL + '/files/' + newsItem.image" 
+                                :alt="newsItem.title"
+                                class="about-news-grid__image"
+                            />
+                            <div class="about-news-grid__image-frame">
+                                <img src="@/assets/images/slider-image-frame.png" alt="Frame" class="about-news-grid__frame-image" />
+                            </div>
+                        </div>
+                        <div class="about-news-grid__content">
+                            <div class="about-news-grid__category">Оновлення</div>
+                            <h3 class="about-news-grid__card-title">
+                                {{ newsItem.title }}
+                            </h3>
+                            <p class="about-news-grid__description" v-html="newsItem.text.replace(/\n/g, '<br>').substring(0, 150) + '...'"></p>
+                            <div class="about-news-grid__meta">
+                                <span class="about-news-grid__date">{{ new Date(newsItem.created_at).toLocaleDateString('uk-UA') }}</span>
+                                <router-link 
+                                    :to="{name: 'single-news', params: {id: newsItem.id}}" 
+                                    class="about-news-grid__read-more"
+                                >
+                                    Читати Далі
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div v-if="totalUpdatesPages > 1" class="about-pagination">
+                    <button 
+                        @click="prevUpdatesPage" 
+                        class="about-pagination__arrow"
+                        :disabled="currentUpdatesPage === 1"
+                        aria-label="Previous page"
+                    >
+                        <img src="@/assets/images/arrow-prev.svg" alt="prev" class="about-pagination__arrow-icon" />
+                    </button>
+                    <div class="about-pagination__numbers">
+                        <button 
+                            v-for="page in Math.min(5, totalUpdatesPages)" 
+                            :key="page"
+                            @click="goToUpdatesPage(page)"
+                            class="about-pagination__number"
+                            :class="{ 'active': page === currentUpdatesPage }"
+                            :aria-current="page === currentUpdatesPage ? 'page' : undefined"
+                        >
+                            {{ page }}
+                        </button>
+                        <span v-if="totalUpdatesPages > 5" class="about-pagination__dots">...</span>
+                        <button 
+                            v-if="totalUpdatesPages > 5"
+                            @click="goToUpdatesPage(totalUpdatesPages)"
+                            class="about-pagination__number"
+                            :class="{ 'active': totalUpdatesPages === currentUpdatesPage }"
+                            :aria-current="totalUpdatesPages === currentUpdatesPage ? 'page' : undefined"
+                        >
+                            {{ totalUpdatesPages }}
+                        </button>
+                    </div>
+                    <button 
+                        @click="nextUpdatesPage" 
+                        class="about-pagination__arrow"
+                        :disabled="currentUpdatesPage === totalUpdatesPages"
+                        aria-label="Next page"
+                    >
+                        <img src="@/assets/images/arrow-next.svg" alt="next" class="about-pagination__arrow-icon" />
+                    </button>
+                </div>
+            </div>
+
             <div class="about__faq">
                 <h2 class="about__faq-title"><span>Часті</span> <span>запитання:</span></h2>
                 <div class="about__faq-list">
@@ -273,6 +409,63 @@ const rightColumnQuestions = computed(() => {
             height: 100%;
             object-fit: cover;
         }
+    }
+
+    /* Updates grid copied/adapted from AllNews */
+    .about-news-grid {
+        padding: clamp(20px, 5vw, 100px) 15px 40px 15px;
+        max-width: 1110px;
+        margin: 0 auto;
+
+        &__header {
+            margin-bottom: 30px;
+        }
+
+        &__title {
+            font-family: 'Vollkorn SC', serif;
+            font-weight: 400;
+            font-size: clamp(28px, 4vw, 48px);
+            line-height: 90%;
+            color: #f8f8f8;
+        }
+
+        &__container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        &__card { border-radius: 8px; overflow: hidden; position: relative; }
+
+        &__image-container { position: relative; width: 100%; height: 200px; overflow: hidden; }
+        &__image { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+        &__image-frame { position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+        &__frame-image { width: 100%; height: 100%; object-position: center; }
+
+        &__content { margin-top: 30px; }
+        &__category { font-weight: 400; font-size: 14px; background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+        &__card-title { font-weight: 400; font-size: 32px; line-height: 110%; letter-spacing: -0.07em; color: #f8f8f8; margin-bottom: 15px; }
+        &__description { font-weight: 400; font-size: 16px; letter-spacing: -0.01em; color: #f8f8f8; font-family: 'Candara', sans-serif; }
+        &__meta { display: flex; justify-content: space-between; align-items: center; margin-top: clamp(20px, 2vw, 40px); }
+        &__date { font-size: clamp(14px, 2vw, 16px); color: #f8f8f8; font-weight: 400; }
+        &__read-more { font-weight: 400; font-size: clamp(16px, 2vw, 20px); background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    }
+
+    .about-pagination {
+        display: flex; justify-content: center; align-items: center; gap: 24px; padding: 40px 15px; max-width: 1110px; margin: 0 auto;
+        &__arrow { display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; transition: opacity 0.2s ease; }
+        &__arrow:hover:not(:disabled) { opacity: 0.8; }
+        &__arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+        &__arrow-icon { width: 36px; height: 36px; }
+        &__numbers { display: flex; align-items: baseline; gap: 20px; }
+        &__number { font-family: "Vollkorn", serif; background: transparent; border: none; color: #f8f8f8; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease; font-size: 20px; line-height: 1; padding: 0; opacity: 0.5; }
+        &__number.active { font-size: 30px; font-weight: 900; background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; opacity: 1; }
+        &__dots { color: #f8f8f8; font-size: 20px; }
     }
 
     &__content {
