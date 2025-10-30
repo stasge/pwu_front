@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import { fetchGet } from '@/utils/fetchApi'
 import type { News } from '@/models/news';
@@ -11,7 +11,8 @@ const { wrapAsyncCall } = useAsyncCallWrapper()
 const router = useRouter()
 const allNews = ref<News[]>([])
 const searchQuery = ref('')
-const selectedFilter = ref('all')
+type FilterParams = { options: 'all' | 'news' | 'updates' }
+const selectedFilter = ref<'all' | 'news' | 'updates'>('all')
 const sortBy = ref('newest')
 const currentPage = ref(1)
 const itemsPerPage = 6
@@ -97,9 +98,9 @@ const relatedNews = computed(() => {
 })
 
 // Функція для завантаження даних новин
-const loadNewsData = async () => {
+const loadNewsData = async (params?: FilterParams) => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews')
+        const { data } = await fetchGet('getNews', params || {})
         allNews.value = data
     })
 }
@@ -125,7 +126,13 @@ const goToNextPage = () => {
 }
 
 onMounted(() => {
-    loadNewsData()
+    loadNewsData({ options: selectedFilter.value })
+})
+
+// Завантажуємо новини при зміні фільтру
+watch(selectedFilter, (newFilter) => {
+    currentPage.value = 1
+    loadNewsData({ options: newFilter })
 })
 </script>
 
