@@ -268,10 +268,9 @@ watch(selectedFilter, (newFilter) => {
                 @click="goToPreviousPage" 
                 class="pagination__arrow"
                 :disabled="currentPage === 1"
+                aria-label="Previous page"
             >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.5 15L7.5 10L12.5 5" stroke="#F8F8F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <img src="@/assets/images/arrow-prev.svg" alt="prev" class="pagination__arrow-icon" />
             </button>
             
             <div class="pagination__numbers">
@@ -281,6 +280,7 @@ watch(selectedFilter, (newFilter) => {
                     @click="goToPage(page)"
                     class="pagination__number"
                     :class="{ 'active': page === currentPage }"
+                    :aria-current="page === currentPage ? 'page' : undefined"
                 >
                     {{ page }}
                 </button>
@@ -290,6 +290,7 @@ watch(selectedFilter, (newFilter) => {
                     @click="goToPage(totalPages)"
                     class="pagination__number"
                     :class="{ 'active': totalPages === currentPage }"
+                    :aria-current="totalPages === currentPage ? 'page' : undefined"
                 >
                     {{ totalPages }}
                 </button>
@@ -299,10 +300,9 @@ watch(selectedFilter, (newFilter) => {
                 @click="goToNextPage" 
                 class="pagination__arrow"
                 :disabled="currentPage === totalPages"
+                aria-label="Next page"
             >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7.5 5L12.5 10L7.5 15" stroke="#F8F8F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <img src="@/assets/images/arrow-next.svg" alt="next" class="pagination__arrow-icon" />
             </button>
         </div>
     </div>
@@ -324,8 +324,8 @@ watch(selectedFilter, (newFilter) => {
     margin: 0 auto;
 
     @media (max-width: 768px) {
-        margin-top: 50px;
-        padding-top: 0;
+
+        padding-top: 50px;
     }
     
     &__container {
@@ -819,7 +819,7 @@ watch(selectedFilter, (newFilter) => {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
     padding: 40px 15px;
     max-width: 1110px;
     margin: 0 auto;
@@ -828,18 +828,14 @@ watch(selectedFilter, (newFilter) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(248, 248, 248, 0.3);
-        border-radius: 8px;
-        color: #f8f8f8;
+        background: transparent;
+        border: none;
+        padding: 0;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: opacity 0.2s ease;
 
         &:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(248, 248, 248, 0.6);
+            opacity: 0.8;
         }
 
         &:disabled {
@@ -848,40 +844,43 @@ watch(selectedFilter, (newFilter) => {
         }
     }
 
+    &__arrow-icon {
+        width: 36px;
+        height: 36px;
+    }
+
     &__numbers {
         display: flex;
-        align-items: center;
-        gap: 10px;
+        align-items: baseline;
+        gap: 20px;
     }
 
     &__number {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(248, 248, 248, 0.3);
-        border-radius: 8px;
-        color: #f8f8f8;
+        font-family: "Vollkorn", serif;
+        background: transparent;
+        border: none;
+        color: #f8f8f8; // inactive color
         cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 16px;
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(248, 248, 248, 0.6);
-        }
+        transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+        font-size: 20px; // inactive size
+        line-height: 1;
+        padding: 0;
+        opacity: 0.5;
 
         &.active {
-            background: rgba(248, 248, 248, 0.2);
-            border-color: #f8f8f8;
+            font-size: 30px; // active size
+            font-weight: 900;
+            background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 1;
         }
     }
 
     &__dots {
         color: #f8f8f8;
-        font-size: 16px;
+        font-size: 20px;
     }
 }
 </style>
