@@ -323,6 +323,11 @@ watch(() => route.params.id, () => {
          &-img {
             width: 100%;
          }
+
+         ::v-deep img {
+            max-width: 100%;
+            height: auto;
+         }
      }
 }
 

@@ -3,8 +3,10 @@ import { onMounted, reactive, ref } from 'vue';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import InputText from 'primevue/inputtext';
-import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
+import Dropdown from 'primevue/dropdown';
+import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 import { useRoute } from 'vue-router';
 import type { News } from '@/models/news';
 import useVuelidate from '@vuelidate/core';
@@ -20,6 +22,7 @@ const form = reactive({
     text: '',
     link: '',
     isHidden: false,
+    type: 'news',
     image: null as File | null | string
 });
 
@@ -27,9 +30,36 @@ const rules = {
     title: {required},
     text: {required},
     image: {required},
+    type: {required},
 }
 
 const v$ = useVuelidate(rules, form)
+
+const typeOptions = [
+    { label: 'Новини', value: 'news' },
+    { label: 'Оновлення', value: 'updates' }
+]
+
+const editorConfig = {
+    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
+    toolbar: [
+        'heading', 'bold', 'italic', 'alignment', '|',
+        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
+        'mediaEmbed', 'imageUpload', '|',
+        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+        'imageResize'
+    ],
+    mediaEmbed: {
+       previewsInData: true
+    },
+    image: {
+        resizeUnit: '%' as '%',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+    }
+};
 
 
 onMounted(() => {
@@ -57,6 +87,7 @@ const handleSubmit = async () => {
     formData.append('isHidden', `${form.isHidden}`);
     formData.append('text', form.text);
     formData.append('link', form.link);
+    formData.append('type', form.type);
     
     if (route.params.id) {
         formData.append('id', route.params.id as string);
@@ -80,6 +111,7 @@ const fillForm = async (id: string) => {
             form.isHidden = selected.isHidden
             form.text = selected.text
             form.title = selected.title
+            form.type = selected.type || 'news'
             form.image = selected.image
             imageUrl.value = selected.image
         }
@@ -98,7 +130,26 @@ const fillForm = async (id: string) => {
 
             <div class="flex flex-column gap-2">
                 <label for="text">Контент</label>
-                <Textarea v-model="form.text" rows="5" class="w-full" :class="{'invalid': v$.text.$error}" />
+                <ckeditor
+                    v-model="form.text"
+                    :editor="ClassicEditor"
+                    :config="editorConfig"
+                    :class="{'invalid': v$.text.$error}"
+                />
+            </div>
+
+            <div class="flex flex-column gap-2">
+                <label for="type">Тип</label>
+                <Dropdown 
+                    id="type" 
+                    v-model="form.type" 
+                    :options="typeOptions" 
+                    optionLabel="label" 
+                    optionValue="value"
+                    placeholder="Оберіть тип"
+                    class="w-full"
+                    :class="{'invalid': v$.type.$error}"
+                />
             </div>
 
             <div class="flex gap-3">

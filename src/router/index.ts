@@ -20,6 +20,7 @@ import SupportProject from "@/pages/SupportProject.vue";
 import Download from "@/pages/Download.vue";
 import About from "@/pages/AboutServer.vue";
 import AboutServer from "@/pages/AboutServer.vue";
+import AllNews from "@/pages/AllNews.vue";
 import NotFound from "@/pages/NotFound.vue";
 
 const router = createRouter({
@@ -116,6 +117,11 @@ const router = createRouter({
           component: AdminPanel,
         },
       ],
+    },
+    {
+      path: "/all-news",
+      name: "all-news",
+      component: AllNews,
     },
     {
       path: "/leaderboard",

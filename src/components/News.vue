@@ -26,7 +26,7 @@ const emitter = useMitt()
 
 // Обмежуємо кількість слайдів до 3
 const visibleNews = computed(() => {
-    const filteredNews = news.value.filter(n => !n.isHidden)
+    const filteredNews = news.value
     return filteredNews.slice(0, 3)
 })
 
@@ -275,7 +275,7 @@ const handleSwipe = () => {
              
              <!-- Кнопка "ВСІ НОВИНИ" -->
              <div>
-                <router-link to="#" class="fantasy-btn" style="display: none;" aria-disabled="true">
+                <router-link :to="{name: 'all-news'}" class="fantasy-btn">
                     <span>Всі Новини</span>
                 </router-link>
              </div>
@@ -471,11 +471,11 @@ const handleSwipe = () => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 20px;
+        margin-top: clamp(20px, 2vw, 40px);
         padding: 0 20px;
         
         @media (max-width: 768px) {
-            gap: 15px;
+            gap: 30px;
             flex-direction: column;
             align-items: center;
         }
