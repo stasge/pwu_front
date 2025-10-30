@@ -111,7 +111,6 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 }
 
@@ -262,7 +261,20 @@ const deleteNews = async (id: number) => {
                         </div>
                     </div>
                     <div class="news-grid__content">
-                        <div class="news-grid__category">{{ newsItem.type === 'news' ? 'Новини' : 'Оновлення' }}</div>
+                        <div class="news-grid__category flex justify-content-between align-items-center">
+                            {{ newsItem.type === 'news' ? 'Новини' : 'Оновлення' }}
+                            <!-- Адмін кнопки -->
+                            <div v-if="userStore.isAdmin" class="news-grid__admin-controls">
+                                <button 
+                                    class="news-grid__admin-btn primary"
+                                    @click="router.push({ name: 'news-creation', params: { id: newsItem.id } })"
+                                >Редагувати</button>
+                                <button 
+                                    class="news-grid__admin-btn danger"
+                                    @click="deleteNews(newsItem.id)"
+                                >Видалити</button>
+                            </div>
+                        </div>
                         <h3 class="news-grid__card-title">
                             {{ newsItem.title }}
                         </h3>
@@ -275,17 +287,6 @@ const deleteNews = async (id: number) => {
                             >
                                 ЧИТАТИ ДАЛІ
                             </router-link>
-                        </div>
-                        <!-- Адмін кнопки -->
-                        <div v-if="userStore.isAdmin" class="news-grid__admin-controls">
-                            <button 
-                                class="news-grid__admin-btn primary"
-                                @click="router.push({ name: 'news-creation', params: { id: newsItem.id } })"
-                            >Редагувати</button>
-                            <button 
-                                class="news-grid__admin-btn danger"
-                                @click="deleteNews(newsItem.id)"
-                            >Видалити</button>
                         </div>
                     </div>
                 </div>
@@ -793,7 +794,6 @@ const deleteNews = async (id: number) => {
     &__admin-controls {
         display: flex;
         gap: 10px;
-        margin-top: 12px;
     }
 
     &__admin-btn {
@@ -851,6 +851,8 @@ const deleteNews = async (id: number) => {
         letter-spacing: -0.01em;
         color: #f8f8f8;
         font-family: 'Candara', sans-serif;
+        max-height: 64px; 
+        overflow: hidden;
     }
 
     &__meta {

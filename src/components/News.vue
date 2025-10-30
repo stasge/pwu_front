@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/userStore';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import Button from 'primevue/button';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
-import { fetchGet, fetchPost } from '@/utils/fetchApi';
+import { fetchGet } from '@/utils/fetchApi';
 import type { News } from '@/models/news';
-import { useRouter } from 'vue-router';
 import { useMitt } from '@/composables/useMitt';
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const news = ref<News[]>([])
 const currentSlide = ref(0)
 const isAnimating = ref(false)
-const userStore = useUserStore()
 
 // Touch events для свайпу
 const touchStartX = ref(0)
@@ -21,7 +17,6 @@ const touchEndX = ref(0)
 const touchEndY = ref(0)
 const minSwipeDistance = 50 // Мінімальна відстань для визнання свайпу
 const {wrapAsyncCall} = useAsyncCallWrapper()
-const router = useRouter()
 const emitter = useMitt()
 
 // Обмежуємо кількість слайдів до 3 та показуємо лише тип "news"
@@ -80,17 +75,7 @@ const goToSlide = (index: number) => {
     }, 600)
 }
 
-const deleteNews = async (id: number) => {
-    await wrapAsyncCall(async () => {
-        await fetchPost('deleteNews', {id})
-        const {data} = await fetchGet('getNews')
-        news.value = data
-        // Скидаємо поточний слайд якщо він більше не існує
-        if (currentSlide.value >= visibleNews.value.length) {
-            currentSlide.value = 0
-        }
-    })
-}
+// admin-only actions removed in this component
 
 // Touch event handlers для свайпу
 const handleTouchStart = (e: TouchEvent) => {
@@ -138,13 +123,7 @@ const handleSwipe = () => {
 
 <template>
     <div class="news-slider">
-        <Button 
-            v-if="userStore.isAdmin" 
-            v-tooltip="'Створити нову новину'" 
-            icon="pi pi-plus" 
-            @click="router.push({name: 'news-creation'})" 
-            class="success admin-btn"
-        />
+        
         
         <div 
             v-if="visibleNews.length > 0" 
@@ -181,23 +160,7 @@ const handleSwipe = () => {
                             </router-link>
                         </div>
                         
-                        <!-- Адмін кнопки -->
-                        <div v-if="userStore.isAdmin" class="admin-controls">
-                            <Button 
-                                v-tooltip="'Редагувати новину'" 
-                                icon="pi pi-pencil" 
-                                @click="router.push({name: 'news-creation', params: {id: item.id}})" 
-                                class="primary"
-                                size="small"
-                            />
-                            <Button 
-                                v-tooltip="'Видалити новину'" 
-                                icon="pi pi-trash" 
-                                @click="deleteNews(item.id)" 
-                                class="danger"
-                                size="small"
-                            />
-                        </div>
+                        
                     </div>
                 </div>
                 
@@ -297,12 +260,6 @@ const handleSwipe = () => {
         padding-top: 0;
     }
     
-    .admin-btn {
-        position: absolute;
-        top: -60px;
-        right: 0;
-        z-index: 10;
-    }
     
     .slider-container {
         display: flex;
@@ -461,11 +418,7 @@ const handleSwipe = () => {
         }
     }
     
-    .admin-controls {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
+    
     
     .slider-bottom-navigation {
         display: flex;

@@ -422,6 +422,7 @@ const closeImageFullscreen = () => {
         height: 100%;
         object-fit: cover;
         object-position: center;
+        border-radius: 16px;
     }
 
     &__image-frame {
@@ -486,6 +487,8 @@ const closeImageFullscreen = () => {
         letter-spacing: -0.01em;
         color: #f8f8f8;
         font-family: 'Candara', sans-serif;
+        max-height: 64px; 
+        overflow: hidden;
     }
 
     &__meta {

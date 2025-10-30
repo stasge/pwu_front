@@ -82,8 +82,7 @@ const totalUpdatesPages = computed(() => {
 
 const goToUpdatesPage = (page: number) => {
     if (page >= 1 && page <= totalUpdatesPages.value) {
-        currentUpdatesPage.value = page
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        currentUpdatesPage.value = page 
     }
 }
 
@@ -434,6 +433,7 @@ onMounted(() => {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
+            padding: 0;
 
             @media (max-width: 768px) {
                 grid-template-columns: 1fr;
@@ -451,7 +451,7 @@ onMounted(() => {
         &__content { margin-top: 30px; }
         &__category { font-weight: 400; font-size: 14px; background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
         &__card-title { font-weight: 400; font-size: 32px; line-height: 110%; letter-spacing: -0.07em; color: #f8f8f8; margin-bottom: 15px; }
-        &__description { font-weight: 400; font-size: 16px; letter-spacing: -0.01em; color: #f8f8f8; font-family: 'Candara', sans-serif; }
+        &__description { font-weight: 400; font-size: 16px; letter-spacing: -0.01em; color: #f8f8f8; font-family: 'Candara', sans-serif;max-height: 64px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; }
         &__meta { display: flex; justify-content: space-between; align-items: center; margin-top: clamp(20px, 2vw, 40px); }
         &__date { font-size: clamp(14px, 2vw, 16px); color: #f8f8f8; font-weight: 400; }
         &__read-more { font-weight: 400; font-size: clamp(16px, 2vw, 20px); background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
