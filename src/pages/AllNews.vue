@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
-import { fetchGet } from '@/utils/fetchApi'
+import { fetchGet, fetchPost } from '@/utils/fetchApi'
 import type { News } from '@/models/news';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
 const router = useRouter()
+const userStore = useUserStore()
 const allNews = ref<News[]>([])
 const searchQuery = ref('')
 type FilterParams = { options: 'all' | 'news' | 'updates' }
@@ -134,6 +136,17 @@ watch(selectedFilter, (newFilter) => {
     currentPage.value = 1
     loadNewsData({ options: newFilter })
 })
+// Видалення новини (для адміна)
+const deleteNews = async (id: number) => {
+    await wrapAsyncCall(async () => {
+        await fetchPost('deleteNews', { id })
+        await loadNewsData({ options: selectedFilter.value })
+        // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
+        if (currentPage.value > totalPages.value) {
+            currentPage.value = Math.max(1, totalPages.value)
+        }
+    })
+}
 </script>
 
 <template>
@@ -189,7 +202,6 @@ watch(selectedFilter, (newFilter) => {
         <div class="search-filters">
             <div class="search-filters__container">
                 
-                
                 <div class="search-filters__filters">
                     <div class="search-filters__radio-group">
                         <label class="search-filters__radio">
@@ -221,6 +233,13 @@ watch(selectedFilter, (newFilter) => {
                         </label>
                     </div>
                 </div>
+                <button 
+            v-if="userStore.isAdmin" 
+            class="all-news__admin-create-btn fantasy-btn"
+            @click="router.push({name: 'news-creation'})"
+        >
+            <span>Створити Новину</span>
+        </button>
             </div>
         </div>
 
@@ -256,6 +275,17 @@ watch(selectedFilter, (newFilter) => {
                             >
                                 ЧИТАТИ ДАЛІ
                             </router-link>
+                        </div>
+                        <!-- Адмін кнопки -->
+                        <div v-if="userStore.isAdmin" class="news-grid__admin-controls">
+                            <button 
+                                class="news-grid__admin-btn primary"
+                                @click="router.push({ name: 'news-creation', params: { id: newsItem.id } })"
+                            >Редагувати</button>
+                            <button 
+                                class="news-grid__admin-btn danger"
+                                @click="deleteNews(newsItem.id)"
+                            >Видалити</button>
                         </div>
                     </div>
                 </div>
@@ -314,6 +344,12 @@ watch(selectedFilter, (newFilter) => {
     position: relative;
     color: #f8f8f8;
     min-height: 100vh;
+
+    &__admin-create-btn {
+        position: relative;
+        right: 20px;
+        z-index: 20;
+    }
 }
 
 .latest-news-slider {
@@ -551,6 +587,7 @@ watch(selectedFilter, (newFilter) => {
     &__container {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 30px;
         flex-wrap: wrap;
         padding: 0;
@@ -751,6 +788,35 @@ watch(selectedFilter, (newFilter) => {
 
     &__content {
         margin-top: 30px;
+    }
+
+    &__admin-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    &__admin-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(248, 248, 248, 0.3);
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: #f8f8f8;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+
+        &.primary {
+            border-color: rgba(248, 248, 248, 0.6);
+        }
+
+        &.danger {
+            border-color: rgba(255, 77, 77, 0.6);
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
     }
 
     &__category {
