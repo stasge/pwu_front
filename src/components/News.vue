@@ -24,9 +24,9 @@ const {wrapAsyncCall} = useAsyncCallWrapper()
 const router = useRouter()
 const emitter = useMitt()
 
-// Обмежуємо кількість слайдів до 3
+// Обмежуємо кількість слайдів до 3 та показуємо лише тип "news"
 const visibleNews = computed(() => {
-    const filteredNews = news.value
+    const filteredNews = news.value.filter(n => !n.isHidden && n.type === 'news')
     return filteredNews.slice(0, 3)
 })
 
