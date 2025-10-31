@@ -220,7 +220,7 @@ onMounted(() => {
             </div>
             
             <!-- Updates grid under promo -->
-            <div class="about-news-grid">
+            <div v-if="paginatedUpdates.length > 0" class="about-news-grid">
                 <div class="about-news-grid__header">
                     <h2 class="about-news-grid__title">Оновлення на Сервері:</h2>
                 </div>

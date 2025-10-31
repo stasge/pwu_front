@@ -8,7 +8,7 @@ import CTA from '@/components/CTA.vue'
 <template>
     <div class="wrapper">
         <!-- <BurgerMenu /> -->
-        <Header class="w-full" />
+        <Header />
         <div class="container">
             <router-view></router-view>
         </div>

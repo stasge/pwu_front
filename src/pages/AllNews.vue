@@ -44,13 +44,13 @@ const splitTitle = (title: string) => {
 
 // Отримуємо останню новину для верхнього блоку
 const latestNews = computed(() => {
-    const filteredNews = allNews.value.filter(n => !n.isHidden)
+    const filteredNews = allNews.value.filter(n => userStore.isAdmin || !n.isHidden)
     return filteredNews[0] || null
 })
 
 // Фільтруємо та сортуємо новини
 const filteredNews = computed(() => {
-    let filtered = allNews.value.filter(n => !n.isHidden)
+    let filtered = allNews.value.filter(n => userStore.isAdmin || !n.isHidden)
     
     // Фільтр по типу
     if (selectedFilter.value !== 'all') {
@@ -188,6 +188,12 @@ const deleteNews = async (id: number) => {
                             class="latest-news-slider__news-image"
                         />
                         <div class="latest-news-slider__image-gradient"></div>
+                        <div 
+                            v-if="userStore.isAdmin && latestNews.isHidden" 
+                            class="latest-news-slider__hidden-badge"
+                        >
+                            Прихована
+                        </div>
                     </div>
                     <!-- Статична рамка поверх картинки -->
                     <div class="latest-news-slider__image-frame">
@@ -256,6 +262,12 @@ const deleteNews = async (id: number) => {
                             :alt="newsItem.title"
                             class="news-grid__image"
                         />
+                        <div 
+                            v-if="userStore.isAdmin && newsItem.isHidden" 
+                            class="news-grid__hidden-badge"
+                        >
+                            Прихована
+                        </div>
                         <div class="news-grid__image-frame">
                             <img src="@/assets/images/slider-image-frame.png" alt="Frame" class="news-grid__frame-image" />
                         </div>
@@ -578,6 +590,22 @@ const deleteNews = async (id: number) => {
         pointer-events: none;
         z-index: 1;
     }
+
+    &__hidden-badge {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        z-index: 12;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #0a0a0a;
+        background: #ffd966;
+        border: 1px solid rgba(248, 248, 248, 0.3);
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 700;
+    }
 }
 
 .search-filters {
@@ -751,6 +779,22 @@ const deleteNews = async (id: number) => {
         width: 100%;
         height: 200px;
         overflow: hidden;
+    }
+
+    &__hidden-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 12;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #0a0a0a;
+        background: #ffd966;
+        border: 1px solid rgba(248, 248, 248, 0.3);
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 700;
     }
 
     &__image {
