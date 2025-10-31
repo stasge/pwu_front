@@ -580,4 +580,84 @@ textarea {
   font-family: "Candara", sans-serif !important;
 }
 
+// Кастомні стилі для лоадера vue-loading-overlay
+.vl-overlay {
+  .vl-background {
+    background: rgba(10, 10, 10, 0.85) !important;
+    opacity: 1 !important;
+    backdrop-filter: blur(4px);
+  }
+
+  .vl-icon {
+    position: relative;
+    z-index: 1;
+    
+    // Стилі для SVG spinner
+    svg {
+      width: 60px !important;
+      height: 60px !important;
+      
+      circle {
+        stroke: rgba(226, 111, 15, 0.3) !important;
+      }
+      path {
+        stroke: #e26f0f !important;
+        stroke-width: 3 !important;
+      }
+      
+      // Для різних типів SVG спінерів
+      * {
+        stroke: #e26f0f !important;
+        fill: none !important;
+      }
+    }
+    
+    // Якщо використовується spinner як div з класом spinner
+    .spinner {
+      width: 60px !important;
+      height: 60px !important;
+      border: 4px solid rgba(226, 111, 15, 0.2) !important;
+      border-top-color: #e26f0f !important;
+      border-radius: 50%;
+      animation: spinner-rotate 0.75s linear infinite;
+    }
+  }
+
+  // Стилі для тексту лоадера
+  > div:not(.vl-background):not(.vl-icon) {
+    color: #fadfae !important;
+    font-family: "VollkornSC", sans-serif !important;
+    text-shadow: 0 0 10px rgba(251, 210, 152, 0.5);
+    font-size: 18px !important;
+    margin-top: 20px;
+  }
+}
+
+// Кастомний spinner для кнопок (замість Bootstrap)
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.15em solid rgba(226, 111, 15, 0.3);
+  border-right-color: #e26f0f;
+  border-radius: 50%;
+  animation: spinner-rotate 0.75s linear infinite;
+
+  &.spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 0.125em;
+  }
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 
