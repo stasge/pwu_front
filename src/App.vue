@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import ConfirmPopup from 'primevue/confirmpopup';
-import Support from './components/modals/Support.vue';
 import SupportChatIcon from './components/SupportChatIcon.vue';
 </script>
 
 <template>
-    <!-- <Support /> -->
      <SupportChatIcon />
     <RouterView />
     <ConfirmPopup></ConfirmPopup>
