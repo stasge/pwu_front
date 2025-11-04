@@ -289,30 +289,38 @@ const show = () => {
             <form @submit.prevent="addGameUser" class="flex flex-column justify-content-center w-full" autocomplete="off">
                 <div class="field w-full">
                     <label for="gameAccL" class="w-full">Логін</label>
-                    <input 
-                        v-model="form.username" 
-                        id="gameAccL" 
-                        type="text" 
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                        :class="{invalid: v$.username.$error}"
-                        autocomplete="off"
-                        readonly
-                        @focus="removeReadonly($event)"
-                    >
+                    <div class="custom-input w-full" :class="{ error: v$.username.$error }">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.username" 
+                            id="gameAccL" 
+                            type="text" 
+                            placeholder="Введіть логін"
+                            autocomplete="off"
+                            readonly
+                            @focus="removeReadonly($event)"
+                        >
+                    </div>
                     <small class="text-right block" :class="{'text-red': form.username.length > 20}">{{ form.username.length }}/20</small>
                 </div>
                 <div class="field w-full">
                     <label for="gameAccP">Пароль</label>
-                    <input 
-                        v-model="form.pass" 
-                        id="gameAccP" 
-                        :type="passwordHidden ? 'password' : 'text'" 
-                        class="text-base text-color p-2 surface-overlay border-1 border-solid appearance-none outline-none focus:border-primary w-full"
-                        :class="{invalid: v$.pass.$error}"
-                        autocomplete="off"
-                    >
+                    <div class="custom-input w-full relative" :class="{ error: v$.pass.$error }">
+                        <div class="input-bg"></div>
+                        <input 
+                            v-model="form.pass" 
+                            id="gameAccP" 
+                            :type="passwordHidden ? 'password' : 'text'" 
+                            placeholder="Введіть пароль"
+                            autocomplete="off"
+                        >
+                        <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
+                            <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
+                            <img v-show="!passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/hide-pass.svg" alt="" class="cursor-pointer">
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-sm mt-3 align-self-center">Створити</button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Створити</span></button>
             </form>
         </template>
     </Modal>
