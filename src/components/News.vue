@@ -346,7 +346,7 @@ const handleSwipe = () => {
     .news-title {
         font-weight: 400;
         font-size: 40px;
-        line-height: 110%;
+        line-height: 120%;
         letter-spacing: -0.07em;
         color: #f8f8f8;
         
