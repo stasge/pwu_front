@@ -123,8 +123,8 @@ const show = () => {
 <template>
     <div class="profile">
         <div class="profile__header flex justify-content-between align-items-center w-full mb-6">
-            <h1 class="profile__title">Особистий кабінет</h1>
-            <div class="flex column-gap-6 row-gap-3 flex-wrap">
+            <h1 class="profile__title text-center md:text-left flex-grow-1">Особистий кабінет</h1>
+            <div class="flex column-gap-6 row-gap-3 flex-wrap justify-content-center flex-grow-1 md:justify-content-end">
                 <button class="profile__promo-btn fantasy-btn small" @click="promoCodeRef.showDia()">
                     <img width="20" src="@/assets/images/Jewel.svg" alt="Jewel">
                     <span>Ввести промокод</span>
@@ -136,135 +136,97 @@ const show = () => {
             </div>
         </div>
         <div class="profile__container flex gap-5 justify-content-between w-full flex-wrap">
-            <div class="profile__left w-full">
-                <div class="flex flex-wrap gap-6">
-                    <div class="relative">
-                        <div class="profile__writer writer flex flex-column align-items-center justify-content-center gap-2">
-                            <svg v-if="!userStore.user?.avatar" class="writer__avatar" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
-                                <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
-                            </svg>
-                            <img v-else :src="filesBase + userStore.user?.avatar" alt="#">
-                            <div class="writer__add-btn">
-                                <label for="addAvatarInput">
-                                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="11" cy="11" r="11" fill="white"/>
-                                        <path d="M11 0C4.9 0 0 4.9 0 11C0 17.1 4.9 22 11 22C17.1 22 22 17.1 22 11C22 4.9 17.1 0 11 0ZM16 13H13V16C13 17.1 12.1 18 11 18C9.9 18 9 17.1 9 16V13H6C4.9 13 4 12.1 4 11C4 9.9 4.9 9 6 9H9V6C9 4.9 9.9 4 11 4C12.1 4 13 4.9 13 6V9H16C17.1 9 18 9.9 18 11C18 12.1 17.1 13 16 13Z" fill="#E26F0F"/>
-                                    </svg>
-                                </label>
-                                <input @change="changeAvatar" id="addAvatarInput" class="hidden" type="file" accept="image/png, image/jpeg">
+            <!-- Блок ПЕРСОНАЛЬНІ ДАНІ -->
+            <div class="profile__left-block flex gap-5 flex-wrap lg:flex-nowrap w-full">
+                <div class="profile__personal">
+                    <div class="profile__block-corner profile__block-corner--top-left"></div>
+                    <div class="profile__block-corner profile__block-corner--top-right"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-left"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-right"></div>
+                    
+                    <div class="profile__personal-header flex justify-content-between align-items-center">
+                        <h2 class="profile__block-title">Персональні дані</h2>
+                        <button class="profile__change-password-btn profile__change-password-btn--desktop fantasy-btn small" @click="changePass">
+                            <img src="@/assets/images/feather.svg" alt="Edit">
+                            <span>Змінити пароль</span>
+                        </button>
+                    </div>
+                    
+                    <div class="profile__personal-content flex gap-6">
+                        <div class="profile__avatar-wrapper">
+                            <div class="profile__avatar">
+                                <svg v-if="!userStore.user?.avatar" class="profile__avatar-placeholder" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
+                                    <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
+                                </svg>
+                                <img v-else :src="filesBase + userStore.user?.avatar" alt="Avatar">
+                            </div>
+                            <label for="addAvatarInput" class="profile__avatar-upload">
+                                <img src="@/assets/images/load-avatar.svg" alt="Upload">
+                            </label>
+                            <input @change="changeAvatar" id="addAvatarInput" class="hidden" type="file" accept="image/png, image/jpeg">
+                        </div>
+                        
+                        <div class="profile__personal-info flex flex-column gap-3">
+                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                                <span class="profile__personal-info-label">Email:</span>
+                                <span>{{ userStore.user?.email }}</span>
+                                <img v-if="userStore.user?.is_verified" src="@/assets/images/email-verification.svg" alt="Verified" class="profile__verification-icon">
+                                <img v-else src="@/assets/images/email-verification-red.svg" alt="Verified" class="profile__verification-icon">
+                                <span v-if="userStore.user?.is_verified" class="profile__verified-text">Вериф.</span>
+                                <span v-else class="profile__verified-text-red">Не вериф.</span>
+                            </div>
+                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                                <span class="profile__personal-info-label">Логін:</span>
+                                <span>{{ userStore.user?.username }}</span>
+                            </div>
+                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                                <span class="profile__game-accounts-label">Ігрові акаунти:</span>
+                                <span>{{ userStore.user?.game_user.length }}</span>
+                            </div>
+                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                                <span class="profile__personal-info-label">Номер телефону:</span>
+                                <span v-if="userStore.user?.phone">{{ userStore.user?.phone }}</span>
+                                <span v-else>Відсутній</span>
+                                <img 
+                                    src="@/assets/images/feather.svg" 
+                                    alt="Edit" 
+                                    class="profile__edit-icon cursor-pointer"
+                                    @click="changePhoneRef.showDia(true, userStore.user?.phone)"
+                                >
                             </div>
                         </div>
                     </div>
-                    <div class="flex gap-6">
-                        <div>
-                            <div class="flex flex-wrap gap-3 align-items-center">
-                                <h3>Ваш email:</h3>
-                                <p>{{ userStore.user?.email }}</p>
-                            </div>
-                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
-                                <h3>Ваш логін:</h3>
-                                <p>{{ userStore.user?.username }}</p>
-                            </div>
-                            <div class="flex flex-wrap gap-3 mt-3 align-items-center">
-                                <h3>Ваш номер телефону:</h3>
-                                <p>
-                                    <div v-if="userStore.user?.phone" class="flex align-items-center gap-3">
-                                        <span >{{ userStore.user?.phone }}</span>
-                                        <Button 
-                                            v-tooltip="'Змінити номер телефону'" 
-                                            icon="pi pi-pencil" 
-                                            @click="changePhoneRef.showDia(true, userStore.user?.phone)" 
-                                            class="primary"
-                                        />
-                                    </div>
-                                    <div v-else class="flex align-items-center gap-3">
-                                        <span>Відсутній</span>
-                                        <Button 
-                                            v-tooltip="'Додати номер телефону'" 
-                                            icon="pi pi-plus" 
-                                            @click="changePhoneRef.showDia(true, userStore.user?.phone)" 
-                                            class="success"
-                                        />
-                                    </div>
-                                </p>
-                            </div>
-                            <Button  
-                                icon="pi pi-pencil" 
-                                @click="changePass" 
-                                class="primary mt-3"
-                                label="Змінити пароль"
-                            />
-                        </div> 
-                        <div class="flex flex-column justify-content-between">
-                            <div class="flex gap-3 align-items-center">
-                                <h3>Верифікація:</h3>
-                                <svg v-if="userStore.user?.is_verified" width="21" height="21" viewBox="0 0 21 21" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M19.9936 8.30762L19.52 9.47029C19.3704 9.86609 19.3704 10.2866 19.52 10.6824L19.9936 11.8451C20.2678 12.5378 20.0434 13.3294 19.4202 13.7746L18.3733 14.492C18.0243 14.7394 17.7999 15.1105 17.7002 15.5063L17.4759 16.7432C17.3263 17.4853 16.7031 18.0295 15.9553 18.0543L14.6839 18.1037C14.2601 18.1285 13.8613 18.3016 13.5622 18.5985L12.6897 19.5138C12.1662 20.058 11.3436 20.1817 10.6954 19.8106L9.59862 19.1674C9.2247 18.9448 8.80092 18.8953 8.37714 18.9943L7.13075 19.2911C6.40783 19.4643 5.63507 19.118 5.28607 18.4501L4.71273 17.3121C4.51331 16.9411 4.18924 16.6442 3.7904 16.5205L2.59385 16.1247C1.87094 15.8773 1.42224 15.1847 1.49702 14.4426L1.62166 13.1809C1.67152 12.7604 1.54688 12.3399 1.27267 12.0183L0.474975 11.0288C0.00134306 10.4351 0.00134306 9.61871 0.474975 9.02501L1.27267 8.03551C1.54688 7.71392 1.67152 7.29338 1.62166 6.87284L1.49702 5.61122C1.42224 4.86909 1.87094 4.17643 2.59385 3.92906L3.7904 3.53325C4.18924 3.40957 4.51331 3.11271 4.71273 2.74165L5.28607 1.60372C5.63507 0.935801 6.38291 0.589474 7.13075 0.762637L8.37714 1.05949C8.77599 1.15844 9.2247 1.10896 9.59862 0.886325L10.6954 0.243147C11.3436 -0.127918 12.1662 -0.0289674 12.6897 0.539998L13.5622 1.45529C13.8613 1.75214 14.2601 1.95004 14.6839 1.95004L15.9553 1.99952C16.7031 2.02426 17.3512 2.56849 17.4759 3.31061L17.7002 4.5475C17.775 4.96804 18.0243 5.3391 18.3733 5.56174L19.4202 6.27913C20.0434 6.82336 20.2927 7.61497 19.9936 8.30762Z"
-                                        fill="#00D566" />
-                                    <g opacity="0.15">
-                                        <path
-                                            d="M6.00899 18.3764L5.43564 17.2384C5.23622 16.8674 4.91216 16.5705 4.51331 16.4468L3.31676 16.051C2.59385 15.8036 2.14515 15.111 2.21993 14.3689L2.34457 13.1072C2.39443 12.6867 2.26979 12.2662 1.99558 11.9446L1.19789 10.9551C0.724255 10.3614 0.724255 9.54502 1.19789 8.95132L1.99558 7.96181C2.26979 7.64022 2.39443 7.21968 2.34457 6.79914L2.21993 5.53752C2.14515 4.79539 2.59385 4.10274 3.31676 3.85536L4.51331 3.45956C4.91216 3.33587 5.23622 3.03902 5.43564 2.66795L6.00899 1.53002C6.20841 1.13422 6.5574 0.862105 6.93132 0.738417C6.25827 0.639466 5.58521 0.985793 5.28608 1.60423L4.71273 2.74217C4.51331 3.11323 4.18924 3.41008 3.7904 3.53377L2.59385 3.92957C1.87094 4.17695 1.42224 4.8696 1.49702 5.61173L1.62166 6.87335C1.67152 7.29389 1.54688 7.71443 1.27267 8.03602L0.474975 9.02553C0.00134305 9.61923 0.00134305 10.4356 0.474975 11.0293L1.27267 12.0188C1.54688 12.3404 1.67152 12.7609 1.62166 13.1815L1.49702 14.4431C1.42224 15.1852 1.87094 15.8779 2.59385 16.1252L3.7904 16.521C4.18924 16.6447 4.51331 16.9416 4.71273 17.3126L5.28608 18.4506C5.63507 19.1185 6.38291 19.4648 7.13075 19.2917L7.28031 19.2669C6.7319 19.168 6.25827 18.8711 6.00899 18.3764Z"
-                                            fill="black" />
-                                        <path
-                                            d="M10.2966 0.812187L11.3934 0.169008C11.4931 0.119533 11.5928 0.0700577 11.6925 0.0453201C11.3436 -0.00415521 10.9696 0.070058 10.6705 0.243222L9.57367 0.8864C9.47396 0.935875 9.37425 0.985351 9.27454 1.01009C9.62353 1.05956 9.97252 1.01009 10.2966 0.812187Z"
-                                            fill="black" />
-                                        <path
-                                            d="M15.3818 18.0046C15.2572 18.0046 15.1325 18.0293 15.0328 18.054L15.9302 18.0046C16.0549 18.0046 16.1546 17.9798 16.2792 17.9551L15.3818 18.0046Z"
-                                            fill="black" />
-                                        <path
-                                            d="M11.3934 19.7116L10.2966 19.0684C9.92266 18.8458 9.49888 18.7963 9.07511 18.8953L8.92554 18.92C9.14989 18.9447 9.34931 19.019 9.54874 19.1179L10.6456 19.7611C11.0693 20.0085 11.543 20.0332 11.9917 19.8848C11.7923 19.8848 11.5928 19.8353 11.3934 19.7116Z"
-                                            fill="black" />
-                                    </g>
-                                    <path d="M6.15857 8.50574L9.27457 12.0432L15.6561 6.94727" fill="#00D566" />
-                                    <path
-                                        d="M8.52672 13.8736C8.17773 13.8736 7.82874 13.7252 7.57946 13.4531L4.46346 9.91559C4.01476 9.3961 4.06461 8.62924 4.56317 8.15922C5.08666 7.71394 5.85943 7.76342 6.33306 8.25817L8.67629 10.9051L14.1355 6.55127C14.659 6.13073 15.4567 6.20495 15.8805 6.74918C16.3043 7.2934 16.2295 8.06027 15.6811 8.48081L9.29949 13.6015C9.07514 13.7747 8.80093 13.8736 8.52672 13.8736Z"
-                                        fill="white" />
-                                </svg>
-                                <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g clip-path="url(#clip0_2099_292)">
-                                        <path
-                                            d="M10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20Z"
-                                            fill="#C93636" />
-                                        <path
-                                            d="M15.6719 14.125L11.5469 10L15.6562 5.875C15.7187 5.8125 15.7187 5.71875 15.6562 5.65625L14.3281 4.32813C14.2656 4.26563 14.1719 4.26563 14.1094 4.32813L10 8.45312L5.89063 4.34375C5.82813 4.28125 5.73437 4.28125 5.67187 4.34375L4.34375 5.67187C4.28125 5.73437 4.28125 5.82813 4.34375 5.89063L8.4375 10L4.32813 14.1094C4.26563 14.1719 4.26563 14.2656 4.32813 14.3281L5.65625 15.6562C5.71875 15.7187 5.82812 15.7187 5.875 15.6562L10 11.5469L14.1094 15.6562C14.1719 15.7187 14.2813 15.7188 14.3438 15.6719L15.6719 14.3438C15.7344 14.2813 15.7344 14.1875 15.6719 14.125Z"
-                                            fill="white" />
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_2099_292">
-                                            <rect width="20" height="20" fill="white" />
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                            </div>
-                            <div class="flex gap-3 mt-3 align-items-center">
-                                <h3>Ігрові акаунти:</h3>
-                                <p>{{ userStore.user?.game_user.length }}</p>
-                            </div>
-                            <div v-if="userStore.user?.my_ref" class="flex flex-wrap gap-3 mt-3 align-items-center">
-                                <h3>Ваш реферальний код:</h3>
-                                <p class="flex align-items-center gap-2">
-                                    <span>{{ userStore.user?.my_ref }}</span> 
-                                    <i
-                                        @click="copyReferralCode(userStore.user?.my_ref)"
-                                        class="pi pi-copy text-xl"
-                                        style="color: #e26f0f; cursor: pointer;"
-                                    ></i>
-                                </p>
-                            </div>
-                            <div class="flex flex-wrap gap-3 mt-4 align-items-center">
-                                <Button 
-                                    label="Всі реферали" 
-                                    icon="pi pi-users" 
-                                    class="primary" 
-                                    @click="allRefersModalRef.showDia()" 
-                                />
+                    <button class="profile__change-password-btn profile__change-password-btn--mobile fantasy-btn small" @click="changePass">
+                        <img src="@/assets/images/feather.svg" alt="Edit">
+                        <span>Змінити пароль</span>
+                    </button>
+                </div>
+                
+                <!-- Блок РЕФЕРАЛЬНА ПРОГРАМА -->
+                <div class="profile__referral">
+                    <div class="profile__block-corner profile__block-corner--top-left"></div>
+                    <div class="profile__block-corner profile__block-corner--top-right"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-left"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-right"></div>
+                    
+                    <h2 class="profile__block-title text-center">Реферальна програма</h2>
+                    
+                    <div v-if="userStore.user?.my_ref" class="profile__referral-content flex flex-column gap-4">
+                        <div class="profile__referral-code-wrapper">
+                            <p class="profile__referral-label">Ваш реферальний код:</p>
+                            <div class="profile__referral-code-container">
+                                <p class="profile__referral-code">{{ userStore.user?.my_ref }}</p>
+                                <img @click="copyReferralCode(userStore.user?.my_ref)" src="@/assets/images/copy-icon.svg" alt="Copy" class="profile__copy-icon">
                             </div>
                         </div>
+                        
+                        <button class="profile__referral-list-btn fantasy-btn small" @click="allRefersModalRef.showDia()">
+                            <img src="@/assets/images/ref-icon.svg" alt="Referrals">
+                            <span>СПИСОК РЕФЕРАЛІВ</span>
+                        </button>
                     </div>
-                </div>  
+                </div>
             </div>
             <div class="profile__right flex flex-column align-items-center justify-content-between flex-grow-1">
                 <div v-if="!userStore.user?.game_user.length" class="flex flex-column align-items-center justify-content-center">
@@ -388,13 +350,297 @@ const show = () => {
     }
 
     &__title {
-        font-size: clamp(34px, 4vw, 64px);
+        font-size: clamp(32px, 4vw, 64px);
         margin: 0;
     }
 
     &__exit-btn,
     &__promo-btn {
         margin-left: 15px;
+    }
+
+    &__left-block {
+        @media (max-width: 767px) {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+
+    &__personal,
+    &__referral {
+        position: relative;
+        padding: clamp(20px, 3vw, 30px);
+        background: rgba(250, 250, 250, 0.05);
+        border-radius: 5px;
+        width: 100%;
+    }
+
+    &__personal {
+        max-width: 717px;
+
+        @media (max-width: 991px) {
+            max-width: 100%;
+        }
+    }
+
+    &__referral {
+        max-width: 343px;
+
+        @media (max-width: 991px) {
+            max-width: 100%;
+        }
+    }
+
+    &__block-corner {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-image: url('@/assets/images/profile-corner.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 1;
+
+        &--top-left {
+            top: 0;
+            left: 0;
+            transform: rotate(0deg);
+        }
+
+        &--top-right {
+            top: 0;
+            right: 0;
+            transform: rotate(90deg);
+        }
+
+        &--bottom-left {
+            bottom: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
+
+        &--bottom-right {
+            bottom: 0;
+            right: 0;
+            transform: rotate(180deg);
+        }
+    }
+
+    &__personal-header {
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+
+        @media (max-width: 767px) {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+    }
+
+    &__block-title {
+        font-size: clamp(16px, 2vw, 20px);
+        margin: 0;
+        color: #fff;
+        font-weight: 400;
+    }
+
+    &__avatar-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: rgba(93, 119, 144, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        @media (max-width: 767px) {
+            width: 120px;
+            height: 120px;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        &-placeholder {
+            border-radius: 50%;
+        }
+    }
+
+    &__avatar-upload {
+        position: absolute;
+        bottom: 13px;
+        right: 13px;
+        cursor: pointer;
+        z-index: 2;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__personal-content {
+        margin-bottom: 20px;
+
+        @media (max-width: 767px) {
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+    }
+
+    &__personal-info {
+        flex: 1;
+        font-size: 16px;
+        font-family: "Candara", sans-serif;
+        justify-content: space-evenly;
+
+        @media (max-width: 767px) {
+            width: 100%;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        span {
+            color: #fff;
+        }
+    }
+
+    &__personal-info-row {
+        @media (max-width: 767px) {
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+        }
+    }
+
+    &__game-accounts-label,
+    &__personal-info-label {
+        color: #f8f8f8;
+        font-size: 16px;
+        opacity: 0.5;
+    }
+
+    &__verification-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    &__verified-text {
+        color: #AEE961 !important;
+        font-size: 12px;
+
+        &-red {
+            color: #FF0000 !important;
+        }
+    }
+
+    &__game-accounts {
+        margin-left: 30px;
+        color: #fff;
+
+        @media (max-width: 767px) {
+            margin-left: 0;
+            margin-top: 5px;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    &__edit-icon {
+        width: 20px;
+        height: 20px;
+        margin-left: 5px;
+    }
+
+    &__change-password-btn {
+        margin: 0;
+
+        &--mobile {
+            display: none;
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+            max-width: 200px;
+            margin: 0 auto;
+
+            @media (max-width: 767px) {
+                display: flex;
+            }
+        }
+
+        &--desktop {
+            @media (max-width: 767px) {
+                display: none;
+            }
+        }
+    }
+
+    &__referral-content {
+        align-items: center;
+    }
+
+    &__referral-code-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 20px 0 0 0;
+    }
+
+    &__referral-label {
+        color: #f8f8f8;
+        font-size: 16px;
+        margin: 0;
+        opacity: 0.5;
+    }
+
+    &__referral-code-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__referral-code {
+        font-weight: 400;
+        font-size: 42px;
+        line-height: 120%;
+        letter-spacing: -0.04em;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__copy-icon {
+        font-size: 20px;
+        color: #FBD298;
+        cursor: pointer;
+        
+        &:hover {
+            color: #e26f0f;
+        }
+    }
+
+    &__referral-list-btn {
+        align-self: center;
+        margin-top: 20px;
     }
 
     &__left,
