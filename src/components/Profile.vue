@@ -351,6 +351,9 @@ const show = () => {
     &__title {
         font-size: clamp(32px, 4vw, 64px);
         margin: 0;
+        font-weight: 400;
+        letter-spacing: -0.07em;
+
     }
 
     &__exit-btn,
