@@ -122,10 +122,22 @@ const show = () => {
 </script>
 <template>
     <div class="profile">
+        <div class="profile__header flex justify-content-between align-items-center w-full mb-6">
+            <h1 class="profile__title">Особистий кабінет</h1>
+            <div class="flex gap-6">
+                <button class="profile__promo-btn fantasy-btn small" @click="promoCodeRef.showDia()">
+                    <img width="20" src="@/assets/images/Jewel.svg" alt="Jewel">
+                    <span>Ввести промокод</span>
+                </button>
+                <button class="profile__exit-btn fantasy-btn small danger" @click="userStore.logoutUser()">
+                    <img width="20" src="@/assets/images/Exit.svg" alt="Exit">
+                    <span>Вийти</span>
+                </button>
+            </div>
+        </div>
         <div class="profile__container flex gap-5 justify-content-between w-full flex-wrap">
             <div class="profile__left w-full">
-                <h1 class="profile__title">Особистий кабінет</h1>
-                <div class="flex flex-wrap gap-6 mt-6">
+                <div class="flex flex-wrap gap-6">
                     <div class="relative">
                         <div class="profile__writer writer flex flex-column align-items-center justify-content-center gap-2">
                             <svg v-if="!userStore.user?.avatar" class="writer__avatar" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -249,18 +261,6 @@ const show = () => {
                                     class="primary" 
                                     @click="allRefersModalRef.showDia()" 
                                 />
-                                <Button 
-                                    label="Ввести промокод" 
-                                    icon="pi pi-ticket" 
-                                    class="primary" 
-                                    @click="promoCodeRef.showDia()" 
-                                />
-                                <Button 
-                                    label="Вийти" 
-                                    icon="pi pi-sign-out" 
-                                    class="danger" 
-                                    @click="userStore.logoutUser()" 
-                                />
                             </div>
                         </div>
                     </div>
@@ -372,6 +372,29 @@ const show = () => {
 <style scoped lang='scss'>
 .profile {
     color: #fff;
+    max-width: 1080px;
+
+    &__container {
+        padding: 0;
+    }
+
+    &__header {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    &__title {
+        font-size: clamp(34px, 4vw, 64px);
+        margin: 0;
+    }
+
+    &__promo-btn {
+        margin-left: 15px;
+    }
 
     &__left,
     &__right {
