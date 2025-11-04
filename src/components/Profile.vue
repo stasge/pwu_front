@@ -124,12 +124,12 @@ const show = () => {
     <div class="profile">
         <div class="profile__header flex justify-content-between align-items-center w-full mb-6">
             <h1 class="profile__title">Особистий кабінет</h1>
-            <div class="flex gap-6">
+            <div class="flex column-gap-6 row-gap-3 flex-wrap">
                 <button class="profile__promo-btn fantasy-btn small" @click="promoCodeRef.showDia()">
                     <img width="20" src="@/assets/images/Jewel.svg" alt="Jewel">
                     <span>Ввести промокод</span>
                 </button>
-                <button class="profile__exit-btn fantasy-btn small danger" @click="userStore.logoutUser()">
+                <button class="profile__exit-btn fantasy-btn small danger mr-3" @click="userStore.logoutUser()">
                     <img width="20" src="@/assets/images/Exit.svg" alt="Exit">
                     <span>Вийти</span>
                 </button>
@@ -392,6 +392,7 @@ const show = () => {
         margin: 0;
     }
 
+    &__exit-btn,
     &__promo-btn {
         margin-left: 15px;
     }
