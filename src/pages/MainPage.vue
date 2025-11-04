@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Hero from '@/components/Hero.vue'
 import News from '@/components/News.vue'
-import SideMenu from '@/components/SideMenu.vue'
 import Steps from '@/components/Steps.vue'
 import TopDonators from '@/components/TopDonators.vue';
 </script>
@@ -9,12 +8,7 @@ import TopDonators from '@/components/TopDonators.vue';
     <div class="content">
         <Hero />
         <News />
-        <!-- <TopDonators /> -->
-        <!-- <div class="flex flex gap-5 justify-content-between">
-            <SideMenu :translateY="'-10%'"/>
-        </div> -->
     </div>
-    <!-- <Steps /> -->
 </template>
 
 <style scoped lang="scss">
