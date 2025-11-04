@@ -441,7 +441,7 @@ const show = () => {
     }
 
     &__block-title {
-        font-size: clamp(16px, 2vw, 20px);
+        font-size: 24px;
         margin: 0;
         color: #fff;
         font-weight: 400;
@@ -463,11 +463,6 @@ const show = () => {
         align-items: center;
         justify-content: center;
         overflow: hidden;
-
-        @media (max-width: 767px) {
-            width: 120px;
-            height: 120px;
-        }
 
         img {
             width: 100%;
