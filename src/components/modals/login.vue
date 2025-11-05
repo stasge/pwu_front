@@ -77,14 +77,14 @@ defineExpose({showDia})
         <template #body>
             <form v-if="!needVerification" @submit.prevent="login" class="flex flex-column justify-content-center w-full">
                 <div class="field w-full">
-                    <label for="login" class="w-full">Логін</label>
+                    <label for="login" class="w-full">Логін або email</label>
                     <div class="custom-input w-full" :class="{error: v$.username.$error}">
                         <div class="input-bg"></div>
                         <input 
                             v-model="form.username" 
                             id="login" 
                             type="text"
-                            placeholder="Введіть логін"
+                            placeholder="Введіть логін або email"
                         >
                     </div>
                 </div>
