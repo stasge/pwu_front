@@ -19,10 +19,9 @@ const minSwipeDistance = 50 // Мінімальна відстань для ви
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const emitter = useMitt()
 
-// Обмежуємо кількість слайдів до 3 та показуємо лише тип "news"
+// Фільтруємо новини (API повертає вже обмежену кількість)
 const visibleNews = computed(() => {
-    const filteredNews = news.value.filter(n => !n.isHidden && n.type === 'news')
-    return filteredNews.slice(0, 3)
+    return news.value.filter(n => !n.isHidden).slice(0, 3)
 })
 
 onMounted(async () => {
@@ -35,8 +34,8 @@ onMounted(async () => {
 
 const loadNews = async () => {
     await wrapAsyncCall( async () => {
-        const {data} = await fetchGet('getNews')
-        news.value = data
+        const {data} = await fetchGet('getNews', { limit: 5, options: 'news' })
+        news.value = data.news || []
     })
 }
 

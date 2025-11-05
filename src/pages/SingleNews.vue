@@ -47,8 +47,8 @@ const relatedNews = computed(() => {
 const loadNewsData = async () => {
     wrapAsyncCall(async () => {
         const {data} = await fetchGet('getNews')
-        allNews.value = data
-        singleNews.value = data.find((news: News) => news.id === +route.params.id)
+        allNews.value = data.news || []
+        singleNews.value = data.news?.find((news: News) => news.id === +route.params.id)
     })
 }
 
@@ -181,7 +181,7 @@ const closeImageFullscreen = () => {
                          </div>
                      </div>
                      <div class="related-news__content">
-                         <div class="related-news__category">Новини</div>
+                         <div class="related-news__category">{{ newsItem.type === 'news' ? 'Новини' : 'Оновлення' }}</div>
                          <h3 class="related-news__card-title">
                              {{ newsItem.title }}
                          </h3>

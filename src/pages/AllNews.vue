@@ -5,6 +5,7 @@ import { fetchGet, fetchPost } from '@/utils/fetchApi'
 import type { News } from '@/models/news';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
+import CTA from '@/components/CTA.vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 
@@ -12,98 +13,94 @@ const { wrapAsyncCall } = useAsyncCallWrapper()
 const router = useRouter()
 const userStore = useUserStore()
 const allNews = ref<News[]>([])
-const searchQuery = ref('')
-type FilterParams = { options: 'all' | 'news' | 'updates' }
-const selectedFilter = ref<'all' | 'news' | 'updates'>('all')
+const latestNewsItem = ref<News | null>(null)
+const totalCount = ref(0)
+type FilterParams = { options: 'news' | 'updates'; limit?: number; page?: number }
+const selectedFilter = ref<'news' | 'updates'>('news')
 const sortBy = ref('newest')
 const currentPage = ref(1)
-const itemsPerPage = 6
+const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
-
-// Функція для розбиття заголовка на дві половини
-const splitTitle = (title: string) => {
-    if (!title) return { firstHalf: '', secondHalf: '' }
-    
-    const words = title.split(' ')
-    
-    // Якщо 2 або менше слів, не розбиваємо
-    if (words.length <= 2) {
-        return {
-            firstHalf: title,
-            secondHalf: ''
-        }
-    }
-    
-    const midPoint = Math.ceil(words.length / 2)
-    
-    return {
-        firstHalf: words.slice(0, midPoint).join(' '),
-        secondHalf: words.slice(midPoint).join(' ')
-    }
-}
 
 // Отримуємо останню новину для верхнього блоку
 const latestNews = computed(() => {
-    const filteredNews = allNews.value.filter(n => userStore.isAdmin || !n.isHidden)
-    return filteredNews[0] || null
+    return latestNewsItem.value && (userStore.isAdmin || !latestNewsItem.value.isHidden) 
+        ? latestNewsItem.value 
+        : null
 })
 
-// Фільтруємо та сортуємо новини
-const filteredNews = computed(() => {
-    let filtered = allNews.value.filter(n => userStore.isAdmin || !n.isHidden)
-    
-    // Фільтр по типу
-    if (selectedFilter.value !== 'all') {
-        // Тут можна додати логіку фільтрації по типу новин
-        // Поки що залишаємо всі новини
-    }
-    
-    // Пошук
-    if (searchQuery.value) {
-        filtered = filtered.filter(n => 
-            n.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            n.text.toLowerCase().includes(searchQuery.value.toLowerCase())
-        )
-    }
-    
-    // Сортування
-    filtered.sort((a, b) => {
-        const dateA = new Date(a.created_at).getTime()
-        const dateB = new Date(b.created_at).getTime()
-        
-        if (sortBy.value === 'newest') {
-            return dateB - dateA
-        } else if (sortBy.value === 'oldest') {
-            return dateA - dateB
-        }
-        return 0
-    })
-    
-    return filtered
-})
-
-// Пагінація
+// Пагінація - використовуємо новини безпосередньо з API
 const paginatedNews = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage
-    const end = start + itemsPerPage
-    return filteredNews.value.slice(start, end)
+    return allNews.value.filter(n => userStore.isAdmin || !n.isHidden)
 })
 
 const totalPages = computed(() => {
-    return Math.ceil(filteredNews.value.length / itemsPerPage)
+    return Math.ceil(totalCount.value / itemsPerPage)
 })
 
-// Отримуємо новини для нижнього блоку (окрім останньої)
-const relatedNews = computed(() => {
-    const filtered = filteredNews.value.filter(n => n.id !== latestNews.value?.id)
-    return filtered.slice(0, 3)
+// Обчислюємо сторінки для відображення в пагінації
+const visiblePages = computed(() => {
+    const pages: (number | string)[] = []
+    const total = totalPages.value
+    const current = currentPage.value
+    
+    if (total <= 7) {
+        // Якщо сторінок мало - показуємо всі
+        for (let i = 1; i <= total; i++) {
+            pages.push(i)
+        }
+    } else {
+        // Завжди показуємо першу сторінку
+        pages.push(1)
+        
+        if (current <= 4) {
+            // Поточна сторінка біля початку
+            for (let i = 2; i <= 5; i++) {
+                pages.push(i)
+            }
+            pages.push('...')
+            pages.push(total)
+        } else if (current >= total - 3) {
+            // Поточна сторінка біля кінця
+            pages.push('...')
+            for (let i = total - 4; i <= total; i++) {
+                pages.push(i)
+            }
+        } else {
+            // Поточна сторінка в середині
+            pages.push('...')
+            pages.push(current - 1)
+            pages.push(current)
+            pages.push(current + 1)
+            pages.push('...')
+            pages.push(total)
+        }
+    }
+    
+    return pages
 })
+
+// Функція для завантаження останньої новини
+const loadLatestNews = async () => {
+    wrapAsyncCall(async () => {
+        const { data } = await fetchGet('getNews', { 
+            options: selectedFilter.value, 
+            limit: 3,
+            page: 1
+        })
+        // Фільтруємо приховані новини для звичайних користувачів
+        const filtered = (data.news || []).filter((n: News) => userStore.isAdmin || !n.isHidden)
+        // Беремо першу доступну новину
+        latestNewsItem.value = filtered.length > 0 ? filtered[0] : null
+    })
+}
 
 // Функція для завантаження даних новин
 const loadNewsData = async (params?: FilterParams) => {
     wrapAsyncCall(async () => {
         const { data } = await fetchGet('getNews', params || {})
-        allNews.value = data
+        allNews.value = data.news || []
+        totalCount.value = data.totalCount || 0
     })
 }
 
@@ -111,6 +108,11 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
+        loadNewsData({ 
+            options: selectedFilter.value, 
+            limit: itemsPerPage, 
+            page: page 
+        })
     }
 }
 
@@ -127,22 +129,42 @@ const goToNextPage = () => {
 }
 
 onMounted(() => {
-    loadNewsData({ options: selectedFilter.value })
+    loadLatestNews()
+    loadNewsData({ 
+        options: selectedFilter.value, 
+        limit: itemsPerPage, 
+        page: currentPage.value 
+    })
 })
 
 // Завантажуємо новини при зміні фільтру
 watch(selectedFilter, (newFilter) => {
     currentPage.value = 1
-    loadNewsData({ options: newFilter })
+    loadLatestNews()
+    loadNewsData({ 
+        options: newFilter, 
+        limit: itemsPerPage, 
+        page: 1 
+    })
 })
 // Видалення новини (для адміна)
 const deleteNews = async (id: number) => {
     await wrapAsyncCall(async () => {
         await fetchPost('deleteNews', { id })
-        await loadNewsData({ options: selectedFilter.value })
+        await loadLatestNews()
+        await loadNewsData({ 
+            options: selectedFilter.value, 
+            limit: itemsPerPage, 
+            page: currentPage.value 
+        })
         // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
         if (currentPage.value > totalPages.value) {
             currentPage.value = Math.max(1, totalPages.value)
+            await loadNewsData({ 
+                options: selectedFilter.value, 
+                limit: itemsPerPage, 
+                page: currentPage.value 
+            })
         }
     })
 }
@@ -209,15 +231,6 @@ const deleteNews = async (id: number) => {
                 
                 <div class="search-filters__filters">
                     <div class="search-filters__radio-group">
-                        <label class="search-filters__radio">
-                            <input 
-                                v-model="selectedFilter" 
-                                type="radio" 
-                                value="all" 
-                                name="filter"
-                            />
-                            <span>Всі</span>
-                        </label>
                         <label class="search-filters__radio">
                             <input 
                                 v-model="selectedFilter" 
@@ -317,26 +330,18 @@ const deleteNews = async (id: number) => {
             </button>
             
             <div class="pagination__numbers">
-                <button 
-                    v-for="page in Math.min(5, totalPages)" 
-                    :key="page"
-                    @click="goToPage(page)"
-                    class="pagination__number"
-                    :class="{ 'active': page === currentPage }"
-                    :aria-current="page === currentPage ? 'page' : undefined"
-                >
-                    {{ page }}
-                </button>
-                <span v-if="totalPages > 5" class="pagination__dots">...</span>
-                <button 
-                    v-if="totalPages > 5"
-                    @click="goToPage(totalPages)"
-                    class="pagination__number"
-                    :class="{ 'active': totalPages === currentPage }"
-                    :aria-current="totalPages === currentPage ? 'page' : undefined"
-                >
-                    {{ totalPages }}
-                </button>
+                <template v-for="page in visiblePages" :key="page">
+                    <button 
+                        v-if="typeof page === 'number'"
+                        @click="goToPage(page)"
+                        class="pagination__number"
+                        :class="{ 'active': page === currentPage }"
+                        :aria-current="page === currentPage ? 'page' : undefined"
+                    >
+                        {{ page }}
+                    </button>
+                    <span v-else class="pagination__dots">{{ page }}</span>
+                </template>
             </div>
             
             <button 
@@ -348,6 +353,9 @@ const deleteNews = async (id: number) => {
                 <img src="@/assets/images/arrow-next.svg" alt="next" class="pagination__arrow-icon" />
             </button>
         </div>
+        
+        <!-- CTA компонент -->
+        <CTA />
     </div>
     <Footer />
 </template>

@@ -101,7 +101,7 @@ const nextUpdatesPage = () => {
 const loadUpdates = async () => {
     await wrapAsyncCall(async () => {
         const { data } = await fetchGet('getNews', { options: 'updates' })
-        updatesNews.value = data
+        updatesNews.value = data.news || []
     })
 }
 
