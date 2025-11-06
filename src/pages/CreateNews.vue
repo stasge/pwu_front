@@ -102,11 +102,11 @@ const handleSubmit = async () => {
 };
 
 const fillForm = async (id: string) => {
-    const {data: news} = await fetchGet('getNews')
+    const {data} = await fetchGet('getNews')
 
-    if (news.length) {
-        const selected: News | undefined = news.find((n: News) => n.id === +id)
-        
+    if (data.news.length) {
+        const selected: News | undefined = data.news.find((n: News) => n.id === +id)
+
         if (selected) {
             form.isHidden = selected.isHidden
             form.text = selected.text

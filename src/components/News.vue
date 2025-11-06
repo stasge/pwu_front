@@ -148,7 +148,7 @@ const handleSwipe = () => {
                         }"
                     >
                         <h1 class="news-title">{{ item.title }}</h1>
-                        <p class="news-description" v-html="item.text.replace(/\n/g, '<br>')"></p>
+                        <p class="news-description" v-html="item.text"></p>
                         <div class="news-meta">
                             <span class="news-date">{{ new Date(item.created_at).toLocaleDateString('uk-UA') }}</span>
                             <router-link 

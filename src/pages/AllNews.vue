@@ -186,7 +186,7 @@ const deleteNews = async (id: number) => {
                         <div class="latest-news-slider__text-container">
                             <div class="latest-news-slider__text-slide">
                                 <h1 class="latest-news-slider__title">{{ latestNews.title }}</h1>
-                                <p class="latest-news-slider__description" v-html="latestNews.text.replace(/\n/g, '<br>')"></p>
+                                <p class="latest-news-slider__description" v-html="latestNews.text"></p>
                                 <div class="latest-news-slider__meta">
                                     <span class="latest-news-slider__date">{{ new Date(latestNews.created_at).toLocaleDateString('uk-UA') }}</span>
                                     <router-link 
@@ -303,7 +303,7 @@ const deleteNews = async (id: number) => {
                         <h3 class="news-grid__card-title">
                             {{ newsItem.title }}
                         </h3>
-                        <p class="news-grid__description" v-html="newsItem.text.replace(/\n/g, '<br>').substring(0, 150) + '...'"></p>
+                        <p class="news-grid__description" v-html="newsItem.text.substring(0, 150) + '...'"></p>
                         <div class="news-grid__meta">
                             <span class="news-grid__date">{{ new Date(newsItem.created_at).toLocaleDateString('uk-UA') }}</span>
                             <router-link 

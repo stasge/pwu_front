@@ -245,7 +245,7 @@ onMounted(() => {
                             <h3 class="about-news-grid__card-title">
                                 {{ newsItem.title }}
                             </h3>
-                            <p class="about-news-grid__description" v-html="newsItem.text.replace(/\n/g, '<br>').substring(0, 150) + '...'"></p>
+                            <p class="about-news-grid__description" v-html="newsItem.text.substring(0, 150) + '...'"></p>
                             <div class="about-news-grid__meta">
                                 <span class="about-news-grid__date">{{ new Date(newsItem.created_at).toLocaleDateString('uk-UA') }}</span>
                                 <router-link 
