@@ -26,21 +26,13 @@ const leadersWithIndex = computed(() =>
   leaders.value.map((item, index) => ({ index, ...item }))
 );
 
-const activeTab = ref<'general' | 'marathon'>('general')
-
 const {wrapAsyncCall} = useAsyncCallWrapper()
 
-const getLeaderboard = async (type: 'general' | 'marathon' = 'general') => {
+const getLeaderboard = async () => {
     await wrapAsyncCall(async () => {
-        const endpoint = type === 'general' ? '/rating' : '/ratingM'
-        const {data: _leaders} = await fetchGet(endpoint)
+        const {data: _leaders} = await fetchGet('/rating')
         leaders.value = _leaders
     })
-}
-
-const switchTab = async (type: 'general' | 'marathon') => {
-    activeTab.value = type
-    await getLeaderboard(type)
 }
 
 onMounted(async () => {
@@ -54,22 +46,6 @@ onMounted(async () => {
         <div class="leaderboard__content">
             
             <h1 class="leaderboard__title mb-5 text-center">Таблиця лідерів</h1>
-            
-            <!-- Tab switcher -->
-            <div class="tab-switcher mb-4">
-                <button 
-                    @click="switchTab('general')" 
-                    :class="['tab-button', { active: activeTab === 'general' }]"
-                >
-                    Загальна
-                </button>
-                <button 
-                    @click="switchTab('marathon')" 
-                    :class="['tab-button', { active: activeTab === 'marathon' }]"
-                >
-                    Марафон прокачки
-                </button>
-            </div>
             
         <div class="table-wrapper">
             <!-- Corner icons -->
@@ -192,44 +168,6 @@ onMounted(async () => {
 
         &__content {
             padding: 0 15px;
-        }
-
-        .tab-switcher {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-
-            .tab-button {
-                font-family: 'VollkornSC', sans-serif;
-                padding: 12px 24px;
-                background: rgba(250, 250, 250, 0.1);
-                border: 1px solid rgba(250, 250, 250, 0.2);
-                border-radius: 8px;
-                color: #f8f8f8;
-                font-size: 16px;
-                font-weight: 400;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-
-                &:hover {
-                    background: rgba(250, 250, 250, 0.2);
-                    border-color: rgba(250, 250, 250, 0.4);
-                }
-
-                &.active {
-                    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
-                    color: #000;
-                    border-color: #fbd298;
-                    font-weight: 500;
-                }
-
-                @media (max-width: 768px) {
-                    padding: 10px 16px;
-                    font-size: 14px;
-                }
-            }
         }
 
         &__title {
