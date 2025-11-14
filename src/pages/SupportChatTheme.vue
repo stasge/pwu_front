@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue';
-import { fetchPost } from '@/utils/fetchApi';
+import { fetchPost, fetchPut, fetchDelete } from '@/utils/fetchApi';
 import type { Message } from '@/models/theme';
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
@@ -9,6 +9,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import Button from 'primevue/button';
 
 
 const userStore = useUserStore()
@@ -23,6 +24,9 @@ const limit = ref(10)
 const total = ref(0)
 const isLoading = ref(false)
 const theme = ref<Message | null>(null)
+const editingMessageId = ref<number | string | null>(null)
+const editingText = ref('')
+const editingEditor = ref<any>(null)
 
 interface Form {
     name: string;
@@ -37,6 +41,22 @@ const editorConfig = {
         'mediaEmbed', 'imageUpload', '|',
         'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
         'imageResize'
+    ],
+    mediaEmbed: {
+        previewsInData: true
+    },
+    image: {
+        resizeUnit: '%' as '%',
+        toolbar: [
+            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
+            'imageTextAlternative', '|', 'imageResize'
+        ],
+    }
+};
+const updateEditorConfig = {
+    plugins: [Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar],
+    toolbar: [
+        'heading', 'bold', 'italic'
     ],
     mediaEmbed: {
         previewsInData: true
@@ -177,6 +197,71 @@ const closeImageFullscreen = () => {
     }
 };
 
+const canEditMessage = (message: Message) => {
+    if (!userStore.user) return false;
+    // Не можна редагувати перше повідомлення (текст теми)
+    if (typeof message.id === 'string' && message.id === 'theme-text') return false;
+    // Кожен може редагувати тільки свої повідомлення
+    return message.user_id === userStore.user.id;
+};
+
+const canDeleteMessage = (message: Message) => {
+    if (!userStore.user) return false;
+    // Не можна видаляти перше повідомлення (текст теми)
+    if (typeof message.id === 'string' && message.id === 'theme-text') return false;
+    // Кожен може видаляти тільки свої повідомлення
+    return message.user_id === userStore.user.id;
+};
+
+const startEditing = (message: Message) => {
+    editingMessageId.value = message.id;
+    editingText.value = message.text;
+    nextTick(() => {
+        if (editingEditor.value) {
+            editingEditor.value.setData(message.text);
+        }
+    });
+};
+
+const cancelEditing = () => {
+    editingMessageId.value = null;
+    editingText.value = '';
+    if (editingEditor.value) {
+        editingEditor.value.setData('');
+    }
+};
+
+const saveEdit = async () => {
+    if (!editingMessageId.value) {
+        return;
+    }
+    const textToSave = editingEditor.value ? editingEditor.value.getData() : editingText.value;
+    if (!textToSave.trim()) {
+        return;
+    }
+    try {
+        await fetchPut('/support/updateMessage', {
+            id: editingMessageId.value,
+            text: textToSave
+        });
+        cancelEditing();
+        await getMessages(true);
+    } catch (error) {
+        console.error('Помилка при оновленні повідомлення:', error);
+    }
+};
+
+const deleteMessage = async (messageId: number) => {
+    try {
+        await fetchDelete('/support/deleteMessage', { id: messageId });
+        // Видаляємо повідомлення з локального стану
+        messages.value = messages.value.filter(m => m.id !== messageId);
+        total.value = Math.max(0, total.value - 1);
+    } catch (error) {
+        console.error('Помилка при видаленні повідомлення:', error);
+    }
+};
+
 </script>
 <template>
     <div class="chat-support-theme">
@@ -202,8 +287,33 @@ const closeImageFullscreen = () => {
                         <div class="item__content">
                             <div class="item__header">
                                 <span class="item__username">{{ message.user.username }}</span>
-                                <span class="item__date">{{ format(new Date(message.created_at), 'dd.MM.yyyy HH:mm')
-                                }}</span>
+                                <div class="item__header-right">
+                                    <span class="item__date">{{ format(new Date(message.created_at), 'dd.MM.yyyy HH:mm')
+                                    }}</span>
+                                    <div v-if="canEditMessage(message) || canDeleteMessage(message)" class="item__actions">
+                                        <button 
+                                            v-if="canEditMessage(message)" 
+                                            @click="startEditing(message)" 
+                                            class="item__action-btn"
+                                            :disabled="editingMessageId !== null && editingMessageId !== message.id"
+                                            title="Редагувати">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            v-if="canDeleteMessage(message)" 
+                                            @click="deleteMessage(message.id)" 
+                                            class="item__action-btn item__action-btn--delete"
+                                            :disabled="editingMessageId !== null"
+                                            title="Видалити">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <svg class="item__romb" :class="{ 'reverced': message.is_admin }" width="20" height="26"
@@ -212,7 +322,22 @@ const closeImageFullscreen = () => {
                                         d="M0.5 12.9999C13.9644 9.31125 21.6304 7.03946 35.5 0.5L35.5 25.1913C19.7721 16.4417 12.593 14.7101 0.5 12.9999Z"
                                         fill="white" />
                                 </svg>
-                                <p class="item__text" v-html="message.text" @click="(e) => {
+                                <div v-if="editingMessageId === message.id" class="item__edit">
+                                    <ckeditor 
+                                        v-model="editingText" 
+                                        :editor="ClassicEditor" 
+                                        :config="updateEditorConfig"
+                                        @ready="(editor: any) => { 
+                                            editingEditor.value = editor; 
+                                            editor.setData(message.text);
+                                        }"
+                                    />
+                                    <div class="item__edit-actions">
+                                        <Button size="small" class="success" @click="saveEdit">Зберегти</Button>
+                                        <Button size="small" class="danger" @click="cancelEditing">Скасувати</Button>
+                                    </div>
+                                </div>
+                                <p v-else class="item__text" v-html="message.text" @click="(e) => {
                                     const t = e.target as HTMLElement;
                                     if (t && t.tagName === 'IMG') {
                                         openImageFullscreen((t as HTMLImageElement).src);
@@ -362,7 +487,13 @@ const closeImageFullscreen = () => {
             justify-content: space-between;
             margin-bottom: 5px;
             gap: 20px;
+            align-items: center;
+        }
 
+        &__header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         &__username {
@@ -372,7 +503,64 @@ const closeImageFullscreen = () => {
 
         &__date {
             font-size: 0.8rem;
+        }
 
+        &__actions {
+            display: flex;
+            gap: 5px;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        &__action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: color 0.2s;
+            border-radius: 4px;
+
+            &:hover:not(:disabled) {
+                color: #e26f0f;
+                background-color: rgba(226, 111, 15, 0.1);
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            &--delete:hover:not(:disabled) {
+                color: #dc3545;
+                background-color: rgba(220, 53, 69, 0.1);
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        &__edit {
+            margin-top: 10px;
+
+            ::v-deep(.ck-editor) {
+                width: 100% !important;
+            }
+
+            ::v-deep(.ck-editor__editable_inline) {
+                min-height: 150px;
+            }
+        }
+
+        &__edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         &__text {
@@ -430,6 +618,45 @@ const closeImageFullscreen = () => {
     ::v-deep(.ck-editor__editable_inline) {
         word-break: break-word;
         min-height: 200px;
+    }
+
+    .comments__edit-notice {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: rgba(226, 111, 15, 0.2);
+        border: 1px solid #e26f0f;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        color: #fff;
+        font-size: 0.9rem;
+
+        span {
+            font-weight: 500;
+        }
+    }
+
+    .comments__edit-cancel {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
     }
 
 }

@@ -44,3 +44,23 @@ export const fetchGet = (uri: string, data: any = {}) => {
     }
     return retryRequest(uri, options)
 }
+
+export const fetchPut = (uri: string, body: any) => {
+    const options = {
+        baseURL, 
+        method: 'PUT',
+        body,
+        credentials: 'include',
+    }
+    return retryRequest(uri, options)
+}
+
+export const fetchDelete = (uri: string, body: any) => {
+    const options = {
+        baseURL, 
+        method: 'DELETE',
+        body,
+        credentials: 'include',
+    }
+    return retryRequest(uri, options)
+}
