@@ -4,6 +4,7 @@ import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 import type { News } from '@/models/news';
 import { useMitt } from '@/composables/useMitt';
+import { truncateText } from '@/utils/text';
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const news = ref<News[]>([])
@@ -148,7 +149,7 @@ const handleSwipe = () => {
                         }"
                     >
                         <h1 class="news-title">{{ item.title }}</h1>
-                        <p class="news-description" v-html="item.text"></p>
+                        <p class="news-description" v-html="truncateText(item.text, 150)"></p>
                         <div class="news-meta">
                             <span class="news-date">{{ new Date(item.created_at).toLocaleDateString('uk-UA') }}</span>
                             <router-link 
