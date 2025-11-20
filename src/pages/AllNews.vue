@@ -8,6 +8,7 @@ import Footer from '@/components/Footer.vue';
 import CTA from '@/components/CTA.vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
+import { truncateText } from '@/utils/text';
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
 const router = useRouter()
@@ -186,7 +187,7 @@ const deleteNews = async (id: number) => {
                         <div class="latest-news-slider__text-container">
                             <div class="latest-news-slider__text-slide">
                                 <h1 class="latest-news-slider__title">{{ latestNews.title }}</h1>
-                                <p class="latest-news-slider__description" v-html="latestNews.text"></p>
+                                <p class="latest-news-slider__description" v-html="truncateText(latestNews.text, 150)"></p>
                                 <div class="latest-news-slider__meta">
                                     <span class="latest-news-slider__date">{{ new Date(latestNews.created_at).toLocaleDateString('uk-UA') }}</span>
                                     <router-link 
