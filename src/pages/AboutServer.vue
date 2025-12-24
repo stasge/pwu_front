@@ -106,7 +106,7 @@ const loadUpdates = async () => {
 }
 
 onMounted(() => {
-    loadUpdates()
+    //loadUpdates()
 })
 </script>
 <template>

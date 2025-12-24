@@ -241,6 +241,7 @@ const deleteNews = async (id: number) => {
                             />
                             <span>Новини</span>
                         </label>
+                        <!--
                         <label class="search-filters__radio">
                             <input 
                                 v-model="selectedFilter" 
@@ -250,6 +251,7 @@ const deleteNews = async (id: number) => {
                             />
                             <span>Оновлення</span>
                         </label>
+                        -->
                     </div>
                 </div>
                 <button 

@@ -46,7 +46,7 @@ const relatedNews = computed(() => {
 // Функція для завантаження даних новини
 const loadNewsData = async () => {
     wrapAsyncCall(async () => {
-        const {data} = await fetchGet('getNews')
+        const {data} = await fetchGet('getNews', { options: 'news' })
         allNews.value = data.news || []
         singleNews.value = data.news?.find((news: News) => news.id === +route.params.id)
     })
