@@ -2,10 +2,12 @@
 import { RouterView } from 'vue-router'
 import ConfirmPopup from 'primevue/confirmpopup';
 import SupportChatIcon from './components/SupportChatIcon.vue';
+import SnowEffect from './components/SnowEffect.vue';
 </script>
 
 <template>
      <SupportChatIcon />
+    <SnowEffect />
     <RouterView />
     <ConfirmPopup></ConfirmPopup>
 </template>
