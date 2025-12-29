@@ -196,7 +196,6 @@ onMounted(() => {
                                 <div class="forum-themes__section-stats">
                                     <span class="forum-themes__section-stats-item">Теми: <span class="forum-themes__section-stats-value">{{ subCategory?.themes || 0 }}</span></span>
                                     <span class="forum-themes__section-stats-item">Повідомлення: <span class="forum-themes__section-stats-value">{{ subCategory?.messages || 0 }}</span></span>
-                                    <span v-if="subCategory?.edited_at" class="forum-themes__section-stats-item">Останнє оновлення: <span class="forum-themes__section-stats-value">{{ format(new Date(subCategory.edited_at), 'HH:mm') }}, сьогодні</span></span>
                                 </div>
                             </div>
                             <button 

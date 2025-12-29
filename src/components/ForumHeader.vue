@@ -103,6 +103,26 @@ function toggleBurger() {
             <div class="forum-header-burger-menu">
                 <ul class="forum-header-burger-list">
                     <li class="forum-header-burger-item">
+                        <router-link :to="{ name: 'about-server' }" @click="isBurgerOpen = false">Про Сервер</router-link>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="forum-header-burger-divider">
+                    </li>
+                    <li class="forum-header-burger-item">
+                        <router-link :to="{ name: 'leaderboard' }" @click="isBurgerOpen = false">Таблиця Лідерів</router-link>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="forum-header-burger-divider">
+                    </li>
+                    <li class="forum-header-burger-item">
+                        <router-link :to="{ name: 'support-project' }" @click="isBurgerOpen = false">Підтримка Проєкту</router-link>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="forum-header-burger-divider">
+                    </li>
+                    <li class="forum-header-burger-item">
+                        <router-link :to="{ name: 'forum' }" @click="isBurgerOpen = false">Форум</router-link>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="forum-header-burger-divider">
+                    </li>
+                    <li class="forum-header-burger-item">
+                        <a href="https://db.valor.in.ua/" target="_blank" rel="noopener noreferrer">База даних</a>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="forum-header-burger-divider">
+                    </li>
+                    <li class="forum-header-burger-item">
                         <template v-if="!userStore.isLoggedIn">
                             <span @click="loginRef?.showDia(), isBurgerOpen = false" class="cursor-pointer">Вхід / Реєстрація</span>
                         </template>
@@ -390,11 +410,21 @@ function toggleBurger() {
         top: 100%;
         left: 0;
         right: 0;
-        background: #0a0a0a;
+        background: url('@/assets/images/forum-bg.jpg') no-repeat center / cover;
+        background-attachment: fixed;
+        background-position-y: -100px;
         height: 0;
         transition: 0.3s ease-out;
         z-index: 1001;
         overflow: hidden;
+
+        @media (max-width: 1024px) {
+            background-position-y: -90px;
+        }
+
+        @media (max-width: 768px) {
+            background-position-y: -80px;
+        }
 
         &--open {
             height: 100vh;
