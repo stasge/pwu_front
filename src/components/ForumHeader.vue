@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
 import { onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
@@ -9,6 +10,7 @@ import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 
 const userStore = useUserStore()
+const router = useRouter()
 const isBurgerOpen = ref(false)
 const isScrolled = ref(false)
 
@@ -41,6 +43,10 @@ onUnmounted(() => {
 function toggleBurger() {
     isBurgerOpen.value = !isBurgerOpen.value
 }
+
+function goBack() {
+    router.back()
+}
 </script>
 
 <template>
@@ -48,10 +54,12 @@ function toggleBurger() {
         <div class="forum-header-inner w-full">
         <div class="forum-header-container flex align-items-center justify-content-between">
             <div class="forum-header-left flex align-items-center">
-                <router-link :to="{ name: 'home' }" class="forum-header-left__arrow">
+                <a @click.prevent="goBack" class="forum-header-left__arrow cursor-pointer">
                     <img src="@/assets/images/arrow-prev.svg" alt="arrow prev">
-                </router-link>
-                <img class="forum-header-left__logo" src="@/assets/images/forum-logo.png" alt="forum-logo">
+                </a>
+                <a href="/" class="forum-header-left__logo cursor-pointer">
+                    <img src="@/assets/images/forum-logo.png" alt="forum-logo">
+                </a>
             </div>
             <div class="forum-header-right flex align-items-center">
                 <div class="forum-header-right__online flex align-items-center gap-1">
