@@ -2,6 +2,7 @@
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
+import ForumHeader from '@/components/ForumHeader.vue';
 
 import { onMounted, reactive, ref } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
@@ -291,6 +292,7 @@ function onCloseCommentPicker() {
 </script>
 <template>
     <div class="article flex-grow-1	">
+        <ForumHeader />
         <div class="article__inner">
             <div  v-if="theme" class="article__container">
                 <h1 class="article__title">{{ theme?.name }}</h1>
@@ -435,6 +437,19 @@ function onCloseCommentPicker() {
 .article {
     color: #FFF;
     word-break: break-word;
+    padding-top: 120px;
+
+    @media (max-width: 1024px) {
+        padding-top: 100px;
+    }
+
+    @media (max-width: 768px) {
+        padding-top: 90px;
+    }
+
+    @media (max-width: 480px) {
+        padding-top: 80px;
+    }
 
     &__title {
         text-shadow: 3px 0px 7px rgba(81, 67, 21, 0.8), -3px 0px 7px rgba(81, 67, 21, 0.8), 0px 4px 7px rgba(81, 67, 21, 0.8);

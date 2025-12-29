@@ -4,6 +4,8 @@ import { fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { useRoute, useRouter } from 'vue-router';
 import InputText from 'primevue/inputtext';
+import ForumHeader from '@/components/ForumHeader.vue';
+import Footer from '@/components/Footer.vue';
 // Додаємо ImageResize, ImageStyle, ImageToolbar
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
@@ -65,9 +67,12 @@ const handleSubmit = () => {
 
 <template>
     <div class="create-theme w-full">
-        <h2 v-if="!route.params.id">Створення теми</h2>
-        <h2 v-else>Рудагування теми</h2>
-        <form @submit.prevent="handleSubmit" class="mt-4 flex flex-column gap-4">
+        <ForumHeader />
+        <div class="create-theme__inner">
+            <div class="create-theme__container w-full">
+                <h2 v-if="!route.params.id">Створення теми</h2>
+                <h2 v-else>Рудагування теми</h2>
+                <form @submit.prevent="handleSubmit" class="mt-4 flex flex-column gap-4">
             <div class="flex flex-column gap-2">
                 <label for="name">Назва</label>
                 <InputText id="name" type="text" v-model="form.name" />
@@ -82,19 +87,62 @@ const handleSubmit = () => {
                 />
             </div>
 
-            <button type="submit" class="btn btn-sm mt-3">Зберегти</button>
-        </form>
+                    <button type="submit" class="fantasy-btn btn-sm mt-3"><span>Зберегти</span></button>
+                </form>
+            </div>
+        </div>
+        <Footer />
     </div>
 </template>
 
 <style scoped lang="scss">
 .create-theme {
-    padding: 20px 50px;
-    border-radius: 10px;
-    background: rgba(93, 119, 144, 0.2);
-    color: #FFF;
-    text-shadow: none;
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    min-height: 100vh;
+    background: url('@/assets/images/forum-bg.jpg') no-repeat center / cover;
+    padding-top: 120px;
+
+    @media (max-width: 1024px) {
+        padding-top: 100px;
+    }
+
+    @media (max-width: 768px) {
+        padding-top: 90px;
+    }
+
+    @media (max-width: 480px) {
+        padding-top: 80px;
+    }
+
+    &__inner {
+        padding: 40px clamp(20px, 5vw, 80px);
+        flex: 1;
+
+        @media (max-width: 768px) {
+            padding: 24px clamp(16px, 4vw, 40px);
+        }
+
+        @media (max-width: 480px) {
+            padding: 20px 0;
+        }
+    }
+
+    &__container {
+        max-width: 1400px;
+        margin: 0 auto;
+        border-radius: 10px;
+        text-shadow: none;
+
+        @media (max-width: 768px) {
+            padding: 20px 30px;
+        }
+
+        @media (max-width: 480px) {
+            padding: 20px;
+        }
+    }
     
     form {
         height: 100%;
@@ -122,5 +170,12 @@ const handleSubmit = () => {
         }
     }
 
+    .fantasy-btn {
+        left: -20px;
+    }
+}
+
+:deep(.footer) {
+    background: transparent !important;
 }
 </style>

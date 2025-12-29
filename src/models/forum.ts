@@ -4,6 +4,8 @@ import type { Emotion } from "./emotion";
 export interface IForumCategory {
   id: number;
   name: string;
+  description?: string;
+  desc?: string;
   created_at: string;
   edited_at: string;
   position: number;

@@ -57,25 +57,9 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: "/page/forum",
-          name: "forum",
-          component: Forum,
-        },
-        {
-          path: "/page/themes/:cat_id/:sub_id",
-          name: "themes",
-          component: ForumThemes,
-        },
-        {
           path: "/page/separate-theme/:theme_id/:cat_id",
           name: "separate-theme",
           component: ForumSeparateTheme,
-        },
-        {
-          path: "/page/theme-creation/:id_main/:id?",
-          name: "theme-creation",
-          component: ForumCreateTheme,
-          meta: { requiresAuth: true },
         },
         {
           path: "/page/news-creation/:id?",
@@ -147,6 +131,22 @@ const router = createRouter({
       path: "/single-news/:id",
       name: "single-news",
       component: SingleNews,
+    },
+    {
+      path: "/forum",
+      name: "forum",
+      component: Forum,
+    },
+    {
+      path: "/themes/:cat_id/:sub_id",
+      name: "themes",
+      component: ForumThemes,
+    },
+    {
+      path: "/page/theme-creation/:id_main/:id?",
+      name: "theme-creation",
+      component: ForumCreateTheme,
+      meta: { requiresAuth: true },
     },
     {
       path: "/terms",
