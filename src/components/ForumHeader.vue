@@ -57,8 +57,8 @@ function goBack() {
                 <a @click.prevent="goBack" class="forum-header-left__arrow cursor-pointer">
                     <img src="@/assets/images/arrow-prev.svg" alt="arrow prev">
                 </a>
-                <a href="/" class="forum-header-left__logo cursor-pointer">
-                    <img src="@/assets/images/forum-logo.png" alt="forum-logo">
+                <a href="/" class="cursor-pointer">
+                    <img class="forum-header-left__logo" src="@/assets/images/forum-logo.png" alt="forum-logo">
                 </a>
             </div>
             <div class="forum-header-right flex align-items-center">
