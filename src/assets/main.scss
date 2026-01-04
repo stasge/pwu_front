@@ -32,10 +32,44 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
   scroll-margin-top: 100px;
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
 }
 
 body {
   background: #0A0A0A;
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
+}
+
+// Кастомні курсори
+// Стандартний курсор для body та html
+html,
+body {
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
+}
+
+// Курсор при наведенні на інтерактивні елементи
+a,
+button,
+.fantasy-btn,
+.btn,
+.p-button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+.p-paginator-page,
+.p-select,
+.p-select-label,
+.p-paginator-first,
+.p-paginator-prev,
+.p-paginator-next,
+.p-paginator-last,
+[style*="cursor: pointer"],
+[style*="cursor:pointer"] {
+  cursor: url('@/assets/cursor/hand-cursor.cur'), pointer !important;
+  
+  &:hover {
+    cursor: url('@/assets/cursor/hand-cursor.cur'), pointer !important;
+  }
 }
 
 .wrapper {
