@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchPost } from '@/utils/fetchApi';
+import { fetchPost, fetchGet } from '@/utils/fetchApi';
 import type { IForumTheme } from '@/models/forum';
 
 const router = useRouter()
@@ -42,17 +42,54 @@ const handleSearchInput = () => {
     
     searchTimeout.value = setTimeout(() => {
         performSearch(searchQuery.value)
-    }, 300)
+    }, 600)
 }
 
-const goToTheme = (theme: IForumTheme) => {
-    router.push({ 
-        name: 'separate-theme', 
-        params: { 
-            theme_id: theme.id.toString(), 
-            cat_id: theme.id_main.toString() 
-        } 
-    })
+const goToTheme = async (theme: IForumTheme) => {
+    // Отримуємо правильний cat_id з категорій
+    try {
+        const { data: categories } = await fetchGet('/forum/getMain')
+        
+        // Шукаємо категорію, яка містить цей підрозділ
+        let correctCatId: number | null = null
+        for (const category of categories || []) {
+            const subCategory = category.topic?.find((sub: any) => sub.id === theme.id_main)
+            if (subCategory) {
+                correctCatId = category.id
+                break
+            }
+        }
+        
+        // Якщо знайшли категорію, переходимо на тему з правильним cat_id
+        if (correctCatId !== null) {
+            router.push({ 
+                name: 'separate-theme', 
+                params: { 
+                    theme_id: theme.id.toString(), 
+                    cat_id: correctCatId.toString() 
+                } 
+            })
+        } else {
+            // Якщо не знайшли, використовуємо theme.id_main як fallback
+            router.push({ 
+                name: 'separate-theme', 
+                params: { 
+                    theme_id: theme.id.toString(), 
+                    cat_id: theme.id_main.toString() 
+                } 
+            })
+        }
+    } catch (error) {
+        // У разі помилки використовуємо theme.id_main як fallback
+        router.push({ 
+            name: 'separate-theme', 
+            params: { 
+                theme_id: theme.id.toString(), 
+                cat_id: theme.id_main.toString() 
+            } 
+        })
+    }
+    
     searchQuery.value = ''
     searchResults.value = []
     showSearchDropdown.value = false

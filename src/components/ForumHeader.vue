@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
 import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
-import { fetchGet } from '@/utils/fetchApi';
+import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import ForumSearch from '@/components/ForumSearch.vue';
 
 const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 const isBurgerOpen = ref(false)
 const isScrolled = ref(false)
 const forumSearchRef = ref<InstanceType<typeof ForumSearch> | null>(null)
@@ -61,7 +62,58 @@ function handleSearchClosed() {
     // Можна додати логіку при закритті пошуку якщо потрібно
 }
 
-function goBack() {
+async function goBack() {
+    const routeName = route.name as string
+    
+    // Рівень 3: Окрема тема -> повертаємось до вибору тем у підрозділі
+    if (routeName === 'separate-theme') {
+        const themeId = route.params.theme_id
+        
+        // Завантажуємо дані теми, щоб отримати id_main (sub_id)
+        await wrapAsyncCall(async () => {
+            const { data: theme } = await fetchPost('/forum/getTheme', { id: themeId })
+            if (theme && theme.id_main) {
+                // Завантажуємо всі категорії, щоб знайти правильний cat_id
+                const { data: categories } = await fetchGet('/forum/getMain')
+                
+                // Шукаємо категорію, яка містить цей підрозділ
+                let correctCatId: number | null = null
+                for (const category of categories || []) {
+                    const subCategory = category.topic?.find((sub: any) => sub.id === theme.id_main)
+                    if (subCategory) {
+                        correctCatId = category.id
+                        break
+                    }
+                }
+                
+                // Якщо знайшли категорію, повертаємось до сторінки з темами у підрозділі
+                if (correctCatId !== null) {
+                    router.push({ 
+                        name: 'themes', 
+                        params: { 
+                            cat_id: correctCatId.toString(), 
+                            sub_id: theme.id_main.toString() 
+                        } 
+                    })
+                }
+            }
+        })
+        return
+    }
+    
+    // Рівень 2: Вибір тем у підрозділі -> повертаємось до головних розділів
+    if (routeName === 'themes') {
+        router.push({ name: 'forum' })
+        return
+    }
+    
+    // Рівень 1: Головні розділи -> повертаємось на головну сторінку
+    if (routeName === 'forum') {
+        router.push({ name: 'home' })
+        return
+    }
+    
+    // Для інших маршрутів використовуємо стандартну поведінку браузера
     router.back()
 }
 </script>

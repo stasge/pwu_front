@@ -148,7 +148,6 @@ const syncQueryWithPagination = () => {
 };
 
 const loadThemes = async (page = 1, rowsPerPage = 6) => {
-    console.log('loadThemes', page, rowsPerPage);
     const { data } = await fetchPost('/forum/getThemes', { id_main: +route.params.sub_id, page, limit: rowsPerPage });
     const { data: _subCategories } = await fetchPost('/forum/getSub', { id_main: +route.params.cat_id });
     const { data: _categories } = await fetchGet('/forum/getMain');
