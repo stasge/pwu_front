@@ -4,7 +4,7 @@ import Button from 'primevue/button';
 import Paginator from 'primevue/paginator';
 import ForumHeader from '@/components/ForumHeader.vue';
 
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import type { IForumCategory, IForumComment, IForumTheme } from '@/models/forum';
@@ -124,14 +124,27 @@ const onPageChange = (event: { page: number, rows: number }) => {
 const createCommentForm = reactive({
     text: ''
 })
-onMounted(() => {
-    wrapAsyncCall(async () => {
+const loadThemeData = async () => {
+    await wrapAsyncCall(async () => {
         await loadComments()
         const {data: _theme} = await fetchPost('/forum/getTheme', {id: themeId.value})
         const {data: _categories} = await fetchGet('/forum/getMain')
         theme.value = _theme
         category.value = _categories.find((cat: IForumCategory) => cat.id === +route.params.cat_id)
     })
+}
+
+onMounted(() => {
+    loadThemeData()
+})
+
+// Відстежуємо зміни параметрів маршруту для оновлення даних при переході між темами
+watch(() => route.params.theme_id, (newThemeId) => {
+    if (newThemeId) {
+        themeId.value = +newThemeId
+        commentsPage.value = 1
+        loadThemeData()
+    }
 })
 
 const loadComments = async () => {

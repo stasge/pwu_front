@@ -8,11 +8,13 @@ import RecoverPass from '@/components/modals/RecoverPass.vue';
 import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
+import ForumSearch from '@/components/ForumSearch.vue';
 
 const userStore = useUserStore()
 const router = useRouter()
 const isBurgerOpen = ref(false)
 const isScrolled = ref(false)
+const forumSearchRef = ref<InstanceType<typeof ForumSearch> | null>(null)
 
 const loginRef = ref<InstanceType<typeof Login> | null>(null)
 const registerRef = ref<InstanceType<typeof Register> | null>(null)
@@ -42,6 +44,21 @@ onUnmounted(() => {
 
 function toggleBurger() {
     isBurgerOpen.value = !isBurgerOpen.value
+    // Закриваємо пошук при відкритті бургер меню
+    if (isBurgerOpen.value) {
+        forumSearchRef.value?.closeMobileSearch()
+    }
+}
+
+function handleSearchOpened() {
+    // Закриваємо бургер меню при відкритті пошуку
+    if (isBurgerOpen.value) {
+        isBurgerOpen.value = false
+    }
+}
+
+function handleSearchClosed() {
+    // Можна додати логіку при закритті пошуку якщо потрібно
 }
 
 function goBack() {
@@ -57,9 +74,12 @@ function goBack() {
                 <a @click.prevent="goBack" class="forum-header-left__arrow cursor-pointer">
                     <img src="@/assets/images/arrow-prev.svg" alt="arrow prev">
                 </a>
-                <a href="/" class="cursor-pointer">
-                    <img class="forum-header-left__logo" src="@/assets/images/forum-logo.png" alt="forum-logo">
-                </a>
+                <div class="forum-header-left__logo-search flex align-items-center">
+                    <a href="/" class="cursor-pointer">
+                        <img class="forum-header-left__logo" src="@/assets/images/forum-logo.png" alt="forum-logo">
+                    </a>
+                    <ForumSearch ref="forumSearchRef" @search-opened="handleSearchOpened" @search-closed="handleSearchClosed" />
+                </div>
             </div>
             <div class="forum-header-right flex align-items-center">
                 <div class="forum-header-right__online flex align-items-center gap-1">
@@ -237,10 +257,25 @@ function goBack() {
             }
         }
 
+        &__logo-search {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            @media (max-width: 768px) {
+                gap: 0;
+            }
+
+            a {
+                line-height: 50%;
+            }
+        }
+
         &__logo {
             max-width: clamp(120px, 20vw, 192px);
         }
     }
+
 
 
     &-right {
