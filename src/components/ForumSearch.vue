@@ -229,11 +229,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .forum-search {
     position: relative;
-    width: 400px;
-
-    @media (max-width: 1024px) {
-        width: 300px;
-    }
+    width: clamp(250px, 25vw, 350px);
 
     @media (max-width: 768px) {
         width: auto;
