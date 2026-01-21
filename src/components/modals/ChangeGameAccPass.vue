@@ -4,7 +4,7 @@ import Modal from '@/components/base/modal.vue'
 import {reactive, ref} from 'vue'
 import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
-import { required, sameAs } from '@vuelidate/validators';
+import { required, sameAs, maxLength } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
@@ -29,8 +29,8 @@ const form = reactive<Form>({
 
 const rules = {
     main_pass: { required },
-    pass: { required },
-    repeat_pass: { required, sameAs: (val: string) => val === form.pass }
+    pass: { required, maxLength: maxLength(20) },
+    repeat_pass: { required, sameAs: (val: string) => val === form.pass, maxLength: maxLength(20) }
 }
 
 const v$ = useVuelidate(rules, form, {$stopPropagation: true})
@@ -92,6 +92,7 @@ defineExpose({
                             id="gameAccPassword" 
                             :type="gameAccPassHidden ? 'password' : 'text'"
                             placeholder="Введіть новий пароль"
+                            maxlength="20"
                         >
                         <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
                             <img v-show="gameAccPassHidden" @click="gameAccPassHidden = !gameAccPassHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
@@ -108,6 +109,7 @@ defineExpose({
                             id="repeat-password" 
                             :type="repeatPasswordHidden ? 'password' : 'text'"
                             placeholder="Повторіть пароль"
+                            maxlength="20"
                         >
                         <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
                             <img v-show="repeatPasswordHidden" @click="repeatPasswordHidden = !repeatPasswordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">

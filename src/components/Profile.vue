@@ -38,7 +38,7 @@ const form = reactive({
 
 const rules = {
     username: {required, maxLength: maxLength(20)},
-    pass: {required},
+    pass: {required, maxLength: maxLength(20)},
 }
 const v$ = useVuelidate(rules, form)
 
@@ -313,6 +313,7 @@ const show = () => {
                             :type="passwordHidden ? 'password' : 'text'" 
                             placeholder="Введіть пароль"
                             autocomplete="off"
+                            maxlength="20"
                         >
                         <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
                             <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
