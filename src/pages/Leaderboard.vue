@@ -26,13 +26,21 @@ const leadersWithIndex = computed(() =>
   leaders.value.map((item, index) => ({ index, ...item }))
 );
 
+const ratingMode = ref<'main' | 'marathon'>('main')
+
 const {wrapAsyncCall} = useAsyncCallWrapper()
 
 const getLeaderboard = async () => {
     await wrapAsyncCall(async () => {
-        const {data: _leaders} = await fetchGet('/rating')
+        const endpoint = ratingMode.value === 'marathon' ? '/ratingM' : '/rating'
+        const {data: _leaders} = await fetchGet(endpoint)
         leaders.value = _leaders
     })
+}
+
+const setRatingMode = (mode: 'main' | 'marathon') => {
+    ratingMode.value = mode
+    getLeaderboard()
 }
 
 onMounted(async () => {
@@ -46,6 +54,23 @@ onMounted(async () => {
         <div class="leaderboard__content">
             
             <h1 class="leaderboard__title mb-5 text-center">Таблиця лідерів</h1>
+            
+            <div class="leaderboard__buttons mb-4 flex justify-content-center gap-3">
+                <button 
+                    class="leaderboard__btn"
+                    :class="{ 'leaderboard__btn--active': ratingMode === 'main' }"
+                    @click="setRatingMode('main')"
+                >
+                    Загальна
+                </button>
+                <button 
+                    class="leaderboard__btn"
+                    :class="{ 'leaderboard__btn--active': ratingMode === 'marathon' }"
+                    @click="setRatingMode('marathon')"
+                >
+                    Марафон прокачки
+                </button>
+            </div>
             
         <div class="table-wrapper">
             <!-- Corner icons -->
@@ -182,6 +207,55 @@ onMounted(async () => {
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+        }
+
+        &__buttons {
+            position: relative;
+            z-index: 1;
+        }
+
+        &__btn {
+            position: relative;
+            backdrop-filter: blur(24px);
+            background: rgba(250, 250, 250, 0.15);
+            border: 1px solid rgba(248, 248, 248, 0.3);
+            border-radius: 5px;
+            padding: 12px 28px;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: -0.07em;
+            line-height: 90%;
+            text-align: center;
+            text-shadow: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            color: #fff;
+
+            @media (max-width: 768px) {
+                font-size: 12px;
+                padding: 10px 20px;
+            }
+
+            &:hover {
+                background: rgba(250, 250, 250, 0.2);
+                border-color: rgba(248, 248, 248, 0.5);
+            }
+
+            &--active {
+                backdrop-filter: blur(24px);
+                background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 40%, #fbd298 70%, #f8d485 100%);
+                border: 1px solid rgba(251, 210, 152, 0.7);
+                color: #2c2c2c;
+                font-weight: 500;
+                box-shadow: 0 2px 8px rgba(251, 210, 152, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+                &:hover {
+                    background: linear-gradient(180deg, #f9f9f9 0%, #fbe5b8 40%, #fcd5a5 70%, #f9d995 100%);
+                    border-color: rgba(251, 210, 152, 0.9);
+                    box-shadow: 0 4px 12px rgba(251, 210, 152, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+                }
+            }
         }
 
         .table-wrapper {
