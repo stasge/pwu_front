@@ -793,4 +793,24 @@ textarea {
   }
 }
 
+// Стилі для PrimeVue Tooltip
+.p-tooltip {
+  .p-tooltip-text {
+    background: rgba(42, 42, 42, 0.95) !important;
+    color: #fff !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-family: "Candara", sans-serif !important;
+    font-size: 14px !important;
+    white-space: pre-line !important;
+    line-height: 1.5 !important;
+  }
+
+  .p-tooltip-arrow {
+    display: none !important;
+  }
+}
+
 
