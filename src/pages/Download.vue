@@ -32,7 +32,7 @@ const handleRegister = () => {
             <div class="download-page__instruction">
                 <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">1. Після завантаження, знайдіть архів на вашому комп'ютері</h3>
+                    <h3 class="download-page__instruction-text">1. Після завантаження знайдіть файл VALOR_2.iso на вашому комп’ютері.</h3>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-1.png" alt="instruction 1">
                     </div>
@@ -42,7 +42,7 @@ const handleRegister = () => {
 
             <div class="download-page__instruction">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">2. Клікніть правою кнопкою миші > "Розпакувати до..." (або "Extract Here", якщо англійська)</h3>
+                    <h3 class="download-page__instruction-text">2. Натисніть на файл правою кнопкою миші та оберіть «Підключити» (Mount).</h3>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-2.png" alt="instruction 2">
                     </div>
@@ -52,14 +52,14 @@ const handleRegister = () => {
             <div class="download-page__instruction">
                 <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">3. Розпакуйте у зручну папку<br>(наприклад, D:\Games\PW_Valor)</h3>
+                    <h3 class="download-page__instruction-text">3. Після підключення ISO-файлу у «Цей комп’ютер» з’явиться віртуальний диск — відкрийте його (або він відкриється автоматично).</h3>
                 </div>
                 <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
             </div>
 
             <div class="download-page__instruction">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">4. Зайдіть у розпаковану папку і запустіть VALOR.exe</h3>
+                    <h3 class="download-page__instruction-text">4. Запустіть файл VALOR_2.exe.</h3>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-3.png" alt="instruction 3">
                     </div>
@@ -109,15 +109,38 @@ const handleRegister = () => {
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-8.png" alt="instruction 4">
                     </div>
+                </div>
+                <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
+            </div>
+
+            <div class="download-page__instruction">
+                <div class="download-page__instruction-content">
+                    <h3 class="download-page__instruction-text">6. Вхід у лаунчер</h3>
+                    <ul class="download-page__steps-list pl-5 w-full">
+                        <li>Запустіть лаунчер Valor 2.0.</li>
+                        <li>У полі «Логін або email» введіть дані від Особистого кабінету на сайті Valor.</li>
+                        <li>У полі «Пароль» введіть пароль від Особистого кабінету на сайті Valor.</li>
+                        <li>Натисніть кнопку «Увійти».</li>
+                    </ul>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-9.png" alt="instruction 4">
                     </div>
-                    <div class="download-page__instruction-image">
+                    <ul class="download-page__steps-list pl-5 w-full">
+                        <li>Після входу натисніть на Особистий кабінет у правому верхньому куті.</li>
+                    </ul>
+                    <div class="download-page__instruction-image w-full">
                         <img src="@/assets/images/download-i-10.png" alt="instruction 4">
                     </div>
+                    <ul class="download-page__steps-list w-full pl-5">
+                        <li>У меню, що відкриється, з’явиться список ваших ігрових акаунтів.</li>
+                        <li>Відмітьте галочками ті акаунти, які потрібно запустити.</li>
+                    </ul>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-11.png" alt="instruction 4">
                     </div>
+                    <ul class="download-page__steps-list w-full pl-5">
+                        <li>Натисніть кнопку «Почати гру».</li>
+                    </ul>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-12.png" alt="instruction 4">
                     </div>
