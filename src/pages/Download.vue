@@ -8,7 +8,7 @@ const registerModal = ref()
 
 const handleDownload = () => {
     // Тут має бути посилання на завантаження
-    window.open('https://valor.in.ua/files/PWUkraine.zip', '_blank');
+    window.open('https://valor.in.ua/files/VALOR_2.iso', '_blank');
 }
 
 const handleRegister = () => {
