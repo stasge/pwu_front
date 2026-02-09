@@ -150,7 +150,7 @@ const handleRegister = () => {
 
             <div class="download-page__instruction">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">6. Також не забудьте заздалегідь зареєструвати свій акаунт.</h3>
+                    <h3 class="download-page__instruction-text">7. Також не забудьте заздалегідь зареєструвати свій акаунт.</h3>
                     <p>Для реєстрації на сайті натисніть кнопку знизу:</p>
                     <button class="fantasy-btn" @click="handleRegister"><span>Реєстрація</span></button>
                 </div>
@@ -159,7 +159,7 @@ const handleRegister = () => {
 
             <div class="download-page__instruction">
                 <div class="download-page__instruction-content">
-                    <h3 class="download-page__instruction-text">7. І створити ігровий акаунт у особистому кабінеті, логін і пароль якого буде використовуватися для авторизації в грі.</h3>
+                    <h3 class="download-page__instruction-text">8. І створити ігровий акаунт у особистому кабінеті, логін і пароль якого буде використовуватися для авторизації в грі.</h3>
                     <div class="download-page__instruction-image">
                         <img src="@/assets/images/download-i-13.png" alt="instruction 4">
                     </div>
