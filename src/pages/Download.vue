@@ -98,16 +98,16 @@ const handleRegister = () => {
                     <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
                     <h3 class="download-page__instruction-text">5. Встановіть програму у зручне для вас місце.</h3>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-5.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-5.png" alt="instruction 5">
                     </div>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-6.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-6.png" alt="instruction 6">
                     </div>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-7.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-7.png" alt="instruction 7">
                     </div>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-8.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-8.png" alt="instruction 8">
                     </div>
                 </div>
                 <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
@@ -123,27 +123,35 @@ const handleRegister = () => {
                         <li>Натисніть кнопку «Увійти».</li>
                     </ul>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-9.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-9.png" alt="instruction 9">
                     </div>
                     <ul class="download-page__steps-list pl-5 w-full">
                         <li>Після входу натисніть на Особистий кабінет у правому верхньому куті.</li>
                     </ul>
                     <div class="download-page__instruction-image w-full">
-                        <img src="@/assets/images/download-i-10.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-10.png" alt="instruction 10">
                     </div>
                     <ul class="download-page__steps-list w-full pl-5">
                         <li>У меню, що відкриється, з’явиться список ваших ігрових акаунтів.</li>
                         <li>Відмітьте галочками ті акаунти, які потрібно запустити.</li>
                     </ul>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-11.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-11.png" alt="instruction 11">
                     </div>
                     <ul class="download-page__steps-list w-full pl-5">
                         <li>Натисніть кнопку «Почати гру».</li>
                     </ul>
                     <div class="download-page__instruction-image">
-                        <img src="@/assets/images/download-i-12.png" alt="instruction 4">
+                        <img src="@/assets/images/download-i-12.png" alt="instruction 12">
                     </div>
+                    <h3 class="download-page__instruction-text">❗ Якщо з’являється помилка MSVCP140.dll</h3>
+                    <div class="download-page__instruction-image">
+                        <img src="@/assets/images/download-i-14.png" alt="instruction 14">
+                    </div>
+                    <p>Якщо при запуску гри бачиш таку помилку — потрібно завантажити і встановити вміст архіву.</p>
+                    <p>
+                        <a class="fantasy-btn" href="/files/MPVCI_2.7_setup.zip" download>Завантажити архів</a>
+                    </p>
                 </div>
                 <img src="@/assets/images/download-divider.svg" class="download-page__divider" alt="divider">
             </div>
