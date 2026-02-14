@@ -1,12 +1,12 @@
 <script setup lang="ts">
-
+const currentYear = new Date().getFullYear();
 </script>
 
 <template>
     <div class="footer w-full flex flex-column align-items-center justify-content-center gap-4">
         <img src="@/assets/images/header-logo.png" alt="footer-logo">
         <div class="flex flex-column text-center gap-2">
-            <p>Ігровий сервер 2025 Valor  © 2025 </p>
+            <p>Ігровий сервер {{ currentYear }} Valor  © {{ currentYear }} </p>
             <span >Сервер є тестовим і створений для ознайомлення з грою "Perfect World", всі права належать правовласникам.</span>
         </div>
         <router-link :to="{name: 'terms'}" class="underline">Користувацька Угода</router-link>
