@@ -46,9 +46,18 @@ const relatedNews = computed(() => {
 // Функція для завантаження даних новини
 const loadNewsData = async () => {
     wrapAsyncCall(async () => {
-        const {data} = await fetchGet('getNews', { options: 'news' })
-        allNews.value = data.news || []
-        singleNews.value = data.news?.find((news: News) => news.id === +route.params.id)
+        const newsId = Number(route.params.id)
+
+        const { data: singleNewsData } = await fetchGet('getNewsById', { id: newsId })
+        const currentNews = (singleNewsData?.news || singleNewsData) as News
+
+        singleNews.value = currentNews
+
+        const currentNewsType = (currentNews?.type || '').toLowerCase()
+        const newsOption = currentNewsType === 'news' ? 'news' : 'updates'
+
+        const { data: latestNewsData } = await fetchGet('getNews', { options: newsOption, limit: 4, page: 1 })
+        allNews.value = latestNewsData.news || []
     })
 }
 
@@ -344,6 +353,7 @@ const closeImageFullscreen = () => {
          letter-spacing: -0.01em;
          color: #f8f8f8;
          padding: 50px 0;
+         word-break: break-all;
 
          &-img {
             width: 100%;
