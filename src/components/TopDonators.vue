@@ -3,15 +3,15 @@ import { ref } from 'vue';
 
 const donators = ref([
     'Рома', 
-    'Gev99', 
-    'PalpatinTOP',
     'Інкогніто',
+    'Gev99',
+    'PalpatinTOP',
+    'Decim', 
     'Інкогніто',
     'POVEZLO', 
-    'Decim', 
-    'Sutyner', 
-    'LLlaYTaH', 
-    'Mars', 
+    'Sutyner',
+    'Інкогніто',
+    'Linkwink', 
 ]);
 </script>
 
