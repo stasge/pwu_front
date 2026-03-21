@@ -263,13 +263,13 @@ const show = () => {
                                     <img width="20" height="20" src="@/assets/images/feather.svg" alt="Edit">
                                     <span>Змінити пароль</span>
                                 </button>
-                                <button v-if="!user.is_deleted" class="game-acc__delete-btn" @click="deleteGameAcc(user.id)">
+                                <!--<button v-if="!user.is_deleted" class="game-acc__delete-btn" @click="deleteGameAcc(user.id)">
                                     <img src="@/assets/images/Boom.svg" alt="Trash">
                                     <span>Видалити</span>
                                 </button>
                                 <button v-else class="game-acc__cancel-delete-btn" @click="recoverGameAcc(user.id)">
                                     <span>Не видаляти</span>
-                                </button>
+                                </button>-->
                             </div>
                         </div>
                     </div>
