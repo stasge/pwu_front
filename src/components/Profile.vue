@@ -266,10 +266,10 @@ const show = () => {
                                 <!--<button v-if="!user.is_deleted" class="game-acc__delete-btn" @click="deleteGameAcc(user.id)">
                                     <img src="@/assets/images/Boom.svg" alt="Trash">
                                     <span>Видалити</span>
-                                </button>
-                                <button v-else class="game-acc__cancel-delete-btn" @click="recoverGameAcc(user.id)">
-                                    <span>Не видаляти</span>
                                 </button>-->
+                                <button v-if="user.is_deleted" class="game-acc__cancel-delete-btn" @click="recoverGameAcc(user.id)">
+                                    <span>Не видаляти</span>
+                                </button>
                             </div>
                         </div>
                     </div>
