@@ -15,7 +15,7 @@ const faqData = [
     },
     {
         question: "Чи буде оновлюватись версія?",
-        answer: "Використовуємо обрізану версію 1.4.2. В подальшому плануємо оновлюватись на більш нові версії. Але це буде поступово і всі глобальні введення будуть виноситись на голосування гравців."
+        answer: "Використовуємо обрізану версію 1.5.3. В подальшому плануємо додавати контент з нових версій. Але це буде поступово і всі глобальні введення будуть виноситись на голосування гравців."
     },
     {
         question: "Чому старт з 1.3.6?",
@@ -23,7 +23,7 @@ const faqData = [
     },
     {
         question: "Чи є клановий бонус за перехід?",
-        answer: "Ні, такого бонусу не буде. Наразі працює реферальна програма."
+        answer: "Ні, такого бонусу не буде. Наразі працює реферальна програма. Деталі у особистому кабінеті"
     },
     {
         question: "Чи призиваються літаючі пети дру у данжах?",
@@ -133,7 +133,7 @@ onMounted(() => {
                         <div class="about__content-list">
                             <div class="about__content-item">
                                 <span class="about__content-label">Версія:</span>
-                                <span class="about__content-value">1.3.6</span>
+                                <span class="about__content-value">1.3.6+</span>
                             </div>
                             <div class="about__content-item">
                                 <span class="about__content-label">Кільк. рас:</span>
@@ -157,7 +157,7 @@ onMounted(() => {
                             <div class="about__content-feature">Власна база даних - <a href="https://db.valor.in.ua/" target="_blank">https://db.valor.in.ua/</a></div>
                             <div class="about__content-feature">Спрощена система реєстрації для декількох акаунтів</div>
                             <div class="about__content-feature">Змінена нагорода для щомісячних перегонів</div>
-                            <div class="about__content-feature">Автошлях, 109 данж відсутній</div>
+                            <div class="about__content-feature">109 данж відсутній</div>
                         </div>
                     </div>
                 </div>
