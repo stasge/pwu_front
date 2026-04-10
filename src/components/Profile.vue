@@ -36,14 +36,24 @@ const form = reactive({
     pass: ''
 })
 
+const CYRILLIC_REGEX = /[А-Яа-яЇїІіЄєҐґ]/g
+const hasNoCyrillic = (value: string) => !CYRILLIC_REGEX.test(value || '')
+
+const sanitizeField = (field: 'username' | 'pass') => {
+    form[field] = form[field].replace(CYRILLIC_REGEX, '')
+}
+
 const rules = {
-    username: {required, maxLength: maxLength(20)},
-    pass: {required, maxLength: maxLength(20)},
+    username: {required, maxLength: maxLength(20), hasNoCyrillic},
+    pass: {required, maxLength: maxLength(20), hasNoCyrillic},
 }
 const v$ = useVuelidate(rules, form)
 
 const addGameUser = async () => {
     if (!await v$.value.$validate()) {
+        if (v$.value.username.hasNoCyrillic.$invalid || v$.value.pass.hasNoCyrillic.$invalid) {
+            toast.error('Логін та пароль не повинні містити кирилицю')
+        }
         return
     }
     const data = {
@@ -299,6 +309,7 @@ const show = () => {
                             autocomplete="off"
                             readonly
                             @focus="removeReadonly($event)"
+                            @input="sanitizeField('username')"
                         >
                     </div>
                     <small class="text-right block" :class="{'text-red': form.username.length > 20}">{{ form.username.length }}/20</small>
@@ -314,6 +325,7 @@ const show = () => {
                             placeholder="Введіть пароль"
                             autocomplete="off"
                             maxlength="20"
+                            @input="sanitizeField('pass')"
                         >
                         <div class="absolute right-10px top-0 flex align-items-center h-full" style="z-index: 3;">
                             <img v-show="passwordHidden" @click="passwordHidden = !passwordHidden" src="@/assets/images/show-pass.svg" alt="" class="cursor-pointer">
