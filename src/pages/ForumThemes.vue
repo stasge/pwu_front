@@ -2,23 +2,19 @@
 import ForumHeader from '@/components/ForumHeader.vue';
 import ForumSubCat from '@/components/modals/forumSubCat.vue';
 import Footer from '@/components/Footer.vue';
+import ForumSideCard from '@/components/ForumSideCard.vue';
+import ForumThemesTable from '@/components/ForumThemesTable.vue';
 
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, onBeforeUnmount, ref, computed, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import type { IForumCategory, IForumSubCategory, IForumTheme } from '@/models/forum';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { useConfirmRemoval } from '@/composables/useConfirmRemoval';
-import { format } from 'date-fns';
-import forumCard1 from '@/assets/images/forum-card-1.jpg'
-import forumCard2 from '@/assets/images/forum-card-2.jpg'
-import forumCard3 from '@/assets/images/forum-card-3.jpg'
-import themeIcon from '@/assets/icons/theme-icon.svg'
-import createdIcon from '@/assets/icons/created-icon.svg'
-import answersIcon from '@/assets/icons/answers-icon.svg'
-import viewsIcon from '@/assets/icons/views-icon.svg'
-import updatedIcon from '@/assets/icons/updated-icon.svg'
+import forumSideCard1 from '@/assets/images/forum-side-card-1.png'
+import forumSideCard2 from '@/assets/images/forum-side-card-2.png'
+import forumSideCard3 from '@/assets/images/forum-side-card-3.png'
 
 const { confirmRemoval } = useConfirmRemoval();
 const { wrapAsyncCall } = useAsyncCallWrapper();
@@ -34,18 +30,32 @@ const total = ref(0);
 const currentPage = ref(1);
 const rowsPerPage = ref(6);
 const forumSubCatRef = ref<InstanceType<typeof ForumSubCat> | null>(null);
+const isHeaderActionsMenuOpen = ref(false)
 
-const descriptions = [
-    'Публікації від команди: зміни, оголошення, і загальна картина подій на сервері.',
-    'Простір для гравців: обговорення, пропозиції, живий обмін досвідом між учасниками.',
-    'Все про занурення в гру: практичні знання, досвід, підказки і історії з живого світу Perfect World.'
-]
-
-const cardImages = [forumCard1, forumCard2, forumCard3]
-
-const getCardImage = (index: number) => {
-    return cardImages[index % 3]
+const sideCardsByCategoryId: Record<number, { image: string; title: string; description: string }> = {
+    1: {
+        image: forumSideCard1,
+        title: 'Офіційний розділ',
+        description: 'Публікації від команди: зміни, оголошення, і загальна картина подій на сервері.'
+    },
+    2: {
+        image: forumSideCard2,
+        title: 'Розділ спільноти',
+        description: 'Простір для гравців: обговорення, пропозиції, живий обмін досвідом між учасниками.'
+    },
+    3: {
+        image: forumSideCard3,
+        title: 'Ігровий розділ',
+        description: 'Все про занурення в гру: практичні знання, досвід, підказки і історії з живого світу Perfect World.'
+    },
 }
+
+const currentSideCard = computed(() => {
+    const categoryId = Number(route.params.cat_id)
+    return sideCardsByCategoryId[categoryId] || sideCardsByCategoryId[1]
+})
+const currentMobileSlide = ref(0)
+const mobileSideCards = computed(() => [currentSideCard.value])
 
 const mostActiveTheme = computed(() => {
     if (!themes.value.length) return null
@@ -166,12 +176,51 @@ const deleteTheme = (id: number) => {
     });
 };
 
+const goToEditTheme = (themeIdMain: number, themeId: number) => {
+    router.push({ name: 'theme-creation', params: { id_main: themeIdMain, id: themeId } })
+}
+
+const onDeleteTheme = (event: MouseEvent, themeId: number) => {
+    confirmRemoval(event, themeId, 'Ви впевнені, що хочете видалити цю тему?', deleteTheme)
+}
+
+const openSubCategoryEdit = () => {
+    isHeaderActionsMenuOpen.value = false
+    forumSubCatRef.value?.showDia(subCategory.value || null, +route.params.sub_id)
+}
+
+const openCreateTheme = () => {
+    isHeaderActionsMenuOpen.value = false
+    router.push({ name: 'theme-creation', params: { id_main: +route.params.sub_id } })
+}
+
+const toggleHeaderActionsMenu = () => {
+    isHeaderActionsMenuOpen.value = !isHeaderActionsMenuOpen.value
+}
+
+const closeHeaderActionsMenu = () => {
+    isHeaderActionsMenuOpen.value = false
+}
+
+const goToMobileSlide = (index: number) => {
+    currentMobileSlide.value = index
+}
+
 onMounted(() => {
     // Встановлюємо значення з query при завантаженні
     if (route.query.page) currentPage.value = +route.query.page;
     if (route.query.limit) rowsPerPage.value = +route.query.limit;
     wrapAsyncCall(() => loadThemes(currentPage.value, rowsPerPage.value));
+    document.addEventListener('click', closeHeaderActionsMenu)
 });
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeHeaderActionsMenu)
+})
+
+watch(mobileSideCards, () => {
+    currentMobileSlide.value = 0
+})
 </script>
 
 <template>
@@ -183,7 +232,7 @@ onMounted(() => {
                 <!-- Main Content -->
                 <div class="forum-themes__content">
                     <!-- Left Column - Themes List -->
-                    <div class="forum-themes__main">
+                    <div class="forum-themes__main w-full">
                         <!-- Section Header -->
                         <div class="forum-themes__section-header">
                             <div class="forum-themes__corner forum-themes__corner--top-left"></div>
@@ -197,24 +246,59 @@ onMounted(() => {
                                     <span class="forum-themes__section-stats-item">Повідомлення: <span class="forum-themes__section-stats-value">{{ subCategory?.messages || 0 }}</span></span>
                                 </div>
                             </div>
-                            <button 
-                                v-if="userStore.isAdmin"
-                                @click="forumSubCatRef?.showDia(subCategory || null, +route.params.sub_id)"
-                                class="forum-themes__create-btn"
+                            <div class="forum-themes__header-actions">
+                                <button
+                                    v-if="userStore.isAdmin"
+                                    @click="openSubCategoryEdit"
+                                    class="forum-themes__create-btn"
+                                >
+                                    <img src="@/assets/icons/forum-edit.svg" alt="edit" class="forum-themes__create-btn-icon">
+                                </button>
+                                <button
+                                    v-if="canCreateTheme"
+                                    @click="openCreateTheme"
+                                    class="forum-themes__create-btn"
+                                >
+                                    <span>Створити Тему</span>
+                                    <img src="@/assets/icons/forum-plus.svg" alt="plus" class="forum-themes__create-btn-icon">
+                                </button>
+                            </div>
+
+                            <div
+                                v-if="userStore.isAdmin || canCreateTheme"
+                                class="forum-themes__header-actions-mobile"
+                                @click.stop
                             >
-                                <img src="@/assets/icons/forum-edit.svg" alt="edit" class="forum-themes__create-btn-icon">
-                            </button>
-                            <button 
-                                v-if="canCreateTheme"
-                                @click="router.push({name: 'theme-creation', params: {id_main: +route.params.sub_id}})"
-                                class="forum-themes__create-btn"
-                            >
-                                <span>Створити Тему</span>
-                                <img src="@/assets/icons/forum-plus.svg" alt="plus" class="forum-themes__create-btn-icon">
-                            </button>
+                                <button
+                                    class="forum-themes__header-actions-trigger"
+                                    title="Дії"
+                                    @click.stop="toggleHeaderActionsMenu"
+                                >
+                                    ⋮
+                                </button>
+
+                                <div v-if="isHeaderActionsMenuOpen" class="forum-themes__header-actions-menu">
+                                    <button
+                                        v-if="userStore.isAdmin"
+                                        class="forum-themes__header-actions-menu-item"
+                                        @click.stop="openSubCategoryEdit"
+                                    >
+                                        <span>Редагувати підрозділ</span>
+                                        <img src="@/assets/icons/forum-edit.svg" alt="edit">
+                                    </button>
+                                    <button
+                                        v-if="canCreateTheme"
+                                        class="forum-themes__header-actions-menu-item"
+                                        @click.stop="openCreateTheme"
+                                    >
+                                        <span>Створити тему</span>
+                                        <img src="@/assets/icons/forum-plus.svg" alt="plus">
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="flex justify-content-between align-items-center flex-wrap gap-4">
+                        <div class="forum-themes__meta-row flex justify-content-between align-items-center flex-wrap gap-4">
                             <!-- Breadcrumbs -->
                             <nav class="forum-themes__breadcrumb">
                                 <RouterLink :to="{ name: 'forum' }">{{ category?.name || 'Головний розділ' }}</RouterLink>
@@ -227,103 +311,22 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <!-- Themes Table -->
-                        <div class="forum-themes__table">
-                            <div class="forum-themes__corner forum-themes__corner--top-left"></div>
-                            <div class="forum-themes__corner forum-themes__corner--top-right"></div>
-                            <div class="forum-themes__corner forum-themes__corner--bottom-left"></div>
-                            <div class="forum-themes__corner forum-themes__corner--bottom-right"></div>
-                            <div class="forum-themes__table-header">
-                                <div class="forum-themes__table-col forum-themes__table-col--topic">
-                                    <img :src="themeIcon" alt="theme" class="forum-themes__table-header-icon" />
-                                    <span>Тема</span>
-                                </div>
-                                <div class="forum-themes__table-col forum-themes__table-col--created">
-                                    <img :src="createdIcon" alt="created" class="forum-themes__table-header-icon" />
-                                    <span>Створено</span>
-                                </div>
-                                <div class="forum-themes__table-col forum-themes__table-col--replies">
-                                    <img :src="answersIcon" alt="answers" class="forum-themes__table-header-icon" />
-                                    <span>Відповіді</span>
-                                </div>
-                                <div class="forum-themes__table-col forum-themes__table-col--views">
-                                    <img :src="viewsIcon" alt="views" class="forum-themes__table-header-icon" />
-                                    <span>Перегляди</span>
-                                </div>
-                                <div class="forum-themes__table-col forum-themes__table-col--updated">
-                                    <img :src="updatedIcon" alt="updated" class="forum-themes__table-header-icon" />
-                                    <span>Оновлено</span>
-                                </div>
-                                <div v-if="userStore.isAdmin" class="forum-themes__table-col forum-themes__table-col--actions">Дії</div>
-                            </div>
-                            <div class="forum-themes__table-body">
-                                <div v-for="theme of themes" :key="theme.id" class="forum-themes__table-row">
-                                    <div class="forum-themes__table-col forum-themes__table-col--topic">
-                                        <RouterLink 
-                                            :to="{name: 'separate-theme', params: {theme_id: theme.id, cat_id: route.params.cat_id}}"
-                                            class="forum-themes__theme-link"
-                                        >
-                                            {{ theme.name }}
-                                        </RouterLink>
-                                    </div>
-                                    <div class="forum-themes__table-col forum-themes__table-col--created" data-label="Створено:">
-                                        {{ format(new Date(theme.created_at), 'dd.MM.yyyy HH:mm') }}
-                                    </div>
-                                    <div class="forum-themes__table-col forum-themes__table-col--replies" data-label="Відповіді:">
-                                        {{ theme.messages_count }}
-                                    </div>
-                                    <div class="forum-themes__table-col forum-themes__table-col--views" data-label="Перегляди:">
-                                        {{ theme.views_count }}
-                                    </div>
-                                    <div class="forum-themes__table-col forum-themes__table-col--updated" data-label="Оновлено:">
-                                        {{ format(new Date(theme.edited_at || theme.created_at), 'dd.MM.yyyy HH:mm') }}
-                                    </div>
-                                    <div v-if="userStore.isAdmin || userStore.user?.id === theme.user_id" class="forum-themes__table-col forum-themes__table-col--actions">
-                                        <div class="forum-themes__actions flex gap-2">
-                                            <button 
-                                                v-if="userStore.isAdmin || userStore.user?.id === theme.user_id"
-                                                class="forum-themes__edit-btn"
-                                                title="Редагувати тему"
-                                                @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
-                                            >
-                                                <img width="20" height="20" src="@/assets/images/feather.svg" alt="Edit">
-                                            </button>
-                                            <button
-                                                v-if="userStore.isAdmin"
-                                                class="forum-themes__delete-btn"
-                                                title="Видалити тему"
-                                                @click="confirmRemoval($event, theme.id, 'Ви впевнені, що хочете видалити цю тему?', deleteTheme)"
-                                            >
-                                                <img src="@/assets/images/Boom.svg" alt="Trash">
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div v-if="userStore.isAdmin || userStore.user?.id === theme.user_id" class="forum-themes__mobile-actions">
-                                        <div class="forum-themes__actions flex gap-2">
-                                            <button 
-                                                v-if="userStore.isAdmin || userStore.user?.id === theme.user_id"
-                                                class="forum-themes__edit-btn"
-                                                title="Редагувати тему"
-                                                @click="router.push({name: 'theme-creation', params: {id_main: theme.id_main, id: theme.id}})"
-                                            >
-                                                <img width="20" height="20" src="@/assets/images/feather.svg" alt="Edit">
-                                            </button>
-                                            <button
-                                                v-if="userStore.isAdmin"
-                                                class="forum-themes__delete-btn"
-                                                title="Видалити тему"
-                                                @click="confirmRemoval($event, theme.id, 'Ви впевнені, що хочете видалити цю тему?', deleteTheme)"
-                                            >
-                                                <img src="@/assets/images/Boom.svg" alt="Trash">
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="forum-themes__themes-table-slot">
+                            <ForumThemesTable
+                                :themes="themes"
+                                :cat-id="+route.params.cat_id"
+                                :is-admin="userStore.isAdmin"
+                                :current-user-id="userStore.user?.id"
+                                @edit="goToEditTheme"
+                                @delete="onDeleteTheme"
+                            />
                         </div>
 
                         <!-- Pagination -->
                         <div v-if="totalPages > 1" class="forum-themes__pagination">
+                            <div class="forum-themes__pagination-info forum-themes__pagination-info--mobile">
+                                Показано <span class="forum-themes__pagination-info-number">{{ (currentPage - 1) * rowsPerPage + 1 }}-{{ Math.min(currentPage * rowsPerPage, total) }}</span> з <span class="forum-themes__pagination-info-number">{{ total }}</span>
+                            </div>
                             <button 
                                 @click="goToPreviousPage" 
                                 class="forum-themes__pagination-arrow"
@@ -357,7 +360,45 @@ onMounted(() => {
                                 <img src="@/assets/images/arrow-next.svg" alt="next" class="forum-themes__pagination-arrow-icon" />
                             </button>
                         </div>
+
+                        <div v-if="mobileSideCards.length" class="forum-themes__mobile-side-slider">
+                            <div
+                                class="forum-themes__mobile-side-slider-track"
+                                :style="{ transform: `translateX(-${currentMobileSlide * 100}%)` }"
+                            >
+                                <div
+                                    v-for="(card, index) in mobileSideCards"
+                                    :key="`${card.title}-${index}`"
+                                    class="forum-themes__mobile-side-slider-slide"
+                                >
+                                    <ForumSideCard
+                                        :image="card.image"
+                                        :title="card.title"
+                                        :description="card.description"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="forum-themes__mobile-side-slider-dots">
+                                <button
+                                    v-for="(_, index) in mobileSideCards"
+                                    :key="index"
+                                    class="forum-themes__mobile-side-slider-dot"
+                                    :class="{ active: currentMobileSlide === index }"
+                                    @click="goToMobileSlide(index)"
+                                    :aria-label="`Перейти до слайда ${index + 1}`"
+                                ></button>
+                            </div>
+                        </div>
                     </div>
+
+                    <ForumSideCard
+                        v-if="currentSideCard"
+                        class="forum-themes__side-card"
+                        :image="currentSideCard.image"
+                        :title="currentSideCard.title"
+                        :description="currentSideCard.description"
+                    />
                 </div>
             </div>
         </div>
@@ -380,11 +421,7 @@ onMounted(() => {
     }
 
     @media (max-width: 768px) {
-        padding-top: 90px;
-    }
-
-    @media (max-width: 480px) {
-        padding-top: 80px;
+        padding-top: 60px;
     }
 
     &__inner {
@@ -403,6 +440,10 @@ onMounted(() => {
     &__container {
         max-width: 1400px;
         margin: 0 auto;
+
+        @media (max-width: 768px) {
+            padding: 0;
+        }
     }
 
     &__breadcrumb {
@@ -450,8 +491,9 @@ onMounted(() => {
 
     &__content {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
+        grid-template-columns: minmax(0, 1fr) clamp(180px, 17vw, 300px);
+        align-items: start;
+        gap: 20px;
 
         @media (max-width: 1024px) {
             grid-template-columns: 1fr;
@@ -464,6 +506,78 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         gap: 32px;
+
+        @media (max-width: 768px) {
+            gap: 10px;
+        }
+    }
+
+    &__meta-row {
+        @media (max-width: 768px) {
+            order: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+        }
+    }
+
+    &__themes-table-slot {
+        @media (max-width: 768px) {
+            order: 3;
+            margin-top: 20px;
+        }
+    }
+
+    &__side-card {
+        @media (max-width: 1024px) {
+            display: none;
+        }
+    }
+
+    &__mobile-side-slider {
+        display: none;
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 1px;
+
+        @media (max-width: 1024px) {
+            order: 5;
+            display: block;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+    }
+
+    &__mobile-side-slider-track {
+        display: flex;
+        transition: transform 0.3s ease;
+    }
+
+    &__mobile-side-slider-slide {
+        flex: 0 0 100%;
+        min-width: 100%;
+    }
+
+    &__mobile-side-slider-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    &__mobile-side-slider-dot {
+        width: 10px;
+        height: 10px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &.active {
+            background: #f8f8f8;
+        }
     }
 
     &__section-header {
@@ -478,8 +592,8 @@ onMounted(() => {
         position: relative;
 
         @media (max-width: 768px) {
-            flex-direction: column;
-            padding: 20px;
+            order: 2;
+            padding: 15px;
             align-items: flex-start;
         }
     }
@@ -573,13 +687,89 @@ onMounted(() => {
         }
     }
 
-    &__table {
-        backdrop-filter: blur(64px);
-        background: rgba(250, 250, 250, 0.05);
-        border-radius: 5px;
-        border: none;
+    &__header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        @media (max-width: 768px) {
+            display: none;
+        }
+    }
+
+    &__header-actions-mobile {
+        display: none;
         position: relative;
-        padding: 20px 10px;
+
+        @media (max-width: 768px) {
+            display: flex;
+        }
+    }
+
+    &__header-actions-trigger {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 22px;
+        line-height: 1;
+        border-radius: 50%;
+        cursor: pointer;
+
+        @media (max-width: 768px) {
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+        }
+    }
+
+    &__header-actions-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: min(290px, 88vw);
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(70px);
+        background: rgba(15, 15, 20, 1);
+        z-index: 20;
+    }
+
+    &__header-actions-menu-item {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: #f8f8f8;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.04);
+
+        @media (max-width: 768px) {
+            padding: 10px 12px;
+        }
+
+        &:not(:last-child) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        span {
+            font-family: 'VollkornSC', sans-serif;
+            font-size: 14px;
+            letter-spacing: -0.04em;
+            text-align: left;
+        }
+
+        img {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
     }
 
     &__corner {
@@ -618,127 +808,6 @@ onMounted(() => {
         }
     }
 
-    &__table-header {
-        display: grid;
-        grid-template-columns: 2fr 1fr 0.8fr 0.8fr 1fr 0.5fr;
-        gap: 16px;
-        padding: 0px 20px 14px 20px;
-        background: none;
-        font-weight: 400;
-        font-size: 14px;
-        color: #fff;
-
-        @media (max-width: 768px) {
-            grid-template-columns: 1fr;
-            display: none;
-        }
-    }
-
-    &__table-header-icon {
-        width: 16px;
-        height: 16px;
-        margin-right: 8px;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    &__table-col {
-        display: flex;
-        align-items: center;
-
-        &--topic {
-            font-weight: 400;
-            font-size: 16px;
-        }
-
-        &--created,
-        &--replies,
-        &--views,
-        &--updated {
-            justify-content: center;
-            text-align: center;
-        }
-
-        &--actions {
-            justify-content: flex-end;
-
-            @media (max-width: 768px) {
-                display: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            &--created,
-            &--replies,
-            &--views,
-            &--updated {
-                display: flex;
-                justify-content: space-between;
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.7);
-                padding: 4px 0;
-
-                &::before {
-                    content: attr(data-label);
-                    font-weight: 500;
-                    color: rgba(255, 255, 255, 0.9);
-                    margin-right: 8px;
-                }
-            }
-        }
-    }
-
-    &__table-body {
-        display: flex;
-        flex-direction: column;
-    }
-
-    &__table-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr 0.8fr 0.8fr 1fr 0.5fr;
-        gap: 16px;
-        padding: 14px 20px;
-        transition: background 0.3s ease;
-
-        @media (max-width: 768px) {
-            gap: 0px !important;
-        }
-
-        &:nth-child(odd) {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        &:last-child {
-            border-bottom: none;
-        }
-
-        @media (max-width: 768px) {
-            grid-template-columns: 1fr;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 16px;
-        }
-    }
-
-    &__theme-link {
-        color: #f8f8f8;
-        text-decoration: none;
-        font-size: 16px;
-        transition: color 0.3s ease;
-        font-weight: 500;
-
-        &:hover {
-            color: #fadfae;
-        }
-
-        @media (max-width: 768px) {
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-    }
-
     &__pagination-info {
         display: flex;
         gap: 6px;
@@ -752,11 +821,27 @@ onMounted(() => {
         -webkit-text-fill-color: transparent;
 
         @media (max-width: 768px) {
-            font-size: 14px;
+            display: none;
+            
         }
 
         &-number {
             font-size: 20px;
+        }
+
+        &--mobile {
+            display: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+
+            @media (max-width: 768px) {
+                display: flex;
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 6px;
+                font-size: 14px;
+            }
         }
     }
 
@@ -765,12 +850,15 @@ onMounted(() => {
         justify-content: center;
         align-items: center;
         gap: 24px;
-        padding: 0 040px 0;
+        padding: 0 40px 0;
         margin-top: 20px;
 
         @media (max-width: 768px) {
-            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            order: 4;
+            padding: 0 0 22px 0;
             gap: 16px;
+            flex-wrap: wrap;
         }
     }
 
@@ -983,77 +1071,6 @@ onMounted(() => {
         }
     }
 
-    &__mobile-actions {
-        display: none;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-        @media (max-width: 768px) {
-            display: block;
-        }
-    }
-
-    &__actions {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-
-        @media (max-width: 768px) {
-            width: 100%;
-            justify-content: space-between;
-        }
-    }
-
-    &__edit-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        background: none;
-        cursor: pointer;
-        padding: 4px;
-        transition: opacity 0.2s ease;
-
-        img {
-            width: 20px;
-            height: 20px;
-        }
-
-        &:hover {
-            opacity: 0.7;
-        }
-
-        &:active {
-            opacity: 0.6;
-        }
-    }
-
-    &__delete-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        background: none;
-        cursor: pointer;
-        padding: 4px;
-        transition: opacity 0.2s ease;
-
-        img {
-            width: 20px;
-            height: 20px;
-        }
-
-        &:hover {
-            opacity: 0.7;
-        }
-
-        &:active {
-            opacity: 0.6;
-        }
-    }
 }
 
 :deep(.footer) {
