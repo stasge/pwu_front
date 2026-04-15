@@ -3,7 +3,10 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-    <div class="footer w-full flex flex-column align-items-center justify-content-center gap-4">
+    <div
+        class="footer w-full flex flex-column align-items-center justify-content-center gap-4"
+        data-nosnippet
+    >
         <img src="@/assets/images/header-logo.png" alt="footer-logo">
         <div class="flex flex-column text-center gap-2">
             <p>Ігровий сервер {{ currentYear }} Valor  © {{ currentYear }} </p>
