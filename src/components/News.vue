@@ -5,6 +5,7 @@ import { fetchGet } from '@/utils/fetchApi';
 import type { News } from '@/models/news';
 import { useMitt } from '@/composables/useMitt';
 import { truncateText } from '@/utils/text';
+import ServerLifetimeCounter from '@/components/ServerLifetimeCounter.vue';
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const news = ref<News[]>([])
@@ -123,8 +124,8 @@ const handleSwipe = () => {
 
 <template>
     <div class="news-slider">
-        
-        
+        <ServerLifetimeCounter />
+
         <div 
             v-if="visibleNews.length > 0" 
             class="slider-container"
