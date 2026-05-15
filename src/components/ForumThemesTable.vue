@@ -287,6 +287,10 @@ onBeforeUnmount(() => {
         &:nth-child(odd) {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
+
+            @media (max-width: 768px) {
+                background: rgba(250, 250, 250, 0.10);
+            }
         }
 
         @media (max-width: 768px) {
@@ -296,7 +300,7 @@ onBeforeUnmount(() => {
             padding: 15px;
             position: relative;
             border-radius: 10px;
-            background: rgba(8, 10, 15, 0.9);
+            background: rgba(250, 250, 250, 0.10);
             backdrop-filter: blur(30px);
         }
     }

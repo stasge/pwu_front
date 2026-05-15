@@ -127,6 +127,7 @@ const getCardImage = (index: number) => {
 
     @media (max-width: 768px) {
         padding-top: 90px;
+        background: #000;
     }
 
     @media (max-width: 480px) {

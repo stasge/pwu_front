@@ -422,6 +422,7 @@ watch(mobileSideCards, () => {
 
     @media (max-width: 768px) {
         padding-top: 60px;
+        background: #000;
     }
 
     &__inner {

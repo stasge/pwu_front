@@ -57,11 +57,6 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: "/page/separate-theme/:theme_id/:cat_id",
-          name: "separate-theme",
-          component: ForumSeparateTheme,
-        },
-        {
           path: "/page/news-creation/:id?",
           name: "news-creation",
           component: CreateNews,
@@ -147,6 +142,11 @@ const router = createRouter({
       name: "theme-creation",
       component: ForumCreateTheme,
       meta: { requiresAuth: true },
+    },
+    {
+      path: "/separate-theme/:theme_id/:cat_id",
+      name: "separate-theme",
+      component: ForumSeparateTheme,
     },
     {
       path: "/terms",

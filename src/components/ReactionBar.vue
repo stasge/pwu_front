@@ -254,57 +254,69 @@ function getEmotionTitle(emotionId: number): string {
         <span class="count" v-if="totalFor(opt.id)">{{ totalFor(opt.id) }}</span>
       </button>
 
-      <div class="picker-anchor">
-        <button type="button" class="reaction-add" @click="emit('openPicker')" title="Додати реакцію">
-            <svg width="64" height="63" viewBox="0 0 64 63" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M56 35C55.9932 42.077 53.3086 48.8893 48.4857 54.0684C43.6627 59.2475 37.0586 62.4098 30 62.92C29.34 62.98 28.67 63 28 63C20.5739 63 13.452 60.05 8.20101 54.799C2.94999 49.548 0 42.4261 0 35C0 27.5739 2.94999 20.452 8.20101 15.201C13.452 9.94999 20.5739 7 28 7C28.67 7 29.34 7.02 30 7.08C37.0586 7.59019 43.6627 10.7525 48.4857 15.9316C53.3086 21.1107 55.9932 27.923 56 35Z" fill="#FCB316"/>
-                <path d="M30 62.9201C44.3594 62.9201 56 50.4199 56 35.0001C56 19.5803 44.3594 7.08008 30 7.08008C15.6406 7.08008 4 19.5803 4 35.0001C4 50.4199 15.6406 62.9201 30 62.9201Z" fill="#FFCB29"/>
-                <path d="M28 45.5869C23.9145 45.5917 19.9124 44.4313 16.463 42.2419C16.3506 42.1722 16.2531 42.0808 16.1762 41.9731C16.0994 41.8654 16.0446 41.7436 16.0152 41.6146C15.9857 41.4856 15.9822 41.352 16.0047 41.2216C16.0273 41.0913 16.0755 40.9667 16.1466 40.8551C16.2176 40.7434 16.3101 40.647 16.4187 40.5714C16.5273 40.4958 16.6498 40.4425 16.7791 40.4146C16.9085 40.3867 17.042 40.3847 17.1721 40.4088C17.3023 40.4329 17.4263 40.4825 17.537 40.5549C20.6671 42.5366 24.2955 43.5886 28 43.5886C31.7046 43.5886 35.333 42.5366 38.463 40.5549C38.5738 40.4825 38.6978 40.4329 38.8279 40.4088C38.958 40.3847 39.0916 40.3867 39.221 40.4146C39.3503 40.4425 39.4728 40.4958 39.5814 40.5714C39.69 40.647 39.7825 40.7434 39.8535 40.8551C39.9246 40.9667 39.9728 41.0913 39.9954 41.2216C40.0179 41.352 40.0144 41.4856 39.9849 41.6146C39.9555 41.7436 39.9007 41.8654 39.8239 41.9731C39.747 42.0808 39.6495 42.1722 39.537 42.2419C36.0877 44.4313 32.0856 45.5917 28 45.5869Z" fill="#EF5451"/>
-                <path d="M38 36.3979C40.2091 36.3979 42 33.7117 42 30.3979C42 27.0842 40.2091 24.3979 38 24.3979C35.7909 24.3979 34 27.0842 34 30.3979C34 33.7117 35.7909 36.3979 38 36.3979Z" fill="#455B64"/>
-                <path d="M18 36.3979C20.2091 36.3979 22 33.7117 22 30.3979C22 27.0842 20.2091 24.3979 18 24.3979C15.7909 24.3979 14 27.0842 14 30.3979C14 33.7117 15.7909 36.3979 18 36.3979Z" fill="#455B64"/>
-                <path d="M60.25 11.25H52.75V3.75C52.75 1.68 51.07 0 49 0C46.93 0 45.25 1.68 45.25 3.75L45.3831 11.25H37.75C35.68 11.25 34 12.93 34 15C34 17.07 35.68 18.75 37.75 18.75L45.3831 18.6169L45.25 26.25C45.25 28.32 46.93 30 49 30C51.07 30 52.75 28.32 52.75 26.25V18.6169L60.25 18.75C62.32 18.75 64 17.07 64 15C64 12.93 62.32 11.25 60.25 11.25Z" fill="#008000"/>
-            </svg>
+      <div
+        class="picker-anchor"
+        role="button"
+        tabindex="0"
+        title="Додати реакцію"
+        @click="emit('openPicker')"
+        @keydown.enter.prevent="emit('openPicker')"
+        @keydown.space.prevent="emit('openPicker')"
+      >
+        <button type="button" class="reaction-add" aria-label="Додати реакцію">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1093_1226)">
+              <path d="M8.00065 14.6663C4.31865 14.6663 1.33398 11.6817 1.33398 7.99967C1.33398 4.31767 4.31865 1.33301 8.00065 1.33301C11.6827 1.33301 14.6673 4.31767 14.6673 7.99967C14.6673 11.6817 11.6827 14.6663 8.00065 14.6663ZM8.00065 13.333C9.41514 13.333 10.7717 12.7711 11.7719 11.7709C12.7721 10.7707 13.334 9.41416 13.334 7.99967C13.334 6.58519 12.7721 5.22863 11.7719 4.22844C10.7717 3.22824 9.41514 2.66634 8.00065 2.66634C6.58616 2.66634 5.22961 3.22824 4.22941 4.22844C3.22922 5.22863 2.66732 6.58519 2.66732 7.99967C2.66732 9.41416 3.22922 10.7707 4.22941 11.7709C5.22961 12.7711 6.58616 13.333 8.00065 13.333V13.333ZM5.33398 8.66634H10.6673C10.6673 9.37358 10.3864 10.0519 9.88627 10.552C9.38617 11.0521 8.70789 11.333 8.00065 11.333C7.29341 11.333 6.61513 11.0521 6.11503 10.552C5.61494 10.0519 5.33398 9.37358 5.33398 8.66634V8.66634ZM5.33398 7.33301C5.06877 7.33301 4.81441 7.22765 4.62688 7.04011C4.43934 6.85258 4.33398 6.59822 4.33398 6.33301C4.33398 6.06779 4.43934 5.81344 4.62688 5.6259C4.81441 5.43836 5.06877 5.33301 5.33398 5.33301C5.5992 5.33301 5.85355 5.43836 6.04109 5.6259C6.22863 5.81344 6.33398 6.06779 6.33398 6.33301C6.33398 6.59822 6.22863 6.85258 6.04109 7.04011C5.85355 7.22765 5.5992 7.33301 5.33398 7.33301ZM10.6673 7.33301C10.4021 7.33301 10.1477 7.22765 9.96021 7.04011C9.77267 6.85258 9.66732 6.59822 9.66732 6.33301C9.66732 6.06779 9.77267 5.81344 9.96021 5.6259C10.1477 5.43836 10.4021 5.33301 10.6673 5.33301C10.9325 5.33301 11.1869 5.43836 11.3744 5.6259C11.562 5.81344 11.6673 6.06779 11.6673 6.33301C11.6673 6.59822 11.562 6.85258 11.3744 7.04011C11.1869 7.22765 10.9325 7.33301 10.6673 7.33301Z" fill="#F8F8F8" />
+            </g>
+            <defs>
+              <clipPath id="clip0_1093_1226">
+                <rect width="16" height="16" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
         </button>
         <slot name="picker" />
       </div>
     </div>
 
     <!-- Tooltip -->
-    <Transition name="tooltip">
-      <div
-        v-if="tooltipVisible && tooltipData"
-        class="emotion-tooltip"
-        :style="{
-          left: `${tooltipPosition.x}px`,
-          top: `${tooltipPosition.y}px`
-        }"
-        @mouseenter="onTooltipMouseEnter"
-        @mouseleave="onTooltipMouseLeave"
-      >
-        <div class="tooltip-content" @click.stop>
-          <div class="tooltip-emoji">
-            <img 
-              v-if="resolveIcon(tooltipData.icon)" 
-              :src="resolveIcon(tooltipData.icon) as string" 
-              alt="" 
-            />
-            <span v-else>{{ getEmojiFallback(tooltipData.icon) }}</span>
-          </div>
-          <div class="tooltip-text">
-            <div class="user-names">
-              {{ getDisplayNames(tooltipData.users).names }}
+    <Teleport to="body">
+      <Transition name="tooltip">
+        <div
+          v-if="tooltipVisible && tooltipData"
+          class="emotion-tooltip"
+          :style="{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`
+          }"
+          @mouseenter="onTooltipMouseEnter"
+          @mouseleave="onTooltipMouseLeave"
+        >
+          <div class="tooltip-content" @click.stop>
+            <div class="tooltip-emoji">
+              <img 
+                v-if="resolveIcon(tooltipData.icon)" 
+                :src="resolveIcon(tooltipData.icon) as string" 
+                alt="" 
+              />
+              <span v-else>{{ getEmojiFallback(tooltipData.icon) }}</span>
             </div>
-            <div 
-              v-if="getDisplayNames(tooltipData.users).hasMore"
-              class="more-users clickable"
-              @click="openUsersModal(tooltipData.emotionId)"
-            >
-              {{ getDisplayNames(tooltipData.users).moreText }}
+            <div class="tooltip-text">
+              <div class="user-names">
+                {{ getDisplayNames(tooltipData.users).names }}
+              </div>
+              <div 
+                v-if="getDisplayNames(tooltipData.users).hasMore"
+                class="more-users clickable"
+                @click="openUsersModal(tooltipData.emotionId)"
+              >
+                {{ getDisplayNames(tooltipData.users).moreText }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
+    </Teleport>
 
     <!-- Users List Modal -->
     <UsersListModal
@@ -338,12 +350,12 @@ function getEmotionTitle(emotionId: number): string {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: none;
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 10px;
+  border-radius: 30px;
+  padding: 5px 20px 5px 15px;
+  background: rgba(0, 0, 0, 0.4);
   
   @media (hover: hover) and (pointer: fine) {
     &:hover {
@@ -373,12 +385,21 @@ function getEmotionTitle(emotionId: number): string {
   width: 25px;
   display: flex;
   align-items: center;
+  justify-content: center;
+
+  @media (max-width: 1200px) {
+    height: 15px;
+    width: 15px;
+  }
 }
 
 .picker-anchor {
   position: relative;
   display: flex;
   align-items: center;
+  border-radius: 30px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 // Tooltip styles

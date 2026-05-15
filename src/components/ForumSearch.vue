@@ -42,7 +42,7 @@ const handleSearchInput = () => {
     
     searchTimeout.value = setTimeout(() => {
         performSearch(searchQuery.value)
-    }, 600)
+    }, 400)
 }
 
 const goToTheme = async (theme: IForumTheme) => {
@@ -150,6 +150,7 @@ const handleClickOutside = (event: MouseEvent) => {
             closeMobileSearch()
         }
     }
+
 }
 
 onMounted(() => {
@@ -266,7 +267,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .forum-search {
     position: relative;
-    width: clamp(250px, 25vw, 350px);
+    width: clamp(230px, 25vw, 350px);
 
     @media (max-width: 768px) {
         width: auto;
