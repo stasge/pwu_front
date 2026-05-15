@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
-import Paginator from 'primevue/paginator';
 import ForumHeader from '@/components/ForumHeader.vue';
+import ForumSideCard from '@/components/ForumSideCard.vue';
 
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import {fetchGet, fetchPost} from '@/utils/fetchApi'
 import type { IForumCategory, IForumComment, IForumTheme } from '@/models/forum';
@@ -20,6 +20,11 @@ import ReactionBar from '@/components/ReactionBar.vue';
 import type { Emotion } from '@/models/emotion';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import forumSideCard1 from '@/assets/images/forum-side-card-1.png'
+import forumSideCard2 from '@/assets/images/forum-side-card-2.png'
+import forumSideCard3 from '@/assets/images/forum-side-card-3.png'
+import featherIcon from '@/assets/images/feather.svg'
+import removeIcon from '@/assets/icons/remove.svg'
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const route = useRoute()
@@ -93,6 +98,29 @@ const REMOVE_REACTION_ENDPOINT = '/forum/removeEmotion'
 
 const showThemeEmojiPicker = ref(false)
 const openCommentPickerId = ref<number | null>(null)
+const isQuickCommentEditorOpen = ref(false)
+const openReplyEditorCommentId = ref<number | null>(null)
+const sideCardsByCategoryId: Record<number, { image: string; title: string; description: string }> = {
+    1: {
+        image: forumSideCard1,
+        title: 'Офіційний розділ',
+        description: 'Публікації від команди: зміни, оголошення, і загальна картина подій на сервері.'
+    },
+    2: {
+        image: forumSideCard2,
+        title: 'Розділ спільноти',
+        description: 'Простір для гравців: обговорення, пропозиції, живий обмін досвідом між учасниками.'
+    },
+    3: {
+        image: forumSideCard3,
+        title: 'Ігровий розділ',
+        description: 'Все про занурення в гру: практичні знання, досвід, підказки і історії з живого світу Perfect World.'
+    },
+}
+const currentSideCard = computed(() => {
+    const categoryId = Number(route.params.cat_id)
+    return sideCardsByCategoryId[categoryId] || sideCardsByCategoryId[1]
+})
 
 const editorConfig = {
     plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
@@ -115,13 +143,67 @@ const editorConfig = {
     }
 };
 
-const onPageChange = (event: { page: number, rows: number }) => {
-    commentsPage.value = event.page + 1
-    commentsLimit.value = event.rows
-    wrapAsyncCall(() => loadComments())
+const commentsTotalPages = computed(() => Math.ceil(commetsTotal.value / commentsLimit.value))
+
+const commentsVisiblePages = computed(() => {
+    const pages: (number | string)[] = []
+    const total = commentsTotalPages.value
+    const current = commentsPage.value
+
+    if (total <= 7) {
+        for (let i = 1; i <= total; i++) {
+            pages.push(i)
+        }
+    } else {
+        pages.push(1)
+
+        if (current <= 4) {
+            for (let i = 2; i <= 5; i++) {
+                pages.push(i)
+            }
+            pages.push('...')
+            pages.push(total)
+        } else if (current >= total - 3) {
+            pages.push('...')
+            for (let i = total - 4; i <= total; i++) {
+                pages.push(i)
+            }
+        } else {
+            pages.push('...')
+            pages.push(current - 1)
+            pages.push(current)
+            pages.push(current + 1)
+            pages.push('...')
+            pages.push(total)
+        }
+    }
+
+    return pages
+})
+
+const goToCommentsPage = (page: number) => {
+    if (page >= 1 && page <= commentsTotalPages.value) {
+        commentsPage.value = page
+        wrapAsyncCall(() => loadComments())
+    }
+}
+
+const goToCommentsPreviousPage = () => {
+    if (commentsPage.value > 1) {
+        goToCommentsPage(commentsPage.value - 1)
+    }
+}
+
+const goToCommentsNextPage = () => {
+    if (commentsPage.value < commentsTotalPages.value) {
+        goToCommentsPage(commentsPage.value + 1)
+    }
 }
 
 const createCommentForm = reactive({
+    text: ''
+})
+const replyCommentForm = reactive({
     text: ''
 })
 const loadThemeData = async () => {
@@ -162,6 +244,7 @@ const createComment = async () => {
         await loadComments()
         resetForm()
         showEmojiPicker.value = false
+        isQuickCommentEditorOpen.value = false
     },
     (err) => {
         if (err.status === 401) {
@@ -173,6 +256,52 @@ const createComment = async () => {
 
 const resetForm = () => {
     createCommentForm.text = ''
+}
+
+const openQuickCommentEditor = () => {
+    if (!userStore.user) {
+        toast.error('Потрібно авторизуватися')
+        return
+    }
+    isQuickCommentEditorOpen.value = true
+}
+
+const closeQuickCommentEditor = () => {
+    isQuickCommentEditorOpen.value = false
+}
+
+const openReplyEditor = (comment: IForumComment) => {
+    if (!userStore.user) {
+        toast.error('Потрібно авторизуватися')
+        return
+    }
+
+    openReplyEditorCommentId.value = openReplyEditorCommentId.value === comment.id ? null : comment.id
+    if (!openReplyEditorCommentId.value) {
+        replyCommentForm.text = ''
+    }
+}
+
+const closeReplyEditor = () => {
+    openReplyEditorCommentId.value = null
+    replyCommentForm.text = ''
+}
+
+const createReplyComment = async () => {
+    await wrapAsyncCall(async () => {
+        await fetchPost('/forum/addMessage', {
+            text: replyCommentForm.text,
+            id_theme: themeId.value
+        })
+        await loadComments()
+        closeReplyEditor()
+    },
+    (err) => {
+        if (err.status === 401) {
+            toast.error('Потрібно авторизуватися')
+        }
+        return true
+    }, 'Коментар успішно додано')
 }
 
 const confirmRemoval = (event: Event, id: number, message: string, action: (id: number) => void) => {
@@ -308,59 +437,116 @@ function onCloseCommentPicker() {
         <ForumHeader />
         <div class="article__inner">
             <div  v-if="theme" class="article__container">
-                <h1 class="article__title">{{ theme?.name }}</h1>
-                <nav class="breadcrumbs mt-3">
-                    <router-link :to="{ name: 'forum' }">Головний розділ</router-link>
-                    <span class="mx-2">/</span>
-                    <router-link :to="{ name: 'themes', params: { sub_id: theme?.id_main } }">
-                        {{ category?.topic.find(t => t.id === theme?.id_main)?.name }}
-                    </router-link>
-                    <span class="mx-2">/</span>
-                    <span class="opacity-80">{{ theme?.name }}</span>
-                </nav>
-                <div class="article__writer writer writer_main mt-5 mb-2">
-                    <div class="writer__avatar">
-                        <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">
-                        <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
-                            <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
-                        </svg>
-                    </div>
+                <div class="article__layout">
+                    <div class="article__top-layout">
+                        <aside class="article__author writer writer_main">
+                            <div class="article__corner article__corner--top-left"></div>
+                            <div class="article__corner article__corner--top-right"></div>
+                            <div class="article__corner article__corner--bottom-left"></div>
+                            <div class="article__corner article__corner--bottom-right"></div>
+                            <div class="writer__avatar">
+                                <img v-if="theme.user.avatar" :src="filesBase + theme.user.avatar" alt="">
+                                <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z" fill="#e26f0f"/>
+                                    <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
+                                </svg>
+                            </div>
+                            <div class="writer__name-container flex flex-column align-items-center">
+                                <h3 class="writer__name">{{ theme.user.username }}</h3>
+                                <p class="writer__position">{{ getRoleName(theme.user.role) }}</p>
+                            </div>
+                        </aside>
 
-                    <div class="flex flex-column">
-                        <h3 class="writer__name ">{{ theme.user.username }}</h3>
-                        <p class="writer__position">{{ getRoleName(theme.user.role) }}</p>
+                        <div class="article__main-card">
+                            <div class="article__corner article__corner--top-left"></div>
+                            <div class="article__corner article__corner--top-right"></div>
+                            <div class="article__corner article__corner--bottom-left"></div>
+                            <div class="article__corner article__corner--bottom-right"></div>
+
+                            <h1 class="article__title">{{ theme?.name }}</h1>
+                            <!--
+                            <nav class="breadcrumbs mt-3">
+                                <router-link :to="{ name: 'forum' }">Головний розділ</router-link>
+                                <span class="mx-2">/</span>
+                                <router-link :to="{ name: 'themes', params: { sub_id: theme?.id_main } }">
+                                    {{ category?.topic.find(t => t.id === theme?.id_main)?.name }}
+                                </router-link>
+                                <span class="mx-2">/</span>
+                                <span class="opacity-80">{{ theme?.name }}</span>
+                            </nav>
+                            -->
+                            <small class="text-sm block opacity-30 mt-2 mb-3">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
+                            <div class="article__content flex flex-column flex-grow-1" :innerHTML="theme.text"></div>
+                            <div class="mt-3">
+                                <ReactionBar
+                                    v-if="theme"
+                                    :emotions="theme.emotion"
+                                    :availableEmotions="availableEmotions"
+                                    @toggle="({ idEmotion, isActive }) => onToggleTheme(idEmotion, isActive)"
+                                    @selectNew="({ idEmotion }) => onSelectTheme(idEmotion)"
+                                    @openPicker="onOpenThemePicker"
+                                >
+                                    <template #picker>
+                                        <ReactionPicker
+                                            v-if="showThemeEmojiPicker"
+                                            :options="availableEmotions"
+                                            @select="onThemeEmojiPicked"
+                                            @close="onCloseThemePicker"
+                                        />
+                                    </template>
+                                </ReactionBar>
+                            </div>
+                            <div class="article__quick-comment mt-4">
+                                <button
+                                    v-if="!isQuickCommentEditorOpen"
+                                    type="button"
+                                    class="article__quick-comment-trigger"
+                                    @click="openQuickCommentEditor"
+                                >
+                                    Поділися думками...
+                                </button>
+
+                                <form
+                                    v-else
+                                    class="article__quick-comment-form"
+                                    @submit.prevent="createComment"
+                                >
+                                    <ckeditor
+                                        v-model="createCommentForm.text"
+                                        :editor="ClassicEditor"
+                                        :config="editorConfig"
+                                    />
+                                    <div class="article__quick-comment-actions">
+                                        <button type="submit" class="fantasy-btn small ml-4"><span>Відправити</span></button>
+                                        <button
+                                            type="button"
+                                            size="small"
+                                            class="fantasy-btn small danger ml-4"
+                                            @click="closeQuickCommentEditor"
+                                        >
+                                            <span>Скасувати</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <ForumSideCard
+                            v-if="currentSideCard"
+                            class="article__side-card"
+                            :image="currentSideCard.image"
+                            :title="currentSideCard.title"
+                            :description="currentSideCard.description"
+                        />
                     </div>
-                </div>
-                <small class="text-sm block opacity-50 mb-2">Тема в розділі "{{ category?.name }}", створена користувачем {{ theme?.user.username }}, {{ format(theme?.created_at, 'dd-MM-yyyy HH:mm') }}</small>
-                
-                <div class="article__content flex flex-column flex-grow-1" :innerHTML="theme.text"></div>
-                <div class="mt-2">
-                    <ReactionBar
-                        v-if="theme"
-                        :emotions="theme.emotion"
-                        :availableEmotions="availableEmotions"
-                        @toggle="({ idEmotion, isActive }) => onToggleTheme(idEmotion, isActive)"
-                        @selectNew="({ idEmotion }) => onSelectTheme(idEmotion)"
-                        @openPicker="onOpenThemePicker"
-                    >
-                        <template #picker>
-                            <ReactionPicker
-                                v-if="showThemeEmojiPicker"
-                                :options="availableEmotions"
-                                @select="onThemeEmojiPicked"
-                                @close="onCloseThemePicker"
-                            />
-                        </template>
-                    </ReactionBar>
-                </div>
-                <div class="flex gap-3 justify-content-between mt-3 flex-wrap sm:flex-nowrap">
-                </div>
-                <div class="article__comments comments flex flex-column gap-3">
-                    <h2 class="mt-6 mb-4">Коментарі</h2>
-                    <div v-if="comments?.length" v-for="comment of comments">
-                        <div  class="comments__item flex">
+                    <section class="article__main">
+                        <div class="article__comments comments flex flex-column gap-3">
+                    <div v-if="comments?.length" v-for="comment of comments" :key="comment.id" class="comments__entry">
+                        <div class="comments__item">
                         <div class="comments__writer writer flex flex-column align-items-center justify-content-center gap-2">
+                            <div class="article__corner article__corner--top-left"></div>
+                            <div class="article__corner article__corner--top-right"></div>
+                            <div class="article__corner article__corner--bottom-left"></div>
+                            <div class="article__corner article__corner--bottom-right"></div>
                             <div class="writer__avatar">
                                 <img v-if="comment.user.avatar" :src="filesBase + comment.user.avatar" alt="">
                                 <svg v-else width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -368,79 +554,149 @@ function onCloseCommentPicker() {
                                     <path d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z" fill="#e26f0f"/>
                                 </svg>
                             </div>
-                            <h3 class="writer__name text-center">{{ comment.user.username }}</h3>
-                            <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
+                            <div class="writer__name-container flex flex-column align-items-center">
+                                <h3 class="writer__name">{{ comment.user.username }}</h3>
+                                <p class="writer__position">{{ getRoleName(comment.user.role) }}</p>
+                            </div>
                         </div>
-                        <div class="comments__text py-3 px-5 flex flex-column justify-content-between w-full">
-                            <template v-if="editingCommentId === comment.id">
-                                <ckeditor
-                                    v-model="editingCommentText"
-                                    :editor="ClassicEditor"
-                                    :config="editorConfig"
-                                />
-                                <div class="flex gap-2 mt-2">
-                                    <Button size="small" class="success" @click="saveEditComment(comment)">Зберегти</Button>
-                                    <Button size="small" class="danger" @click="cancelEditComment">Скасувати</Button>
-                                </div>
-                            </template>
-                            <template v-else>
-                                <p v-html="comment.text"></p>
-                                <div class="flex justify-content-between align-items-end">
-                                    <small class="text-sm opacity-50">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
-                                    <div class="flex gap-2 align-items-center">
-                                        
-                                        <Button v-if="isAdmin || userStore.user?.id === comment.user_id" icon="pi pi-pencil" class="primary" size="small" @click="startEditComment(comment)" v-tooltip="'Редагувати коментар'" />
-                                        <Button v-if="isAdmin" v-tooltip="'Видалити коментар'" icon="pi pi-trash" @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)" class="danger" />
+                        <div class="comments__body">
+                            <div class="article__corner article__corner--top-left"></div>
+                            <div class="article__corner article__corner--top-right"></div>
+                            <div class="article__corner article__corner--bottom-left"></div>
+                            <div class="article__corner article__corner--bottom-right"></div>
+                            <div class="comments__text flex flex-column justify-content-between w-full">
+                                <template v-if="editingCommentId === comment.id">
+                                    <ckeditor
+                                        v-model="editingCommentText"
+                                        :editor="ClassicEditor"
+                                        :config="editorConfig"
+                                    />
+                                    <div class="flex gap-2 mt-2">
+                                        <Button size="small" class="success" @click="saveEditComment(comment)">Зберегти</Button>
+                                        <Button size="small" class="danger" @click="cancelEditComment">Скасувати</Button>
                                     </div>
+                                </template>
+                                <template v-else>
+                                    <p v-html="comment.text"></p>
+                                </template>
+                            </div>
+                            <div class="comments__actions">
+                                <button
+                                    v-if="false"
+                                    type="button"
+                                    class="comments__reply-btn"
+                                    @click="openReplyEditor(comment)"
+                                >
+                                    <i class="pi pi-comment"></i>
+                                    <span>Відповісти</span>
+                                </button>
+                                <ReactionBar class="comments__reactions"
+                                    :emotions="comment.emotion"
+                                    :availableEmotions="availableEmotions"
+                                    @toggle="({ idEmotion, isActive }) => onToggleComment(comment, idEmotion, isActive)"
+                                    @selectNew="({ idEmotion }) => onSelectComment(comment, idEmotion)"
+                                    @openPicker="() => onOpenCommentPicker(comment.id)"
+                                >
+                                    <template #picker>
+                                        <ReactionPicker
+                                            v-if="openCommentPickerId === comment.id"
+                                            :options="availableEmotions"
+                                            @select="(id:number) => onCommentEmojiPicked(comment, id)"
+                                            @close="onCloseCommentPicker"
+                                        />
+                                    </template>
+                                </ReactionBar>
+                                <div v-if="editingCommentId !== comment.id" class="comments__meta">
+                                    <div class="comments__meta-actions">
+                                        <button
+                                            v-if="isAdmin || userStore.user?.id === comment.user_id"
+                                            type="button"
+                                            class="comments__icon-btn comments__icon-btn--edit"
+                                            @click="startEditComment(comment)"
+                                            v-tooltip="'Редагувати коментар'"
+                                        >
+                                            <img :src="featherIcon" alt="edit">
+                                        </button>
+                                        <button
+                                            v-if="isAdmin"
+                                            type="button"
+                                            class="comments__icon-btn comments__icon-btn--delete"
+                                            v-tooltip="'Видалити коментар'"
+                                            @click="confirmRemoval($event, comment.id, 'Ви впевнені, що хочете видалити цей коментар?', deleteComment)"
+                                        >
+                                            <img :src="removeIcon" alt="delete">
+                                        </button>
+                                    </div>
+                                    <small class="comments__meta-info">{{comment.user.username}}, {{format(comment.created_at, 'dd-MM-yyyy')}}</small>
                                 </div>
-                            </template>
+                            </div>
                         </div>
-                        
                     </div>
-                        <ReactionBar
-                            :emotions="comment.emotion"
-                            :availableEmotions="availableEmotions"
-                            @toggle="({ idEmotion, isActive }) => onToggleComment(comment, idEmotion, isActive)"
-                            @selectNew="({ idEmotion }) => onSelectComment(comment, idEmotion)"
-                            @openPicker="() => onOpenCommentPicker(comment.id)"
-                        >
-                            <template #picker>
-                                <ReactionPicker
-                                    v-if="openCommentPickerId === comment.id"
-                                    :options="availableEmotions"
-                                    @select="(id:number) => onCommentEmojiPicked(comment, id)"
-                                    @close="onCloseCommentPicker"
-                                />
-                            </template>
-                        </ReactionBar>
+                    <form
+                        v-if="openReplyEditorCommentId === comment.id"
+                        class="comments__reply-form"
+                        @submit.prevent="createReplyComment"
+                    >
+                        <ckeditor
+                            v-model="replyCommentForm.text"
+                            :editor="ClassicEditor"
+                            :config="editorConfig"
+                        />
+                        <div class="comments__reply-actions">
+                            <button type="submit" class="fantasy-btn small ml-4"><span>Відправити</span></button>
+                            <button
+                                type="button"
+                                class="fantasy-btn small danger ml-4"
+                                @click="closeReplyEditor"
+                            >
+                                <span>Скасувати</span>
+                            </button>
+                        </div>
+                    </form>
                     </div>
                     
                     <div v-else>
                         <p>Коментарі відсутні</p>
                     </div>
-                    <Paginator 
-                        v-if="commetsTotal > commentsLimit"
-                        :rows="commentsLimit" 
-                        :totalRecords="commetsTotal" 
-                        :rowsPerPageOptions="[5, 10, 20, 30]" 
-                        @page="onPageChange"
-                        class="mt-4"
-                    />
-                    <div v-if="userStore.user" class="comments__textarea mt-5">
-                        <h2 class="mb-3">Залишити коментар</h2>
-                        <form @submit.prevent="createComment">
-                            <div class="relative">
-                                <ckeditor
-                                    v-model="createCommentForm.text"
-                                    :editor="ClassicEditor"
-                                    :config="editorConfig"
-                                />
-                                <!-- <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button> -->
-                                <!-- <EmojiPicker  @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker" class="emoji"/> -->
-                            </div>
-                            <button class="btn btn-sm mt-2">Відправити</button>
-                        </form>
+                    <div v-if="commentsTotalPages > 1" class="forum-themes__pagination">
+                        <button
+                            type="button"
+                            @click="goToCommentsPreviousPage"
+                            class="forum-themes__pagination-arrow"
+                            :disabled="commentsPage === 1"
+                            aria-label="Previous page"
+                        >
+                            <img src="@/assets/images/arrow-prev.svg" alt="prev" class="forum-themes__pagination-arrow-icon" />
+                        </button>
+
+                        <div class="forum-themes__pagination-numbers">
+                            <template v-for="page in commentsVisiblePages" :key="page">
+                                <button
+                                    v-if="typeof page === 'number'"
+                                    type="button"
+                                    @click="goToCommentsPage(page)"
+                                    class="forum-themes__pagination-number"
+                                    :class="{ active: page === commentsPage }"
+                                    :aria-current="page === commentsPage ? 'page' : undefined"
+                                >
+                                    {{ page }}
+                                </button>
+                                <span v-else class="forum-themes__pagination-dots">{{ page }}</span>
+                            </template>
+                        </div>
+
+                        <button
+                            type="button"
+                            @click="goToCommentsNextPage"
+                            class="forum-themes__pagination-arrow"
+                            :disabled="commentsPage === commentsTotalPages"
+                            aria-label="Next page"
+                        >
+                            <img src="@/assets/images/arrow-next.svg" alt="next" class="forum-themes__pagination-arrow-icon" />
+                        </button>
                     </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>
@@ -450,7 +706,8 @@ function onCloseCommentPicker() {
 .article {
     color: #FFF;
     word-break: break-word;
-    padding-top: 120px;
+    padding-top: 50px;
+    min-height: 100vh;
 
     @media (max-width: 1024px) {
         padding-top: 100px;
@@ -464,20 +721,147 @@ function onCloseCommentPicker() {
         padding-top: 80px;
     }
 
+    &__inner {
+        padding: 90px 0;
+
+        @media (max-width: 1024px) {
+            padding: 0;
+        }
+    }
+
+    &__container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    &__layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    &__top-layout {
+        display: grid;
+        grid-template-columns: clamp(150px, 14vw, 150px) minmax(0, 1fr) clamp(180px, 17vw, 300px);
+        align-items: start;
+        gap: 20px;
+        padding-top: 1px;
+
+        @media (max-width: 1200px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__main {
+        min-width: 0;
+    }
+
+    &__main-card {
+        position: relative;
+        padding: 20px;
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+        backdrop-filter: blur(64px);
+        min-width: 0;
+    }
+
+    &__author {
+        position: relative;
+        top: 140px;
+        padding: 16px 12px;
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+        backdrop-filter: blur(64px);
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        position: sticky;
+        align-self: start;
+        @media (max-width: 1200px) {
+            flex-direction: row;
+            justify-content: flex-start;
+            text-align: left;
+            align-items: center;
+            padding: 14px 16px;
+            position: relative;
+            top: auto;
+        }
+    }
+
+    &__side-card {
+        position: sticky;
+        top: 140px;
+        align-self: start;
+        @media (max-width: 1200px) {
+            display: none;
+            position: static;
+        }
+    }
+
+    &__comments {
+        width: 100%;
+
+        @media (max-width: 1200px) {
+            width: 100%;
+        }
+    }
+
+    &__corner {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-image: url('@/assets/images/profile-corner.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 2;
+        pointer-events: none;
+
+        &--top-left {
+            top: -1px;
+            left: -1px;
+            transform: rotate(0deg);
+        }
+
+        &--top-right {
+            top: -1px;
+            right: -1px;
+            transform: rotate(90deg);
+        }
+
+        &--bottom-left {
+            bottom: -1px;
+            left: -1px;
+            transform: rotate(-90deg);
+        }
+
+        &--bottom-right {
+            bottom: -1px;
+            right: -1px;
+            transform: rotate(180deg);
+        }
+    }
+
     &__title {
-        text-shadow: 3px 0px 7px rgba(81, 67, 21, 0.8), -3px 0px 7px rgba(81, 67, 21, 0.8), 0px 4px 7px rgba(81, 67, 21, 0.8);
+        margin-bottom: 20px;
+        font-weight: 400;
+        font-size: 40px;
+        line-height: 100%;
+        letter-spacing: -0.07em;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.7);
     }
 
     &__content {
         font-family: "Candara", sans-serif;
-        padding: 20px;
-        border-radius: 10px;
-        background: #fff;
-        border: 1px solid #e26f0f;
-        color: black;
+        color: #f8f8f8;
         
         * {
-            text-shadow: none;
+            text-shadow: none !important;
             height: auto;
             max-width: 100%;
             color: inherit;
@@ -491,6 +875,57 @@ function onCloseCommentPicker() {
         ::v-deep(:is(ul, ol)) {
             padding-left: 25px;
         }
+
+        ::v-deep(img, figure, iframe, video) {
+            margin: 5px 0;
+        }
+    }
+
+    &__quick-comment {
+        width: 100%;
+    }
+
+    &__quick-comment-trigger {
+        width: 100%;
+        height: 42px;
+        border-radius: 999px;
+        backdrop-filter: blur(70px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f8f8f8;
+        opacity: 0.5;
+        font-size: 16px;
+        line-height: 1;
+        text-align: left;
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all .3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            opacity: 1;
+        }
+    }
+
+    &__quick-comment-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        ::v-deep(.ck-editor) {
+            width: 100% !important;
+        }
+
+        ::v-deep(.ck-editor__editable) {
+            min-height: 170px;
+        }
+    }
+
+    &__quick-comment-actions {
+        display: flex;
+        gap: 20px;
+        align-items: center;
     }
 
     ::deep(
@@ -526,24 +961,24 @@ function onCloseCommentPicker() {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 10px;
 
     @media (max-width: 1024px) {
         min-width: auto;
     }
 
-    &_main {
-        @media (max-width: 576px) {
-            width: 100%;
-            background: linear-gradient(180deg, #16171b 20%, rgb(39, 50, 68) 100%);
-        }
-    }
-
     &__avatar {
-        width: 50px;
-        height: 50px;
+        width: 75px;
+        height: 75px;
         border-radius: 100%;
         overflow: hidden;
+        
+        @media (max-width: 1200px) {
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            width: 45px;
+            height: 45px;
+        }
 
         img {
             width: 100%;
@@ -551,30 +986,234 @@ function onCloseCommentPicker() {
             object-fit: cover;
         }
     }
+
+    &__name-container {
+        
+        @media (max-width: 1200px) {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+    }
+
+    &__name {
+        margin: 0;
+    }
+
+    &__position {
+        margin: 0;
+        margin-top: 5px;
+        opacity: 0.8;
+        font-size: 14px;
+        line-height: 100%;
+        letter-spacing: -0.04em;
+        text-align: center;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.25);
+    }
 }
 
 .comments {
+    &__entry {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
 
     &__item {
-        background: rgba(93, 119, 144, 0.1);
-        border: 1px solid rgba(93, 119, 144, 0.1);
-        border-radius: 10px 0 0 10px;
+        display: grid;
+        grid-template-columns: clamp(150px, 14vw, 150px) minmax(0, 1fr) clamp(180px, 17vw, 300px);
+        align-items: stretch;
+        gap: 20px;
+
+        @media (max-width: 1200px) {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
     }
     
     &__writer {
-        padding: 10px;
-        border: 1px solid rgba(93, 119, 144, 0.1);
+        position: relative;
+        padding: 16px 12px;
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+        backdrop-filter: blur(64px);
+        text-align: center;
+        max-width: 150px;
+        max-height: 168px;
+        grid-column: 1;
+
+        @media (max-width: 1200px) {
+            max-width: 100%;
+            flex-direction: row !important;
+            justify-content: flex-start !important;
+            text-align: left;
+            padding: 14px 16px;
+            max-height: 75px;
+        }
     }
     
     &__text {
         font-family: "Candara", sans-serif;
-        word-break: break-all;
+        word-break: break-word;
+        padding: 0;
 
         * {
             text-shadow: none !important;
             height: auto;
             max-width: 100%;
         }
+    }
+
+    &__body {
+        position: relative;
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+        border: none;
+        backdrop-filter: blur(64px);
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 20px;
+    }
+
+    &__reactions {
+        width: 100%;
+        margin-top: 0;
+
+        @media (max-width: 1200px) {
+            margin-left: 0;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: end;
+        gap: 8px;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+
+    &__meta {
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        gap: 10px;
+
+        @media (max-width: 1200px) {
+            margin-left: 0;
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    &__meta-info {
+        font-size: 12px;
+        opacity: .5;
+        white-space: nowrap;
+    }
+
+    &__meta-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__icon-btn {
+        width: 25px;
+        height: 25px;
+        border: none;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: none;
+
+        img {
+            width: 25px;
+            height: 25px;
+            display: block;
+        }
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+    }
+
+    &__reply-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        border-radius: 30px;
+        padding: 14px 15px;
+        background: rgba(0, 0, 0, 0.4);
+        color: #f8f8f8;
+        cursor: pointer;
+        transition: background .15s ease;
+        font-size: 16px;
+        line-height: 1;
+        width: 100%;
+        max-width: 120px;
+
+        i {
+            font-size: 15px;
+            opacity: .9;
+        }
+
+        span {
+            font-family: "Candara", sans-serif;
+            font-size: 14px;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            &:hover {
+                background: rgba(0, 0, 0, 0.55);
+            }
+        }
+    }
+
+    &__reply-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-left: calc(clamp(150px, 14vw, 150px) + 20px);
+        width: calc(100% - (clamp(150px, 14vw, 150px) + 20px));
+        max-width: 880px;
+
+        @media (max-width: 1200px) {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        ::v-deep(.ck-editor) {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        ::v-deep(.ck-editor__editable) {
+            min-height: 170px;
+        }
+    }
+
+    &__reply-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
     }
 
     ol, ul {
@@ -600,6 +1239,102 @@ function onCloseCommentPicker() {
     ::v-deep(a) {
         color: #e26f0f;
         text-decoration: none;
+    }
+}
+
+.forum-themes__pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding: 0 40px;
+    margin-top: 20px;
+
+    @media (max-width: 768px) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0 0 22px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+}
+
+.forum-themes__pagination-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover:not(:disabled) {
+        opacity: 0.8;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+.forum-themes__pagination-arrow-icon {
+    width: 36px;
+    height: 36px;
+
+    @media (max-width: 768px) {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.forum-themes__pagination-numbers {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+        gap: 12px;
+    }
+}
+
+.forum-themes__pagination-number {
+    font-family: "Vollkorn", serif;
+    background: transparent;
+    border: none;
+    color: #f8f8f8;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.5;
+
+    &.active {
+        font-size: 30px;
+        font-weight: 900;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 16px;
+
+        &.active {
+            font-size: 24px;
+        }
+    }
+}
+
+.forum-themes__pagination-dots {
+    color: #f8f8f8;
+    font-size: 20px;
+
+    @media (max-width: 768px) {
+        font-size: 16px;
     }
 }
 

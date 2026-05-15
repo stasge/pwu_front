@@ -254,7 +254,7 @@ async function goBack() {
     }
     
     &-inner {
-        padding: 20px clamp(10px, 2vw, 50px) 0 clamp(10px, 2vw, 50px);
+        padding: 20px clamp(15px, 2vw, 50px) 0 clamp(10px, 2vw, 50px);
         position: relative;
 
         @media (max-width: 1024px) {
@@ -289,7 +289,7 @@ async function goBack() {
             transition: all 0.3s ease;
             cursor: pointer;
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 width: 25px;
                 height: 25px;
             }
@@ -324,7 +324,7 @@ async function goBack() {
         }
 
         &__logo {
-            max-width: clamp(120px, 20vw, 192px);
+            max-width: clamp(120px, 15vw, 192px);
         }
     }
 
@@ -505,7 +505,7 @@ async function goBack() {
         top: 100%;
         left: 0;
         right: 0;
-        background: url('@/assets/images/forum-bg.jpg') no-repeat center / cover;
+        background: #000;
         background-attachment: fixed;
         background-position-y: -100px;
         height: 0;
