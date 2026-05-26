@@ -868,8 +868,12 @@ function onCloseCommentPicker() {
         }
 
         ::v-deep(a) {
-            color: blue;
-            text-decoration: none;
+            text-decoration-skip-ink: none;
+            text-align: center;
+            background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         ::v-deep(:is(ul, ol)) {
