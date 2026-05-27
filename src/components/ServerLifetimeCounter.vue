@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { getCalendarElapsed, ukPlural } from '@/utils/dateUtils';
 
 const serverStartDate = new Date(2025, 4, 23, 19, 0, 0);
 const now = ref(new Date());
@@ -21,26 +22,26 @@ onUnmounted(() => {
 });
 
 const elapsedParts = computed(() => {
+    const elapsed = getCalendarElapsed(serverStartDate, now.value);
+
+    if (elapsed.years > 0) {
+        return [
+            { value: String(elapsed.years), label: ukPlural(elapsed.years, 'рік', 'роки', 'років') },
+            { value: String(elapsed.months), label: ukPlural(elapsed.months, 'місяць', 'місяці', 'місяців') },
+            { value: String(elapsed.days), label: ukPlural(elapsed.days, 'день', 'дні', 'днів') },
+        ];
+    }
+
     const diffMs = Math.max(0, now.value.getTime() - serverStartDate.getTime());
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
     const totalDays = Math.floor(totalMinutes / (60 * 24));
     const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
     const minutes = totalMinutes % 60;
-    const years = Math.floor(totalDays / 365);
-    const days = totalDays % 365;
-
-    if (years > 0) {
-        return [
-            { value: String(years), label: years === 1 ? 'рік' : 'років' },
-            { value: String(days), label: 'днів' },
-            { value: String(hours).padStart(2, '0'), label: 'годин' },
-        ];
-    }
 
     return [
-        { value: String(totalDays), label: 'дні' },
-        { value: String(hours).padStart(2, '0'), label: 'годин' },
-        { value: String(minutes).padStart(2, '0'), label: 'хвилин' },
+        { value: String(totalDays), label: ukPlural(totalDays, 'день', 'дні', 'днів') },
+        { value: String(hours).padStart(2, '0'), label: ukPlural(hours, 'година', 'години', 'годин') },
+        { value: String(minutes).padStart(2, '0'), label: ukPlural(minutes, 'хвилина', 'хвилини', 'хвилин') },
     ];
 });
 </script>
