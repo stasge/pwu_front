@@ -155,9 +155,15 @@ onMounted(() => {
                         <div class="about__content-features">
                             <div class="about__content-feature">Україномовний контент</div>
                             <div class="about__content-feature">Власна база даних - <a href="https://db.valor.in.ua/" target="_blank">https://db.valor.in.ua/</a></div>
-                            <div class="about__content-feature">Спрощена система реєстрації для декількох акаунтів</div>
+                            <div class="about__content-feature">Власний лаунчер зі спрощеною системою входу на декілька акаунтів</div>
+                            <div class="about__content-feature">Щотижневі PvP турніри у різних форматах</div>
+                            <div class="about__content-feature">Перероблена система луту у Місті Інею</div>
+                            <div class="about__content-feature">Актуалізована нагорода за контракти</div>
+                            <div class="about__content-feature">Присутні 79 і 100 скіли та 109 данж</div>
+                            <div class="about__content-feature">Адаптивний автошлях</div>
+                            <div class="about__content-feature">Щоденний онлайн квест з нагородами у вигляді (хірок, каменів телепортації і рупорів)</div>
                             <div class="about__content-feature">Змінена нагорода для щомісячних перегонів</div>
-                            <div class="about__content-feature">109 данж відсутній</div>
+                            <div class="about__content-feature">Використовується ядро 1.5.3 для можливості додавання зручних фішок і контенту з вищих версій</div>
                         </div>
                     </div>
                 </div>
@@ -574,6 +580,29 @@ onMounted(() => {
         flex-direction: column;
         gap: 5px;
         margin-top: 20px;
+        max-height: calc(1.4em * 6 + 5px * 4);
+        overflow-y: auto;
+        padding-right: 8px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(251, 210, 152, 0.5) rgba(248, 248, 248, 0.05);
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: rgba(248, 248, 248, 0.05);
+            border-radius: 2px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(251, 210, 152, 0.5);
+            border-radius: 2px;
+
+            &:hover {
+                background: rgba(251, 210, 152, 0.7);
+            }
+        }
     }
 
     &__content-feature {
