@@ -586,6 +586,12 @@ onMounted(() => {
         scrollbar-width: thin;
         scrollbar-color: rgba(251, 210, 152, 0.5) rgba(248, 248, 248, 0.05);
 
+        @media (max-width: 1024px) {
+            max-height: none;
+            overflow-y: visible;
+            padding-right: 0;
+        }
+
         &::-webkit-scrollbar {
             width: 4px;
         }
