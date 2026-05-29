@@ -39,6 +39,54 @@ export function getCalendarElapsed(start: Date, end: Date) {
     return { years, months, days, hours, minutes };
 }
 
+/** Сервер віддає UTC без позначки часового поясу (наприклад, "2026-05-29 12:00:00"). */
+export function parseServerDateTime(value: string | Date): Date {
+    if (value instanceof Date) return value;
+    const normalized = String(value).trim();
+    if (!normalized) return new Date(NaN);
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(normalized)) {
+        return new Date(normalized);
+    }
+    const iso = normalized.includes('T') ? normalized : normalized.replace(' ', 'T');
+    return new Date(`${iso}Z`);
+}
+
+function getKyivDateParts(date: Date) {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Kyiv',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).formatToParts(date);
+    const part = (type: Intl.DateTimeFormatPartTypes) =>
+        parts.find((p) => p.type === type)?.value ?? '';
+    return { day: part('day'), month: part('month'), year: part('year') };
+}
+
+/** Формат dd/MM/yyyy у часовому поясі Києва. */
+export function formatKyivDate(value: string | Date): string {
+    const date = parseServerDateTime(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const { day, month, year } = getKyivDateParts(date);
+    return `${day}/${month}/${year}`;
+}
+
+/** Формат dd.MM.yyyy HH:mm у часовому поясі Києва. */
+export function formatKyivDateTime(value: string | Date): string {
+    const date = parseServerDateTime(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const { day, month, year } = getKyivDateParts(date);
+    const timeParts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Kyiv',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).formatToParts(date);
+    const part = (type: Intl.DateTimeFormatPartTypes) =>
+        timeParts.find((p) => p.type === type)?.value ?? '';
+    return `${day}.${month}.${year} ${part('hour')}:${part('minute')}`;
+}
+
 export function calculateTimeLeft(targetDate: string) {
     const targetDateTime = new Date(targetDate).getTime();
     const currentDateTime = new Date().getTime();
