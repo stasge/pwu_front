@@ -4,7 +4,7 @@ import { fetchPost, fetchPut, fetchDelete } from '@/utils/fetchApi';
 import type { Message } from '@/models/theme';
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
-import { format } from 'date-fns';
+import { formatKyivDateTime } from '@/utils/dateUtils';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
@@ -288,8 +288,7 @@ const deleteMessage = async (messageId: number) => {
                             <div class="item__header">
                                 <span class="item__username">{{ message.user.username }}</span>
                                 <div class="item__header-right">
-                                    <span class="item__date">{{ format(new Date(message.created_at), 'dd.MM.yyyy HH:mm')
-                                    }}</span>
+                                    <span class="item__date">{{ formatKyivDateTime(message.created_at) }}</span>
                                     <div v-if="canEditMessage(message) || canDeleteMessage(message)" class="item__actions">
                                         <button 
                                             v-if="canEditMessage(message)" 

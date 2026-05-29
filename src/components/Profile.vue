@@ -7,9 +7,8 @@ import Button from 'primevue/button';
 import { reactive, ref } from 'vue';
 import { maxLength, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
-import { format } from 'date-fns';
 import { useToast } from 'vue-toastification';
-import {calculateTimeLeft} from '@/utils/dateUtils.ts'
+import { calculateTimeLeft, formatKyivDate } from '@/utils/dateUtils';
 import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
 import ChangePhone from './modals/ChangePhone.vue';
 import ChangeMainPassword from './modals/ChangeMainPassword.vue';
@@ -266,7 +265,7 @@ const show = () => {
                         <div v-for="(user, index) of userStore.user.game_user" :key="user.id" class="game-acc__item" :style="{ background: index % 2 === 0 ? 'rgba(0, 0, 0, 0.4)' : 'transparent' }">
                             <p data-label="№">{{ index + 1 }}</p>
                             <p data-label="Логін:">{{ user.username }}</p>
-                            <p data-label="Дата створення:">{{ format(user.created_at, 'dd/MM/yyyy') }}</p>
+                            <p data-label="Дата створення:">{{ formatKyivDate(user.created_at) }}</p>
                             <p data-label="Час до видалення:">{{ user.deletion_date ? calculateTimeLeft(user.deletion_date) : '-' }}</p>
                             <div class="game-acc__actions flex gap-2">
                                 <button class="game-acc__change-password-btn" @click="changeGameAccPassRef.showDia(user.id)">
