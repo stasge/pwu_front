@@ -881,7 +881,7 @@ function onCloseCommentPicker() {
         }
 
         ::v-deep(img, figure, iframe, video) {
-            margin: 5px 0;
+            margin: 0 0;
         }
     }
 
