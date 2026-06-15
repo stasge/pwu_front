@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import InputText from 'primevue/inputtext';
@@ -20,6 +20,7 @@ const previewImage = ref()
 const baseUrl = import.meta.env.VITE_BASE_URL
 const form = reactive({
     title: '',
+    label: '',
     text: '',
     link: '',
     isHidden: false,
@@ -63,6 +64,7 @@ const handleSubmit = async () => {
     }
     const formData = new FormData();
     formData.append('title', form.title);
+    formData.append('label', form.type === 'updates' ? form.label : '');
     formData.append('isHidden', `${form.isHidden}`);
     formData.append('text', form.text);
     formData.append('link', form.link);
@@ -80,6 +82,12 @@ const handleSubmit = async () => {
     }, null, route.params.id ? 'Новину успішно редаговано' : 'Новину успішно додано');
 };
 
+watch(() => form.type, (newType) => {
+    if (newType !== 'updates') {
+        form.label = ''
+    }
+})
+
 const fillForm = async (id: string) => {
     const {data} = await fetchGet('getNews')
 
@@ -90,6 +98,7 @@ const fillForm = async (id: string) => {
             form.isHidden = selected.isHidden
             form.text = selected.text
             form.title = selected.title
+            form.label = selected.label || ''
             form.type = selected.type || 'news'
             form.image = selected.image
             imageUrl.value = selected.image
@@ -106,6 +115,7 @@ const fillForm = async (id: string) => {
                 <label for="title">Заголовок</label>
                 <InputText id="title" type="text" v-model="form.title" :class="{'invalid': v$.title.$error}" />
             </div>
+
 
             <div class="flex flex-column gap-2">
                 <label for="text">Контент</label>
@@ -129,6 +139,11 @@ const fillForm = async (id: string) => {
                     class="w-full"
                     :class="{'invalid': v$.type.$error}"
                 />
+            </div>
+
+            <div v-if="form.type === 'updates'" class="flex flex-column gap-2">
+                <label for="label">Лейбл</label>
+                <InputText id="label" type="text" v-model="form.label" />
             </div>
 
             <div class="flex gap-3">
