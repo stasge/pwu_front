@@ -7,8 +7,9 @@ import InputText from 'primevue/inputtext';
 import ForumHeader from '@/components/ForumHeader.vue';
 import Footer from '@/components/Footer.vue';
 // Додаємо ImageResize, ImageStyle, ImageToolbar
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import { ClassicEditor } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import { editorConfig } from '@/utils/ckeditorConfig';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
 const route = useRoute();
@@ -20,27 +21,6 @@ const form = reactive({
     name: '',
     text: ''
 });
-
-const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
-    toolbar: [
-        'heading', 'bold', 'italic', 'alignment', '|',
-        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
-        'mediaEmbed', 'imageUpload', '|',
-        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-        'imageResize'
-    ],
-    mediaEmbed: {
-       previewsInData: true
-    },
-    image: {
-        resizeUnit: '%' as '%',
-        toolbar: [
-            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-            'imageTextAlternative', '|', 'imageResize'
-        ],
-    }
-};
 
 onMounted(() => {
     if (route.params.id) {

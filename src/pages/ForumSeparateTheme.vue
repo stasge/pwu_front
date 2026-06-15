@@ -18,8 +18,9 @@ import { useToast } from 'vue-toastification';
 import type { Emoji } from '@/models/emoji';
 import ReactionBar from '@/components/ReactionBar.vue';
 import type { Emotion } from '@/models/emotion';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import { ClassicEditor } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import { editorConfig } from '@/utils/ckeditorConfig';
 import forumSideCard1 from '@/assets/images/forum-side-card-1.png'
 import forumSideCard2 from '@/assets/images/forum-side-card-2.png'
 import forumSideCard3 from '@/assets/images/forum-side-card-3.png'
@@ -121,27 +122,6 @@ const currentSideCard = computed(() => {
     const categoryId = Number(route.params.cat_id)
     return sideCardsByCategoryId[categoryId] || sideCardsByCategoryId[1]
 })
-
-const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
-    toolbar: [
-        'heading', 'bold', 'italic', 'alignment', '|',
-        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
-        'mediaEmbed', 'imageUpload', '|',
-        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-        'imageResize'
-    ],
-    mediaEmbed: {
-       previewsInData: true
-    },
-    image: {
-        resizeUnit: '%' as '%',
-        toolbar: [
-            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-            'imageTextAlternative', '|', 'imageResize'
-        ],
-    }
-};
 
 const commentsTotalPages = computed(() => Math.ceil(commetsTotal.value / commentsLimit.value))
 

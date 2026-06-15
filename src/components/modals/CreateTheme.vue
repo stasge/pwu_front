@@ -6,8 +6,9 @@ import {useAsyncCallWrapper} from '@/composables/useAsyncCallWrapper'
 import {fetchPost} from '@/utils/fetchApi'
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import { ClassicEditor } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import { editorConfig } from '@/utils/ckeditorConfig';
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 const isDiaShown = ref(false)
@@ -17,27 +18,6 @@ interface Form {
     name: string;
     text: string;
 }
-
-const editorConfig = {
-    plugins: [ Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar ],
-    toolbar: [
-        'heading', 'bold', 'italic', 'alignment', '|',
-        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
-        'mediaEmbed', 'imageUpload', '|',
-        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-        'imageResize'
-    ],
-    mediaEmbed: {
-       previewsInData: true
-    },
-    image: {
-        resizeUnit: '%' as '%',
-        toolbar: [
-            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-            'imageTextAlternative', '|', 'imageResize'
-        ],
-    }
-};
 
 const form = reactive<Form>({
     name: '',

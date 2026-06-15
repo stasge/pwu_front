@@ -7,8 +7,9 @@ import useVuelidate from '@vuelidate/core';
 import { formatKyivDateTime } from '@/utils/dateUtils';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
-import { ClassicEditor, Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar } from 'ckeditor5';
+import { ClassicEditor } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import { createEditorConfig } from '@/utils/ckeditorConfig';
 import Button from 'primevue/button';
 
 
@@ -33,42 +34,8 @@ interface Form {
     text: string;
 }
 
-const editorConfig = {
-    plugins: [Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar],
-    toolbar: [
-        'heading', 'bold', 'italic', 'alignment', '|',
-        'numberedList', 'bulletedList', '|', 'link', 'undo', 'redo',
-        'mediaEmbed', 'imageUpload', '|',
-        'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-        'imageResize'
-    ],
-    mediaEmbed: {
-        previewsInData: true
-    },
-    image: {
-        resizeUnit: '%' as '%',
-        toolbar: [
-            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-            'imageTextAlternative', '|', 'imageResize'
-        ],
-    }
-};
-const updateEditorConfig = {
-    plugins: [Bold, Essentials, Italic, Mention, Paragraph, Undo, Heading, List, Alignment, MediaEmbed, Image, ImageUpload, Base64UploadAdapter, Link, ImageResize, ImageStyle, ImageToolbar],
-    toolbar: [
-        'heading', 'bold', 'italic'
-    ],
-    mediaEmbed: {
-        previewsInData: true
-    },
-    image: {
-        resizeUnit: '%' as '%',
-        toolbar: [
-            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:inline', '|',
-            'imageTextAlternative', '|', 'imageResize'
-        ],
-    }
-};
+const editorConfig = createEditorConfig();
+const updateEditorConfig = createEditorConfig(['heading', 'bold', 'italic']);
 
 const form = reactive<Form>({
     text: '',
