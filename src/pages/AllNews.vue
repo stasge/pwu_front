@@ -16,12 +16,21 @@ const userStore = useUserStore()
 const allNews = ref<News[]>([])
 const latestNewsItem = ref<News | null>(null)
 const totalCount = ref(0)
-type FilterParams = { options: 'news' | 'updates'; limit?: number; page?: number }
-const selectedFilter = ref<'news' | 'updates'>('news')
+type NewsFilter = 'news' | 'updates' | 'all'
+type FilterParams = { options?: 'news' | 'updates'; limit?: number; page?: number }
+const selectedFilter = ref<NewsFilter>('all')
 const sortBy = ref('newest')
 const currentPage = ref(1)
 const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
+
+const getRequestParams = (limit: number, page: number): FilterParams => {
+    const params: FilterParams = { limit, page }
+    if (selectedFilter.value !== 'all') {
+        params.options = selectedFilter.value
+    }
+    return params
+}
 
 // Отримуємо останню новину для верхнього блоку
 const latestNews = computed(() => {
@@ -84,11 +93,7 @@ const visiblePages = computed(() => {
 // Функція для завантаження останньої новини
 const loadLatestNews = async () => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', { 
-            options: selectedFilter.value, 
-            limit: 3,
-            page: 1
-        })
+        const { data } = await fetchGet('getNews', getRequestParams(3, 1))
         // Фільтруємо приховані новини для звичайних користувачів
         const filtered = (data.news || []).filter((n: News) => userStore.isAdmin || !n.isHidden)
         // Беремо першу доступну новину
@@ -99,7 +104,7 @@ const loadLatestNews = async () => {
 // Функція для завантаження даних новин
 const loadNewsData = async (params?: FilterParams) => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', params || {})
+        const { data } = await fetchGet('getNews', params ?? getRequestParams(itemsPerPage, currentPage.value))
         allNews.value = data.news || []
         totalCount.value = data.totalCount || 0
     })
@@ -109,11 +114,7 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        loadNewsData({ 
-            options: selectedFilter.value, 
-            limit: itemsPerPage, 
-            page: page 
-        })
+        loadNewsData(getRequestParams(itemsPerPage, page))
     }
 }
 
@@ -131,41 +132,25 @@ const goToNextPage = () => {
 
 onMounted(() => {
     loadLatestNews()
-    loadNewsData({ 
-        options: selectedFilter.value, 
-        limit: itemsPerPage, 
-        page: currentPage.value 
-    })
+    loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
 })
 
 // Завантажуємо новини при зміні фільтру
-watch(selectedFilter, (newFilter) => {
+watch(selectedFilter, () => {
     currentPage.value = 1
     loadLatestNews()
-    loadNewsData({ 
-        options: newFilter, 
-        limit: itemsPerPage, 
-        page: 1 
-    })
+    loadNewsData(getRequestParams(itemsPerPage, 1))
 })
 // Видалення новини (для адміна)
 const deleteNews = async (id: number) => {
     await wrapAsyncCall(async () => {
         await fetchPost('deleteNews', { id })
         await loadLatestNews()
-        await loadNewsData({ 
-            options: selectedFilter.value, 
-            limit: itemsPerPage, 
-            page: currentPage.value 
-        })
+        await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
         // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
         if (currentPage.value > totalPages.value) {
             currentPage.value = Math.max(1, totalPages.value)
-            await loadNewsData({ 
-                options: selectedFilter.value, 
-                limit: itemsPerPage, 
-                page: currentPage.value 
-            })
+            await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
         }
     })
 }
@@ -232,6 +217,16 @@ const deleteNews = async (id: number) => {
                 
                 <div class="search-filters__filters">
                     <div class="search-filters__radio-group">
+                        <label class="search-filters__radio">
+                            <input 
+                                v-model="selectedFilter" 
+                                type="radio" 
+                                value="all" 
+                                name="filter"
+                            />
+                            <span>Всі</span>
+                        </label>
+
                         <label class="search-filters__radio">
                             <input 
                                 v-model="selectedFilter" 

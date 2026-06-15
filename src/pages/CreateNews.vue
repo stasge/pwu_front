@@ -89,20 +89,18 @@ watch(() => form.type, (newType) => {
 })
 
 const fillForm = async (id: string) => {
-    const {data} = await fetchGet('getNews')
+    const { data } = await fetchGet('getNewsById', { id: Number(id) })
+    const selected = (data?.news || data) as News
 
-    if (data.news.length) {
-        const selected: News | undefined = data.news.find((n: News) => n.id === +id)
-
-        if (selected) {
-            form.isHidden = selected.isHidden
-            form.text = selected.text
-            form.title = selected.title
-            form.label = selected.label || ''
-            form.type = selected.type || 'news'
-            form.image = selected.image
-            imageUrl.value = selected.image
-        }
+    if (selected) {
+        form.isHidden = selected.isHidden
+        form.text = selected.text
+        form.title = selected.title
+        form.label = selected.label || ''
+        form.link = selected.link || ''
+        form.type = selected.type || 'news'
+        form.image = selected.image
+        imageUrl.value = selected.image
     }
 }
 </script>
