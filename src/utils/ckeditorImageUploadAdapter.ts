@@ -8,10 +8,10 @@ interface UploadImageResponse {
 }
 
 class ValorUploadAdapter {
-    private loader: { file: Promise<File> };
+    private loader: { file: Promise<File | null> };
     private aborted = false;
 
-    constructor(loader: { file: Promise<File> }) {
+    constructor(loader: { file: Promise<File | null> }) {
         this.loader = loader;
     }
 
@@ -19,6 +19,10 @@ class ValorUploadAdapter {
         return this.loader.file.then((file) => {
             if (this.aborted) {
                 return Promise.reject('Upload aborted');
+            }
+
+            if (!file) {
+                return Promise.reject('File not found');
             }
 
             const formData = new FormData();
