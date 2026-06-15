@@ -7,11 +7,11 @@ const donators = ref([
     'PalpatinTOP',
     'Decim', 
     'Інкогніто',
-    'POVEZLO', 
     'Sutyner',
     'хххРАЙххх',
     'Linkwink', 
-    'SERGA'
+    'SERGA',
+    'Glamorous', 
 ]);
 </script>
 
