@@ -5,6 +5,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import { fetchGet } from '@/utils/fetchApi'
 import type { News } from '@/models/news';
+import { useUserStore } from '@/stores/userStore';
 
 const openQuestions = ref<Set<number>>(new Set());
 
@@ -59,30 +60,75 @@ const rightColumnQuestions = computed(() => {
     return faqData.slice(Math.ceil(faqData.length / 2));
 });
 
-// Updates-only news grid under promo
+// Updates-only news grid above FAQ
 const { wrapAsyncCall } = useAsyncCallWrapper()
+const userStore = useUserStore()
 const baseURL = import.meta.env.VITE_BASE_URL
 const updatesNews = ref<News[]>([])
+const updatesTotalCount = ref(0)
 const currentUpdatesPage = ref(1)
-const updatesPerPage = 3 // one row, 3 items
-
-const filteredUpdates = computed(() => {
-    return updatesNews.value.filter(n => !n.isHidden)
-})
+const updatesPerPage = 3
 
 const paginatedUpdates = computed(() => {
-    const start = (currentUpdatesPage.value - 1) * updatesPerPage
-    const end = start + updatesPerPage
-    return filteredUpdates.value.slice(start, end)
+    return updatesNews.value.filter(n => userStore.isAdmin || !n.isHidden)
 })
 
 const totalUpdatesPages = computed(() => {
-    return Math.ceil(filteredUpdates.value.length / updatesPerPage)
+    return Math.ceil(updatesTotalCount.value / updatesPerPage)
 })
+
+const visibleUpdatesPages = computed(() => {
+    const pages: (number | string)[] = []
+    const total = totalUpdatesPages.value
+    const current = currentUpdatesPage.value
+
+    if (total <= 7) {
+        for (let i = 1; i <= total; i++) {
+            pages.push(i)
+        }
+    } else {
+        pages.push(1)
+
+        if (current <= 4) {
+            for (let i = 2; i <= 5; i++) {
+                pages.push(i)
+            }
+            pages.push('...')
+            pages.push(total)
+        } else if (current >= total - 3) {
+            pages.push('...')
+            for (let i = total - 4; i <= total; i++) {
+                pages.push(i)
+            }
+        } else {
+            pages.push('...')
+            pages.push(current - 1)
+            pages.push(current)
+            pages.push(current + 1)
+            pages.push('...')
+            pages.push(total)
+        }
+    }
+
+    return pages
+})
+
+const loadUpdates = async (page = currentUpdatesPage.value) => {
+    await wrapAsyncCall(async () => {
+        const { data } = await fetchGet('getNews', {
+            options: 'updates',
+            limit: updatesPerPage,
+            page,
+        })
+        updatesNews.value = data.news || []
+        updatesTotalCount.value = data.totalCount || 0
+    })
+}
 
 const goToUpdatesPage = (page: number) => {
     if (page >= 1 && page <= totalUpdatesPages.value) {
-        currentUpdatesPage.value = page 
+        currentUpdatesPage.value = page
+        loadUpdates(page)
     }
 }
 
@@ -98,15 +144,8 @@ const nextUpdatesPage = () => {
     }
 }
 
-const loadUpdates = async () => {
-    await wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', { options: 'updates' })
-        updatesNews.value = data.news || []
-    })
-}
-
 onMounted(() => {
-    //loadUpdates()
+    loadUpdates()
 })
 </script>
 <template>
@@ -225,12 +264,11 @@ onMounted(() => {
                 <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-bottom" alt="promo mask bottom">
             </div>
             
-            <!-- Updates grid under promo -->
             <div v-if="paginatedUpdates.length > 0" class="about-news-grid">
                 <div class="about-news-grid__header">
                     <h2 class="about-news-grid__title">Оновлення на Сервері:</h2>
                 </div>
-                <div v-if="paginatedUpdates.length > 0" class="about-news-grid__container">
+                <div class="about-news-grid__container">
                     <div 
                         v-for="newsItem in paginatedUpdates" 
                         :key="newsItem.id"
@@ -265,7 +303,6 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Pagination -->
                 <div v-if="totalUpdatesPages > 1" class="about-pagination">
                     <button 
                         @click="prevUpdatesPage" 
@@ -276,26 +313,18 @@ onMounted(() => {
                         <img src="@/assets/images/arrow-prev.svg" alt="prev" class="about-pagination__arrow-icon" />
                     </button>
                     <div class="about-pagination__numbers">
-                        <button 
-                            v-for="page in Math.min(5, totalUpdatesPages)" 
-                            :key="page"
-                            @click="goToUpdatesPage(page)"
-                            class="about-pagination__number"
-                            :class="{ 'active': page === currentUpdatesPage }"
-                            :aria-current="page === currentUpdatesPage ? 'page' : undefined"
-                        >
-                            {{ page }}
-                        </button>
-                        <span v-if="totalUpdatesPages > 5" class="about-pagination__dots">...</span>
-                        <button 
-                            v-if="totalUpdatesPages > 5"
-                            @click="goToUpdatesPage(totalUpdatesPages)"
-                            class="about-pagination__number"
-                            :class="{ 'active': totalUpdatesPages === currentUpdatesPage }"
-                            :aria-current="totalUpdatesPages === currentUpdatesPage ? 'page' : undefined"
-                        >
-                            {{ totalUpdatesPages }}
-                        </button>
+                        <template v-for="page in visibleUpdatesPages" :key="page">
+                            <button 
+                                v-if="typeof page === 'number'"
+                                @click="goToUpdatesPage(page)"
+                                class="about-pagination__number"
+                                :class="{ 'active': page === currentUpdatesPage }"
+                                :aria-current="page === currentUpdatesPage ? 'page' : undefined"
+                            >
+                                {{ page }}
+                            </button>
+                            <span v-else class="about-pagination__dots">{{ page }}</span>
+                        </template>
                     </div>
                     <button 
                         @click="nextUpdatesPage" 
@@ -417,11 +446,14 @@ onMounted(() => {
         }
     }
 
-    /* Updates grid copied/adapted from AllNews */
     .about-news-grid {
-        padding: 0 15px 0px 15px;
+        padding: 80px 15px 0;
         max-width: 1110px;
         margin: 0 auto;
+
+        @media (max-width: 768px) {
+            padding: 40px 15px 0;
+        }
 
         &__header {
             margin-bottom: 30px;
