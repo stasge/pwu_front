@@ -240,7 +240,7 @@ const handleSwipe = () => {
              <!-- Кнопка "ВСІ НОВИНИ" -->
              <div>
                 <router-link :to="{name: 'all-news'}" class="fantasy-btn">
-                    <span>Всі Новини</span>
+                    <span>Новини Та Оновлення</span>
                 </router-link>
              </div>
          </div>
