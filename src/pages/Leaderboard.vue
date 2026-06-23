@@ -55,7 +55,7 @@ onMounted(async () => {
             
             <h1 class="leaderboard__title mb-5 text-center">Таблиця лідерів</h1>
             
-            <div class="leaderboard__buttons mb-4 flex justify-content-center gap-3">
+            <!-- <div class="leaderboard__buttons mb-4 flex justify-content-center gap-3">
                 <button 
                     class="leaderboard__btn"
                     :class="{ 'leaderboard__btn--active': ratingMode === 'main' }"
@@ -70,7 +70,7 @@ onMounted(async () => {
                 >
                     Марафон прокачки
                 </button>
-            </div>
+            </div> -->
             
         <div class="table-wrapper">
             <!-- Corner icons -->
