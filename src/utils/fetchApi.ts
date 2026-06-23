@@ -1,12 +1,32 @@
-import { useUserStore } from "@/stores/userStore";
 import { ofetch } from "ofetch";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
+const refreshToken = async () => {
+    await ofetch('refresh', { baseURL, method: 'POST', credentials: 'include' });
+};
+
+const retryRequest = async (uri: string, options: any) => {
+    try {
+        return await ofetch(uri, options);
+    } catch (error: any) {
+        if (error?.response?.status === 401) {
+            await refreshToken();
+            return ofetch(uri, options);
+        }
+        throw error;
+    }
+};
 
 export const fetchPost = (uri: string, body: any) => {
-    return ofetch(uri, {baseURL, method: 'POST', body, onRequest: addToken})
-}
+    const options = {
+        baseURL, 
+        method: 'POST',
+        body,
+        credentials: 'include',
+    }
+    return retryRequest(uri, options)
+};
 
 export const fetchGet = (uri: string, data: any = {}) => {
     const params: any = {};
@@ -15,19 +35,32 @@ export const fetchGet = (uri: string, data: any = {}) => {
             params[key] = value;
         }
     }
-    return ofetch(uri, {baseURL, method: 'GET', params, onRequest: addToken})
+
+    const options = {
+        baseURL, 
+        method: 'GET', 
+        params, 
+        credentials: 'include',
+    }
+    return retryRequest(uri, options)
 }
 
-const addToken = async ({request, options}: {request: any, options: any}) => {
-    const userStore = useUserStore()
-    let accessToken = localStorage.getItem("pwu_token")
-    const refreshToken = localStorage.getItem("pwu_refresh_token")
-    if (!accessToken && refreshToken) {
-        const {data: token} = await ofetch('refresh', {baseURL, method: 'GET', headers: {'Auth': refreshToken}}).catch(error => userStore.logoutUser())
-        accessToken = token
-        localStorage.setItem('pwu_token', token)
+export const fetchPut = (uri: string, body: any) => {
+    const options = {
+        baseURL, 
+        method: 'PUT',
+        body,
+        credentials: 'include',
     }
-    if (accessToken) {
-        options.headers = {...(options.headers ?? {}), "Auth": `${accessToken}`};
+    return retryRequest(uri, options)
+}
+
+export const fetchDelete = (uri: string, body: any) => {
+    const options = {
+        baseURL, 
+        method: 'DELETE',
+        body,
+        credentials: 'include',
     }
+    return retryRequest(uri, options)
 }

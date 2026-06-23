@@ -1,0 +1,14 @@
+{
+    "Not enough time has passed since the previous shipment.": "З моменту попереднього відправлення минуло недостатньо часу.",
+    "User already exists": "Користувач вже існує",
+    "User is not verification": "Користувач не верифікований",
+    "The code is not valid": "Код неправильний",
+    "User not found": "Невірний логін або пароль",
+    "Today's sending limit reached": "Сьогоднішній ліміт надсилання досягнуто",
+    "Main_pass is wrong": "Невірний пароль основного акаунту",
+    "The new password matches one of the previous ones": "Новий пароль збігається з попереднім",
+    "You can change your password once every 3 days." : "Змінювати пароль можна раз на 3 дні.",
+    "This phone is the same as the saved one": "Цей телефон такий самий, як і збережений",
+    "The promo code has already expired.": "Термін дії промокоду вже закінчився.",
+    "You have reached the maximum number of accounts.": "Ви досягли максимальної кількості акаунтів."
+}

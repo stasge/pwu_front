@@ -9,7 +9,7 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
 </script>
 
 <template>
-    <div class="join-fight mt-8">
+    <div id="steps" class="join-fight mt-8">
         <h2 class="join-fight__title">Вступи в бій</h2>
         <p class="join-fight__text mt-3">Переписуючи основи</p>
     </div>
@@ -18,10 +18,10 @@ const loginRef = ref<InstanceType<typeof Login> | null>(null)
             <h3>Реєстрація</h3>
             <p>Для подальшої гри необхідний ігровий обліковий запис</p>
         </div>
-        <div class="steps__item">
+        <router-link :to="{name: 'download-page'}" class="steps__item">
             <h3>Завантаження</h3>
-            <p>Завантажте ігровий клієнт зручним способом</p>
-        </div>
+            <p>Завантажте ігровий клієнт</p>
+        </router-link>
         <div class="steps__item">
             <h3>Гра</h3>
             <p>Пориньте в захоплюючі битви нового світу</p>

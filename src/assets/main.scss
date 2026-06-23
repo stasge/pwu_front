@@ -1,88 +1,816 @@
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&display=swap');
-@import url('/node_modules/primeflex/primeflex.css');
-@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&display=swap");
+@import url("/node_modules/primeflex/primeflex.css");
+
+// Підключення локальних шрифтів
+@font-face {
+  font-family: 'Candara';
+  src: url('@/assets/fonts/Candara.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VollkornSC';
+  src: url('@/assets/fonts/VollkornSC-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
-    font-size: clamp(10px, 1vw, 16px);
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+  font-size: clamp(10px, 1vw, 16px);
+  font-family: "VollkornSC", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  scroll-margin-top: 100px;
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
+}
+
+body {
+  background: #0A0A0A;
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
+}
+
+// Кастомні курсори
+// Стандартний курсор для body та html
+html,
+body {
+  cursor: url('@/assets/cursor/default-cursor.cur'), auto;
+}
+
+// Курсор при наведенні на інтерактивні елементи
+a,
+button,
+.fantasy-btn,
+.btn,
+.p-button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+.p-paginator-page,
+.p-select,
+.p-select-label,
+.p-paginator-first,
+.p-paginator-prev,
+.p-paginator-next,
+.p-paginator-last,
+[style*="cursor: pointer"],
+[style*="cursor:pointer"] {
+  cursor: url('@/assets/cursor/hand-cursor.cur'), pointer !important;
+  
+  &:hover {
+    cursor: url('@/assets/cursor/hand-cursor.cur'), pointer !important;
+  }
 }
 
 .wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #16171b 20%, rgba(39, 50, 68, 1.51) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 100vh;
+  background: #0A0A0A;
 }
 
 .container {
-    max-width: 1370px;
-    width: 100%;
+  width: 100%;
 }
 
-h2,
-h3,
-p,
-span,
-li,
-label {
-    
-    text-shadow: 3px 0px 7px rgba(81,67,21,0.8), -3px 0px 7px rgba(81,67,21,0.8), 0px 4px 7px rgba(81,67,21,0.8);
+[class*="__container"] {
+  max-width: 1434px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
+
+input[type="text"] {
+  transition: all 0.3s;
+}
+
+// Кастомні інпути з SVG фоном
+.custom-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-height: 44px;
+  
+  input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 20px;
+    font-family: "Candara", sans-serif;
+    font-size: 16px;
+    color: #f8f8f8;
+    opacity: 0.5;
+    position: relative;
+    z-index: 2;
+    height: 44px;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
+    
+    &::placeholder {
+      font-family: "Candara", sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 100%;
+      letter-spacing: -0.01em;
+      color: #f8f8f8;
+    }
+    
+    &:focus {
+      opacity: 1;
+    }
+    
+    // Приховування автозаповнення браузера
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+      -webkit-text-fill-color: #f8f8f8 !important;
+      background: transparent !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+    
+    // Для Firefox
+    &:-moz-autofill {
+      background: transparent !important;
+      color: #fff !important;
+    }
+  }
+  
+  // Ліва частина
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      left: 2px;
+    }
+  }
+  
+  // Права частина
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+      right: 2px;
+    }
+  }
+  
+  // Середня частина (фон) - використовуємо додатковий елемент
+  .input-bg {
+    position: absolute;
+    left: 16px;
+    top: 0;
+    right: 16px;
+    height: 44px;
+    background: url("@/assets/images/input-bg-mid.svg") repeat-x center / cover;
+    z-index: 0;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+      height: 34px;
+    }
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  // Стани фокусу
+  &:focus-within {
+    &::before {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    &::after {
+      filter: brightness(1.1) contrast(1.1);
+    }
+    
+    .input-bg {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  
+  // Адаптивність
+  @media (max-width: 768px) {
+    max-width: 100%;
+    
+    input {
+      font-size: 14px;
+      padding: 0 16px;
+    }
+  }
+  
+  // Стилі для помилок
+  &.error {
+    &::before,
+    &::after,
+    .input-bg {
+      filter: hue-rotate(0deg) saturate(2) brightness(0.8) contrast(1.2);
+    }
+  }
+}
+
+// Стилі для label при помилці в custom-input
+.field {
+  label {
+    transition: color 0.3s ease;
+  }
+  
+  // Коли custom-input має клас error, label стає червоним
+  &:has(.custom-input.error) label {
+    color: #ff4444;
+  }
+}
+
+// h2,
+// h3,
+// p,
+// span,
+// li,
+// label {
+//   text-shadow: 3px 0px 7px rgba(81, 67, 21, 0.8),
+//     -3px 0px 7px rgba(81, 67, 21, 0.8), 0px 4px 7px rgba(81, 67, 21, 0.8);
+// }
 
 a {
-    text-decoration: none;
-    color: #FFF;
+  text-decoration: none;
+  color: #fff;
+}
+
+.fantasy-btn {
+  background: url("@/assets/images/button-bg.svg") no-repeat center / cover;
+  border: none;
+  font-weight: 400;
+  font-size: 24px;
+  padding: 11px 0px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  &.small {
+    font-size: 16px;
+    padding: 10px 0px;
+
+    &::before {
+      width: 15px;
+      height: 44px;
+      left: -15px;
+    }
+
+    &::after {
+      width: 15px;
+      height: 44px;
+      right: -15px;
+    }
+  }
+
+  &.danger {
+    background: url("@/assets/images/button-bg-danger.svg") no-repeat center / cover;
+
+    &::before {
+      background: url("@/assets/images/button-bg-left-danger.svg") no-repeat center / contain;
+    }
+
+    &::after {
+      background: url("@/assets/images/button-bg-right-danger.svg") no-repeat center / contain;
+    }
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  span {
+    font-family: "VollkornSC", sans-serif;
+    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 2;
+    transition: filter 0.3s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover span {
+      filter: drop-shadow(0 0 2px #fad7a1) drop-shadow(0 0 10px #fbd298) drop-shadow(0 0 20px rgba(251, 210, 152, 0.5));
+    }
+  }
+
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-left.svg") no-repeat center / contain;
+    z-index: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 56px;
+    background: url("@/assets/images/button-bg-right.svg") no-repeat center / contain;
+    z-index: 1;
+
+  }
+
 }
 
 .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "Rubik Mono One", monospace;
-    font-weight: 400;
-    font-style: normal;
-    border: none;
-    background: url('@/assets/images/btn-bg.svg') no-repeat center / contain;
-    color: #FFF;
-    position: relative;
-    width: clamp(300px, 19vw, 360px);
-    height: 80px;
-    font-size: 175%; /* 28/16 */
-    text-transform: uppercase;
-    transition: all .5s;
-    cursor: pointer;
-    text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
-    0px -4px 10px rgba(255,255,255,0.3);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Rubik Mono One", monospace;
+  font-weight: 400;
+  font-style: normal;
+  border: none;
+  background: url("@/assets/images/btn-bg.svg") no-repeat center / contain;
+  color: #fff;
+  position: relative;
+  width: clamp(300px, 19vw, 360px);
+  height: 80px;
+  font-size: 175%; /* 28/16 */
+  text-transform: uppercase;
+  transition: all 0.5s;
+  cursor: pointer;
+  text-shadow: 2px 7px 5px rgba(0, 0, 0, 0.3),
+    0px -4px 10px rgba(255, 255, 255, 0.3);
+  transform: scale(1);
 
-    &.btn-sm {
-        font-family: "Roboto", sans-serif;
-        font-weight: 700;
-        background: url('@/assets/images/btn-bg-sm.svg') no-repeat center / contain; 
-        font-size: 87.5%; /* 14/16 */
-        width: clamp(130px, 16vw, 202px);
-        height: 58px;
-    }
+  &.btn-sm {
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    background: url("@/assets/images/btn-bg-sm.svg") no-repeat center / contain;
+    font-size: 87.5%; /* 14/16 */
+    width: clamp(130px, 16vw, 202px);
+    height: 58px;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.p-button {
+  border: none !important;
+  background: linear-gradient(87deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%),
+    linear-gradient(270deg, #3d4c60 0%, rgba(0, 0, 0, 0) 100%) !important;
+  font-family: inherit;
+  transform: scale(1);
+  transition: all 0.3s !important;
+  color: #fff !important;
+
+  &:hover {
+    border: none !important;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
 }
 
 .overflow-hidden {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .invalid {
-    border: 1px solid red;
+  border: 1px solid red !important;
 }
 
 .right-10px {
-    right: 10px;
+  right: 10px;
 }
+
+.p-paginator {
+  background: linear-gradient(225deg, #e26f0f 0%, rgba(217, 217, 217, 0) 100%),
+    linear-gradient(
+      45deg,
+      #3d4c60 0%,
+      rgba(21, 26, 33, 0.34) 65.59%,
+      rgba(0, 0, 0, 0) 100%
+    ) !important;
+
+  .p-paginator-page,
+  .p-select-label {
+    color: #fff !important;
+  }
+
+  .p-paginator-page:not(.p-disabled):not(.p-paginator-page-selected):hover,
+  .p-paginator-first:not(.p-disabled):hover,
+  .p-paginator-prev:not(.p-disabled):hover,
+  .p-paginator-next:not(.p-disabled):hover,
+  .p-paginator-last:not(.p-disabled):hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+  }
+
+  svg {
+    fill: #fff;
+    stroke: #fff;
+  }
+}
+
+.p-select,
+.p-paginator-page-selected,
+.p-select-list-container {
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: #fff !important;
+  border-radius: 5px;
+
+  span {
+    color: #fff !important;
+    text-shadow: none !important;
+  }
+}
+
+.p-select-list {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+.p-select-overlay {
+  border: none !important;
+}
+
+.p-select:not(.p-disabled).p-focus {
+  border-color: #3d4c60 !important;
+}
+
+.p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+  background-color: rgba($color: #e26f0f, $alpha: 0.2) !important;
+}
+
+.p-select-option.p-select-option-selected.p-focus,
+.p-select-option.p-select-option-selected {
+  background: rgba($color: #e26f0f, $alpha: 0.4) !important;
+}
+
+.p-dialog {
+  background: linear-gradient(
+    180deg,
+    #16171b 20%,
+    rgba(39, 50, 68, 1.51) 100%
+  ) !important;
+  position: relative;
+  z-index: 101;
+  color: #fff !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 10px;
+  width: 500px;
+  cursor: default;
+
+  @media (max-width: 550px) {
+    width: 90%;
+  }
+
+  svg {
+    stroke: #fff;
+  }
+
+  span {
+    color: #fff;
+  }
+}
+
+.p-confirmpopup {
+  backdrop-filter: blur(64px);
+  background: rgba(250, 250, 250, 0.05) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 5px !important;
+  padding: 10px !important;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  overflow: visible !important;
+
+  .p-confirmpopup-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .p-confirmpopup-icon {
+    color: #f8f8f8 !important;
+    font-size: 24px !important;
+  }
+
+  .p-confirmpopup-message {
+    color: #f8f8f8 !important;
+    font-family: "Candara", sans-serif;
+    font-size: 16px;
+    margin-left: 12px;
+  }
+
+  .p-confirmpopup-footer {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .p-button {
+    background: transparent !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    font-family: "VollkornSC", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: -0.09em;
+    transition: opacity 0.2s ease;
+
+    &.p-confirmpopup-reject {
+      background: linear-gradient(180deg, #f8f8f8 0%, #929292 100%) !important;
+      background-clip: text !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      
+      &:hover {
+        opacity: 0.7;
+      }
+
+      span {
+        background: inherit !important;
+        background-clip: inherit !important;
+        -webkit-background-clip: inherit !important;
+        -webkit-text-fill-color: inherit !important;
+      }
+    }
+
+    &.p-confirmpopup-accept {
+      background: linear-gradient(180deg, #f69090 30%, #97292a 100%) !important;
+      background-clip: text !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      
+      &:hover {
+        opacity: 0.7;
+      }
+
+      span {
+        background: inherit !important;
+        background-clip: inherit !important;
+        -webkit-background-clip: inherit !important;
+        -webkit-text-fill-color: inherit !important;
+      }
+    }
+  }
+}
+
+.p-confirmpopup-content {
+  position: relative;
+  padding-bottom: 0 !important;
+}
+
+.p-button {
+  background: #e26f0f !important;
+
+  &.danger {
+    background: #d62828 !important;
+  }
+
+  &.success {
+    background: #e26f0f !important;
+  }
+
+  &.success-green {
+    background: #11af19 !important;
+  }
+
+  &.primary {
+    background: #2f6690 !important;
+  }
+}
+
+.text-trim {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+figure {
+  width: 100%;
+}
+
+oembed {
+  display: block;
+  width: 100%;
+  height: 500px;
+}
+
+.ck-editor {
+
+  ul,
+  ol {
+    padding-left: 25px;
+  }
+
+  span,
+  p,
+  h2,
+  h3,
+  h4 {
+    text-shadow: none !important;
+  }
+
+  & > * {
+    font-family: "Candara", sans-serif;
+    color: #000;
+  }
+
+  .ck-content {
+    min-height: 400px;
+  }
+
+}
+
+.text-red {
+  color: red;
+}
+
+.custom-scroll {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: #3d4c60;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #e26f0f;
+  }
+}
+
+.image-style-align-left {
+  float: left;
+  margin-right: 1rem;
+}
+
+.image-style-align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-style-align-right {
+  float: right;
+  margin-left: 1rem;
+}
+
+textarea {
+  font-family: "Candara", sans-serif !important;
+}
+
+// Кастомні стилі для лоадера vue-loading-overlay
+.vl-overlay {
+  .vl-background {
+    background: rgba(10, 10, 10, 0.85) !important;
+    opacity: 1 !important;
+    backdrop-filter: blur(4px);
+  }
+
+  .vl-icon {
+    position: relative;
+    z-index: 1;
+    
+    // Стилі для SVG spinner
+    svg {
+      width: 60px !important;
+      height: 60px !important;
+      
+      circle {
+        stroke: rgba(226, 111, 15, 0.3) !important;
+      }
+      path {
+        stroke: #e26f0f !important;
+        stroke-width: 3 !important;
+      }
+      
+      // Для різних типів SVG спінерів
+      * {
+        stroke: #e26f0f !important;
+        fill: none !important;
+      }
+    }
+    
+    // Якщо використовується spinner як div з класом spinner
+    .spinner {
+      width: 60px !important;
+      height: 60px !important;
+      border: 4px solid rgba(226, 111, 15, 0.2) !important;
+      border-top-color: #e26f0f !important;
+      border-radius: 50%;
+      animation: spinner-rotate 0.75s linear infinite;
+    }
+  }
+
+  // Стилі для тексту лоадера
+  > div:not(.vl-background):not(.vl-icon) {
+    color: #fadfae !important;
+    font-family: "VollkornSC", sans-serif !important;
+    text-shadow: 0 0 10px rgba(251, 210, 152, 0.5);
+    font-size: 18px !important;
+    margin-top: 20px;
+  }
+}
+
+// Кастомний spinner для кнопок (замість Bootstrap)
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+  border: 0.15em solid rgba(226, 111, 15, 0.3);
+  border-right-color: #e26f0f;
+  border-radius: 50%;
+  animation: spinner-rotate 0.75s linear infinite;
+
+  &.spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 0.125em;
+  }
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Стилі для PrimeVue Tooltip
+.p-tooltip {
+  .p-tooltip-text {
+    background: rgba(42, 42, 42, 0.95) !important;
+    color: #fff !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-family: "Candara", sans-serif !important;
+    font-size: 14px !important;
+    white-space: pre-line !important;
+    line-height: 1.5 !important;
+  }
+
+  .p-tooltip-arrow {
+    display: none !important;
+  }
+}
+
+

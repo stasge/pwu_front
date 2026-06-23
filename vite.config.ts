@@ -8,8 +8,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-                target: "http://46.33.36.151:21191",
-                changeOrigin: true
+                target: "https://valor.in.ua",
+                changeOrigin: true,
             }
     }
   },

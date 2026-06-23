@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import ConfirmPopup from 'primevue/confirmpopup';
+import SupportChatIcon from './components/SupportChatIcon.vue';
 </script>
 
 <template>
+     <SupportChatIcon />
     <RouterView />
+    <ConfirmPopup></ConfirmPopup>
 </template>
 
 <style scoped>

@@ -3,4 +3,8 @@ export interface RegisterData {
     pass: string;
     email: string;
     repeat_pass: string;
+    rules: boolean;
+    phone: string;
+    name: string;
+    ref?: string;
 }
