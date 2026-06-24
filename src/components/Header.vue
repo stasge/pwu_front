@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
@@ -10,6 +10,8 @@ import { fetchGet } from '@/utils/fetchApi';
 
 const userStore = useUserStore()
 const isBurgerOpen = ref(false)
+const isToolsOpen = ref(false)
+const toolsDropdownRef = ref<HTMLElement | null>(null)
 
 const loginRef = ref<InstanceType<typeof Login> | null>(null)
 const registerRef = ref<InstanceType<typeof Register> | null>(null)
@@ -48,10 +50,26 @@ onMounted(async () => {
         const { data } = await fetchGet('allGameUsers')
         accountsCount.value = data
     })
+    document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
 })
 
 function toggleBurger() {
     isBurgerOpen.value = !isBurgerOpen.value
+}
+
+function toggleTools(event: MouseEvent) {
+    event.stopPropagation()
+    isToolsOpen.value = !isToolsOpen.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+    if (toolsDropdownRef.value && !toolsDropdownRef.value.contains(event.target as Node)) {
+        isToolsOpen.value = false
+    }
 }
 </script>
 
@@ -79,6 +97,32 @@ function toggleBurger() {
                         </li>
                         <li class="header-menu__item">
                             <a href="https://db.valor.in.ua/" target="_blank" rel="noopener noreferrer">База даних</a>
+                        </li>
+                        <li
+                            ref="toolsDropdownRef"
+                            class="header-menu__item header-menu__item--dropdown"
+                            :class="{ 'header-menu__item--open': isToolsOpen }"
+                        >
+                            <button type="button" class="header-menu__dropdown-trigger flex align-items-center" @click="toggleTools">
+                                <span>Інструменти</span>
+                                <img
+                                    src="@/assets/icons/dropdown-arrow.svg"
+                                    alt=""
+                                    class="header-menu__dropdown-arrow"
+                                >
+                            </button>
+                            <Transition name="header-dropdown">
+                                <div v-show="isToolsOpen" class="header-menu__dropdown">
+                                    <router-link
+                                        :to="{ name: 'home' }"
+                                        class="header-menu__dropdown-item flex align-items-center"
+                                        @click="isToolsOpen = false"
+                                    >
+                                        <img src="@/assets/icons/book-icon.svg" alt="" class="header-menu__dropdown-item-icon">
+                                        <span>Калькулятор трактатів</span>
+                                    </router-link>
+                                </div>
+                            </Transition>
                         </li>
                     </ul>
                 </nav>
@@ -116,7 +160,7 @@ function toggleBurger() {
                 <svg class="header-right__separator" width="2" height="20" viewBox="0 0 2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.3" d="M1 0V20" stroke="#F8F8F8" />
                 </svg>
-                <div class="social-media flex align-items-center gap-4">
+                <div class="social-media flex align-items-center">
                     
                     <a href="https://discord.gg/3Ma5DaMUzQ" target="_blank" rel="noopener noreferrer">
                         <img src="@/assets/images/discord-icon.svg" alt="discord">
@@ -175,6 +219,10 @@ function toggleBurger() {
                     </li>
                     <li class="header-burger-item">
                         <a href="https://db.valor.in.ua/" target="_blank" rel="noopener noreferrer">База даних</a>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
+                    </li>
+                    <li class="header-burger-item">
+                        <router-link :to="{ name: 'home' }" @click="isBurgerOpen = false">Калькулятор трактатів</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
@@ -259,7 +307,7 @@ function toggleBurger() {
         &__list {
             list-style: none;
             display: flex;
-            gap: clamp(5px, 3vw, 30px);
+            gap: clamp(10px, 2vw, 30px);
 
             @media (max-width: 1024px) {
                 gap: 5px;
@@ -270,8 +318,91 @@ function toggleBurger() {
             width: fit-content;
             transition: all 0.3s ease;
             opacity: 1;
+
             &:hover {
                 opacity: 0.7;
+            }
+
+            &--dropdown {
+                position: relative;
+
+                &:hover {
+                    opacity: 1;
+                }
+
+                &.header-menu__item--open .header-menu__dropdown-trigger {
+                    opacity: 0.7;
+                }
+            }
+        }
+
+        &__dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+            border: none;
+            background: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+
+        &__dropdown-arrow {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            transform: rotate(180deg);
+        }
+
+        &__item--open &__dropdown-arrow {
+            transform: rotate(0deg);
+        }
+
+        &__dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            z-index: 110;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: fit-content;
+            height: 85px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(70px);
+            -webkit-backdrop-filter: blur(70px);
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+                rgba(0, 0, 0, 0.8);
+            transform-origin: top center;
+        }
+
+        &__dropdown-item {
+            gap: 10px;
+            color: #f8f8f8;
+            text-decoration: none;
+            font-size: 14px;
+            line-height: 1.2;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+
+            &:hover {
+                opacity: 0.7;
+            }
+
+            &-icon {
+                width: 18px;
+                height: 15px;
+                flex-shrink: 0;
             }
         }
     }
@@ -342,7 +473,7 @@ function toggleBurger() {
             &-value {
                 font-family: "VollkornSC", sans-serif;
                 font-weight: 400;
-                font-size: clamp(18px, 2.5vw, 24px);
+                font-size: clamp(14px, 2vw, 24px);
                 letter-spacing: -0.04em;
                 color: #f8f8f8;
                 white-space: nowrap;
@@ -351,6 +482,7 @@ function toggleBurger() {
         }
 
         .social-media {
+            gap: clamp(10px, 1vw, 25px);
             
             a {
                 max-height: clamp(15px, 2vw, 20px);
@@ -400,12 +532,12 @@ function toggleBurger() {
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
-                width: 32px;
-                height: 32px;
+                width: clamp(28px, 3vw, 32px);
+                height: clamp(28px, 3vw, 32px);
 
                 img {
-                    width: 20px;
-                    height: 20px;
+                    width: clamp(18px, 2vw, 20px);
+                    height: clamp(18px, 2vw, 20px);
                     object-fit: contain;
                 }
             }
@@ -505,7 +637,7 @@ function toggleBurger() {
         a {
             color: #f8f8f8;
             text-decoration: none;
-            font-size: 24px;
+            font-size: 18px;
             text-align: center;
         }
 
@@ -555,6 +687,23 @@ function toggleBurger() {
         object-position: bottom;
         opacity: 0.3;
     }
+}
+
+.header-dropdown-enter-active,
+.header-dropdown-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.header-dropdown-enter-from,
+.header-dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+}
+
+.header-dropdown-enter-to,
+.header-dropdown-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 
