@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
@@ -18,12 +18,35 @@ const recoverPassCodeRef = ref<InstanceType<typeof RecoverPassCode> | null>(null
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
 const serverStatusCode = ref<{ online: boolean; count_online: number } | null>(null)
+const accountsCount = ref<number | null>(null)
+
+const isServerOnline = computed(() => {
+    return !!(serverStatusCode.value?.online && serverStatusCode.value?.count_online)
+})
+
+function formatStatNumber(value: number): string {
+    return new Intl.NumberFormat('uk-UA').format(value).replace(/\u00a0/g, ' ')
+}
+
+const formattedAccountsCount = computed(() => {
+    return accountsCount.value != null ? formatStatNumber(accountsCount.value) : '—'
+})
+
+const formattedOnlineCount = computed(() => {
+    if (!serverStatusCode.value) return '—'
+    if (isServerOnline.value) return formatStatNumber(serverStatusCode.value!.count_online)
+    return 0
+})
 
 onMounted(async () => {
     await userStore.getOnline()
     await wrapAsyncCall(async () => {
         const { data } = await fetchGet('online')
         serverStatusCode.value = data
+    })
+    await wrapAsyncCall(async () => {
+        const { data } = await fetchGet('allGameUsers')
+        accountsCount.value = data
     })
 })
 
@@ -61,14 +84,33 @@ function toggleBurger() {
                 </nav>
             </div>
             <div class="header-right flex align-items-center">
-                <div class="header-right__online flex align-items-center gap-1">
-                    <img v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" src="@/assets/images/online-indicator.svg" alt="online indicator">
-                    <img v-else src="@/assets/images/offline-indicator.svg" alt="offline indicator">
-                    <div class="header-right__online-content flex align-items-center gap-1">
-                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online">Онлайн:</span>
-                        <span v-else>Офлайн</span>
-                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online">{{ serverStatusCode?.count_online }}</span>
-                        <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" class="header-right__online-content-players">гравців</span>
+                <div class="header-right__stats flex align-items-center">
+                    <div class="header-right__stat">
+                        <span class="header-right__stat-label">Акаунтів</span>
+                        <div class="header-right__stat-row flex align-items-center">
+                            <img src="@/assets/icons/all-users-icon.svg" alt="accounts" class="header-right__stat-icon header-right__stat-icon--accounts">
+                            <span class="header-right__stat-value">{{ formattedAccountsCount }}</span>
+                        </div>
+                    </div>
+                    <div class="header-right__stat">
+                        <span class="header-right__stat-label">Онлайн</span>
+                        <div class="header-right__stat-row header-right__stat-row--online flex align-items-center">
+                            <img
+                                v-if="isServerOnline"
+                                src="@/assets/images/online-indicator.svg"
+                                alt="online indicator"
+                                class="header-right__stat-icon header-right__stat-icon--online"
+                            >
+                            <img
+                                v-else
+                                src="@/assets/images/offline-indicator.svg"
+                                alt="offline indicator"
+                                class="header-right__stat-icon header-right__stat-icon--online"
+                            >
+                            <span class="header-right__stat-value" :class="{ 'header-right__stat-value--offline': !isServerOnline && serverStatusCode }">
+                                {{ formattedOnlineCount }}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <svg class="header-right__separator" width="2" height="20" viewBox="0 0 2 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -88,12 +130,17 @@ function toggleBurger() {
                 </svg>
                 <div class="header-right__login flex align-items-center">
                     <template v-if="!userStore.isLoggedIn">
-                        <a @click="loginRef?.showDia()" class="cursor-pointer">Увійти</a>
+                        <a @click="loginRef?.showDia()" class="header-right__auth flex align-items-center gap-3 cursor-pointer">
+                            <span class="header-right__auth-icon">
+                                <img src="@/assets/icons/login-icon.svg" alt="login">
+                            </span>
+                        </a>
                     </template>
                     <template v-else>
-                        <router-link :to="{ name: 'profile' }" class="header-right__profile flex align-items-center gap-3">
-                            <span>Особистий кабінет</span>
-                            <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-right__profile-arrow">
+                        <router-link :to="{ name: 'profile' }" class="header-right__auth flex align-items-center gap-3">
+                            <span class="header-right__auth-icon">
+                                <img src="@/assets/icons/profile-icon.svg" alt="profile">
+                            </span>
                         </router-link>
                     </template>
                 </div>
@@ -238,37 +285,69 @@ function toggleBurger() {
     }
 
     &-right {
-        gap: clamp(8px, 2vw, 30px);
+        gap: clamp(8px, 2vw, 25px);
 
         @media (max-width: 1024px) {
             gap: 8px;
         }
 
-        &__online {
-            font-weight: 400;
-            font-size: clamp(10px, 4vw, 14px);
-            line-height: 108%;
-            text-align: center;
-            color: #f8f8f8;
+        &__stats {
+            gap: clamp(25px, 2vw, 45px);
+        }
 
-            @media (max-width: 1024px) {
-                font-size: 12px;
-            }
-            @media (max-width: 768px) {
+        &__stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            &-label {
+                font-family: "VollkornSC", sans-serif;
+                font-weight: 400;
+                font-size: clamp(10px, 1.2vw, 12px);
                 line-height: 1;
+                letter-spacing: -0.04em;
+                color: rgba(248, 248, 248, 0.7);
+                white-space: nowrap;
             }
 
-            img {
-                max-height: clamp(30px, 4vw, 58px);
-                position: relative;
-                left: clamp(5px, 4vw, 15px);
+            &-row {
+                display: inline-flex;
+                align-items: center;
+                gap: clamp(4px, 0.8vw, 8px);
 
-                @media (max-width: 1024px) {
-                    max-height: 30px;
-                    left: 10px;
+                &--online {
+                    position: relative;
+                    gap: 0;
                 }
             }
-            
+
+            &-icon {
+                flex-shrink: 0;
+
+                &--accounts {
+                    width: clamp(14px, 1.5vw, 20px);
+                    height: clamp(14px, 1.5vw, 20px);
+                }
+
+                &--online, &--offline {
+                    position: absolute;
+                    right: calc(100% + clamp(8px, 2vw, 13px));
+                    top: 50%;
+                    transform: translate(50%, -50%);
+                    width: clamp(40px, 5vw, 60px);
+                    height: clamp(40px, 5vw, 60px);
+                }
+            }
+
+            &-value {
+                font-family: "VollkornSC", sans-serif;
+                font-weight: 400;
+                font-size: clamp(18px, 2.5vw, 24px);
+                letter-spacing: -0.04em;
+                color: #f8f8f8;
+                white-space: nowrap;
+                line-height: 1;
+            }
         }
 
         .social-media {
@@ -290,17 +369,7 @@ function toggleBurger() {
 
         &__login {
             gap: 30px;
-            
-            a {
-                cursor: pointer;
-                transition: all 0.3s ease;
-                opacity: 1;
 
-                &:hover {
-                    opacity: 0.7;
-                }
-            }
-            
             @media (max-width: 1024px) {
                 gap: 5px;
             }
@@ -310,52 +379,35 @@ function toggleBurger() {
             }
         }
 
-        &__profile {
+        &__auth {
+            cursor: pointer;
             transition: all 0.3s ease;
             opacity: 1;
+            text-decoration: none;
+            background: rgba(248, 248, 248, 0.1);
+            border-radius: 99px;
 
             @media (max-width: 1024px) {
                 gap: 5px !important;
-            }
-
-            span {
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 100%;
-                letter-spacing: -0.09em;
-                text-align: center;
-                background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-
-                @media (max-width: 1024px) {
-                    font-size: 10px;
-                }
-            }
-
-            img {
-                width: 18px;
-                height: auto;
-
-                @media (max-width: 1024px) {
-                    width: 10px;
-                }
             }
 
             &:hover {
                 opacity: 0.7;
             }
 
-            &-arrow {
-                width: 20px;
-                height: auto;
-            }
-        }
+            &-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                width: 32px;
+                height: 32px;
 
-        &__online-content-players {
-            @media (max-width: 768px) {
-                display: none;
+                img {
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                }
             }
         }
 
