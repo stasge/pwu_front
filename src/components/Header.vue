@@ -141,13 +141,13 @@ function handleClickOutside(event: MouseEvent) {
                         <div class="header-right__stat-row header-right__stat-row--online flex align-items-center">
                             <img
                                 v-if="isServerOnline"
-                                src="@/assets/images/online-indicator.svg"
+                                src="@/assets/icons/online-indicator.png"
                                 alt="online indicator"
                                 class="header-right__stat-icon header-right__stat-icon--online"
                             >
                             <img
                                 v-else
-                                src="@/assets/images/offline-indicator.svg"
+                                src="@/assets/icons/offline-indicator.png"
                                 alt="offline indicator"
                                 class="header-right__stat-icon header-right__stat-icon--online"
                             >
