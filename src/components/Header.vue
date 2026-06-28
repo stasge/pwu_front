@@ -114,7 +114,7 @@ function handleClickOutside(event: MouseEvent) {
                             <Transition name="header-dropdown">
                                 <div v-show="isToolsOpen" class="header-menu__dropdown">
                                     <router-link
-                                        :to="{ name: 'home' }"
+                                        :to="{ name: 'tract-calc' }"
                                         class="header-menu__dropdown-item flex align-items-center"
                                         @click="isToolsOpen = false"
                                     >
@@ -222,7 +222,7 @@ function handleClickOutside(event: MouseEvent) {
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
-                        <router-link :to="{ name: 'home' }" @click="isBurgerOpen = false">Калькулятор трактатів</router-link>
+                        <router-link :to="{ name: 'tract-calc' }" @click="isBurgerOpen = false">Калькулятор трактатів</router-link>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
