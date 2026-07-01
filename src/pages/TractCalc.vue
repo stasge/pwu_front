@@ -331,17 +331,19 @@ onUnmounted(() => {
   left: 50%;
   z-index: 10;
   width: 100%;
+  max-width: 500px;
   max-height: 230px;
   overflow-y: auto;
   padding-right: 4px;
-  border: 1px solid var(--tract-border-color);
-  border-radius: 12px;
-  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(70px);
+  background: rgba(0, 0, 0, 0.5);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   transform: translateX(-50%);
   text-align: left;
   scrollbar-width: thin;
-  scrollbar-color: rgba(251, 210, 152, 0.5) rgba(248, 248, 248, 0.05);
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(248, 248, 248, 0.05);
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -354,11 +356,11 @@ onUnmounted(() => {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+    background: #f8f8f8;
     border-radius: 2px;
 
     &:hover {
-      background: linear-gradient(180deg, #f9f9f9 0%, #fbe5b8 70%, #fcd5a5 100%);
+      background: #f8f8f8;
     }
   }
 }
@@ -370,7 +372,7 @@ onUnmounted(() => {
   width: 100%;
   padding: 12px 16px;
   border: 0;
-  border-bottom: 1px solid #252525;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: transparent;
   color: inherit;
   text-align: left;
@@ -382,7 +384,7 @@ onUnmounted(() => {
   }
 
   &:hover {
-    background: #252525;
+    background: rgba(255, 255, 255, 0.05);
   }
 }
 
