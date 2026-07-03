@@ -94,14 +94,14 @@ function goBack() {
 
 function selectTractate(id: string) {
   if (!tractates.value[id]) return;
-  router.push({ name: 'tract-calc-result', params: { id } });
+  router.push({ name: 'tract-calculator-result', params: { id } });
 }
 
 function redirectIfInvalid() {
   if (!isDataLoaded.value) return;
 
   if (!tractateId.value || !tractates.value[tractateId.value]) {
-    router.replace({ name: 'tract-calc' });
+    router.replace({ name: 'tract-calculator' });
   }
 }
 
@@ -478,7 +478,11 @@ watch([tractateId, isDataLoaded], () => {
   cursor: pointer;
   text-align: left;
   transition: background 0.2s ease, transform 0.2s ease;
+  box-sizing: border-box;
   width: 130px;
+  max-width: 130px;
+  min-width: 0;
+  overflow: hidden;
 
   &:hover {
     background: rgba(248, 248, 248, 0.1);
@@ -516,14 +520,17 @@ watch([tractateId, isDataLoaded], () => {
 }
 
 .tract-result__card-name {
-  display: block;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   overflow: hidden;
   font-family: 'Candara', sans-serif;
   font-size: 13px;
   line-height: 1.3;
   color: rgba(248, 248, 248, 0.85);
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  word-break: break-all;
 }
 </style>

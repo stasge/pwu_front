@@ -125,13 +125,13 @@ const router = createRouter({
       component: Download,
     },
     {
-      path: "/tract-calc",
-      name: "tract-calc",
+      path: "/tract-calculator",
+      name: "tract-calculator",
       component: TractCalc,
     },
     {
-      path: "/tract-calc/:id",
-      name: "tract-calc-result",
+      path: "/tract-calculator/:id",
+      name: "tract-calculator-result",
       component: TractCalcResult,
     },
     {
