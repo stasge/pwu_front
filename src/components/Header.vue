@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/userStore';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import Login from '@/components/modals/login.vue';
 import Register from '@/components/modals/register.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
@@ -55,11 +55,21 @@ onMounted(async () => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
+    setBodyScrollLocked(false)
 })
 
 function toggleBurger() {
     isBurgerOpen.value = !isBurgerOpen.value
 }
+
+function setBodyScrollLocked(locked: boolean) {
+    document.documentElement.classList.toggle('overflow-hidden', locked)
+    document.body.classList.toggle('overflow-hidden', locked)
+}
+
+watch(isBurgerOpen, (open) => {
+    setBodyScrollLocked(open)
+})
 
 function toggleTools(event: MouseEvent) {
     event.stopPropagation()
@@ -121,6 +131,16 @@ function handleClickOutside(event: MouseEvent) {
                                         <img src="@/assets/icons/book-icon.svg" alt="" class="header-menu__dropdown-item-icon">
                                         <span>Калькулятор трактатів</span>
                                     </router-link>
+                                    <a
+                                        href="https://db.valor.in.ua/pet-skills"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="header-menu__dropdown-item flex align-items-center"
+                                        @click="isToolsOpen = false"
+                                    >
+                                        <img src="@/assets/icons/pet-skills-icon.svg" alt="" class="header-menu__dropdown-item-icon">
+                                        <span>Вміння вихованців</span>
+                                    </a>
                                 </div>
                             </Transition>
                         </li>
@@ -198,7 +218,10 @@ function handleClickOutside(event: MouseEvent) {
         </div>
         
         <!-- Burger Menu Content -->
-        <div class="header-burger-content" :class="{ 'header-burger-content--open': isBurgerOpen }">
+        <div
+            class="header-burger-content"
+            :class="{ 'header-burger-content--open': isBurgerOpen }"
+        >
             <div class="header-burger-menu">
                 <ul class="header-burger-list">
                     <li class="header-burger-item">
@@ -223,6 +246,10 @@ function handleClickOutside(event: MouseEvent) {
                     </li>
                     <li class="header-burger-item">
                         <router-link :to="{ name: 'tract-calculator' }" @click="isBurgerOpen = false">Калькулятор трактатів</router-link>
+                        <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
+                    </li>
+                    <li class="header-burger-item">
+                        <a href="https://db.valor.in.ua/pet-skills" target="_blank" rel="noopener noreferrer" @click="isBurgerOpen = false">Вміння вихованців</a>
                         <img src="@/assets/images/burger-menu-divider.svg" alt="divider" class="header-burger-divider">
                     </li>
                     <li class="header-burger-item">
@@ -374,8 +401,10 @@ function handleClickOutside(event: MouseEvent) {
             flex-direction: column;
             justify-content: center;
             width: fit-content;
-            height: 85px;
+            height: auto;
+            min-height: 85px;
             padding: 15px;
+            gap: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             backdrop-filter: blur(70px);
@@ -598,17 +627,35 @@ function handleClickOutside(event: MouseEvent) {
         right: 0;
         background: #0a0a0a;
         height: 0;
-        transition: 0.3s ease-out;
+        transition: height 0.3s ease-out;
         z-index: 1001;
         overflow: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
 
         &--open {
-            height: 100vh;
+            height: calc(100dvh - 100%);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(248, 248, 248, 0.35) transparent;
+
+            &::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                border-radius: 99px;
+                background: rgba(248, 248, 248, 0.35);
+            }
         }
     }
 
     &-burger-menu {
-        padding: 20px;
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
         display: flex;
         justify-content: center;
         position: relative;
