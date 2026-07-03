@@ -32,7 +32,7 @@ function handleSearchFocus() {
 function handleSearchSelect(id: string) {
   searchQuery.value = '';
   isResultsVisible.value = false;
-  router.push({ name: 'tract-calc-result', params: { id } });
+  router.push({ name: 'tract-calculator-result', params: { id } });
 }
 
 function handleDocumentClick(event: MouseEvent) {
@@ -48,7 +48,7 @@ onMounted(async () => {
 
   const legacyId = route.query.id;
   if (typeof legacyId === 'string' && tractates.value[legacyId]) {
-    router.replace({ name: 'tract-calc-result', params: { id: legacyId } });
+    router.replace({ name: 'tract-calculator-result', params: { id: legacyId } });
   }
 });
 
