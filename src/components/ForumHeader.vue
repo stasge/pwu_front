@@ -135,8 +135,8 @@ async function goBack() {
             </div>
             <div class="forum-header-right flex align-items-center">
                 <div class="forum-header-right__online flex align-items-center gap-1">
-                    <img v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" src="@/assets/images/online-indicator.svg" alt="online indicator">
-                    <img v-else src="@/assets/images/offline-indicator.svg" alt="offline indicator">
+                    <img v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online" src="@/assets/icons/online-indicator.png" alt="online indicator">
+                    <img v-else src="@/assets/icons/offline-indicator.png" alt="offline indicator">
                     <div class="forum-header-right__online-content flex align-items-center gap-1">
                         <span v-if="serverStatusCode && serverStatusCode.online && serverStatusCode.count_online">Онлайн:</span>
                         <span v-else>Офлайн</span>

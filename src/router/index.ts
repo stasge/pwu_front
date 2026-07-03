@@ -22,6 +22,8 @@ import About from "@/pages/AboutServer.vue";
 import AboutServer from "@/pages/AboutServer.vue";
 import AllNews from "@/pages/AllNews.vue";
 import NotFound from "@/pages/NotFound.vue";
+import TractCalc from "@/pages/TractCalc.vue";
+import TractCalcResult from "@/pages/TractCalcResult.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -121,6 +123,16 @@ const router = createRouter({
       path: "/download",
       name: "download-page",
       component: Download,
+    },
+    {
+      path: "/tract-calc",
+      name: "tract-calc",
+      component: TractCalc,
+    },
+    {
+      path: "/tract-calc/:id",
+      name: "tract-calc-result",
+      component: TractCalcResult,
     },
     {
       path: "/single-news/:id",
