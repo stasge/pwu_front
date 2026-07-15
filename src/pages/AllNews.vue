@@ -24,12 +24,56 @@ const currentPage = ref(1)
 const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
 
-const getRequestParams = (limit: number, page: number): FilterParams => {
+const getRequestParams = (limit: number, page: number, options?: 'news' | 'updates'): FilterParams => {
     const params: FilterParams = { limit, page }
-    if (selectedFilter.value !== 'all') {
+    if (options) {
+        params.options = options
+    } else if (selectedFilter.value !== 'all') {
         params.options = selectedFilter.value
     }
     return params
+}
+
+// Тимчасово: для "all" тягнемо news + updates окремо, щоб виключити сповіщення
+const mergeAndSortNews = (lists: News[][]) => {
+    const seen = new Set<number>()
+    const merged: News[] = []
+    for (const list of lists) {
+        for (const item of list) {
+            if (!seen.has(item.id)) {
+                seen.add(item.id)
+                merged.push(item)
+            }
+        }
+    }
+    return merged.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+}
+
+const fetchNewsExcludingNotifications = async (limit: number, page: number) => {
+    if (selectedFilter.value !== 'all') {
+        const { data } = await fetchGet('getNews', getRequestParams(limit, page))
+        return {
+            news: (data.news || []) as News[],
+            totalCount: (data.totalCount || 0) as number,
+        }
+    }
+
+    const [newsRes, updatesRes] = await Promise.all([
+        fetchGet('getNews', getRequestParams(limit, page, 'news')),
+        fetchGet('getNews', getRequestParams(limit, page, 'updates')),
+    ])
+
+    const news = mergeAndSortNews([
+        newsRes.data.news || [],
+        updatesRes.data.news || [],
+    ]).slice(0, limit)
+
+    return {
+        news,
+        totalCount: (newsRes.data.totalCount || 0) + (updatesRes.data.totalCount || 0),
+    }
 }
 
 // Отримуємо останню новину для верхнього блоку
@@ -93,20 +137,18 @@ const visiblePages = computed(() => {
 // Функція для завантаження останньої новини
 const loadLatestNews = async () => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', getRequestParams(3, 1))
-        // Фільтруємо приховані новини для звичайних користувачів
-        const filtered = (data.news || []).filter((n: News) => userStore.isAdmin || !n.isHidden)
-        // Беремо першу доступну новину
+        const { news } = await fetchNewsExcludingNotifications(3, 1)
+        const filtered = news.filter((n: News) => userStore.isAdmin || !n.isHidden)
         latestNewsItem.value = filtered.length > 0 ? filtered[0] : null
     })
 }
 
 // Функція для завантаження даних новин
-const loadNewsData = async (params?: FilterParams) => {
+const loadNewsData = async (limit = itemsPerPage, page = currentPage.value) => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', params ?? getRequestParams(itemsPerPage, currentPage.value))
-        allNews.value = data.news || []
-        totalCount.value = data.totalCount || 0
+        const { news, totalCount: count } = await fetchNewsExcludingNotifications(limit, page)
+        allNews.value = news
+        totalCount.value = count
     })
 }
 
@@ -114,7 +156,7 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        loadNewsData(getRequestParams(itemsPerPage, page))
+        loadNewsData(itemsPerPage, page)
     }
 }
 
@@ -132,25 +174,25 @@ const goToNextPage = () => {
 
 onMounted(() => {
     loadLatestNews()
-    loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+    loadNewsData()
 })
 
 // Завантажуємо новини при зміні фільтру
 watch(selectedFilter, () => {
     currentPage.value = 1
     loadLatestNews()
-    loadNewsData(getRequestParams(itemsPerPage, 1))
+    loadNewsData(itemsPerPage, 1)
 })
 // Видалення новини (для адміна)
 const deleteNews = async (id: number) => {
     await wrapAsyncCall(async () => {
         await fetchPost('deleteNews', { id })
         await loadLatestNews()
-        await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+        await loadNewsData()
         // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
         if (currentPage.value > totalPages.value) {
             currentPage.value = Math.max(1, totalPages.value)
-            await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+            await loadNewsData(itemsPerPage, currentPage.value)
         }
     })
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 import type { News } from '@/models/news';
@@ -9,8 +9,75 @@ import ServerLifetimeCounter from '@/components/ServerLifetimeCounter.vue';
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const news = ref<News[]>([])
+const notifications = ref<News[]>([])
 const currentSlide = ref(0)
 const isAnimating = ref(false)
+const notificationsListRef = ref<HTMLElement | null>(null)
+const showTopFade = ref(false)
+const showBottomFade = ref(false)
+const showLeftFade = ref(false)
+const showRightFade = ref(false)
+
+const isHorizontalActualLayout = () => window.innerWidth <= 1100
+
+const categoryColors: Record<string, string> = {
+    'технічне': '#577EEA',
+    'сповіщення': '#CD5151',
+    'оновлення': '#FBD298',
+}
+
+const formatNotificationDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    return `${day}/${month}`
+}
+
+const getCategoryColor = (label: string) => {
+    const key = label.toLowerCase().trim()
+    return categoryColors[key] ?? '#f8f8f8'
+}
+
+const visibleNotifications = computed(() => {
+    return notifications.value.filter(n => !n.isHidden)
+})
+
+const updateScrollFades = () => {
+    const el = notificationsListRef.value
+    if (!el) {
+        showTopFade.value = false
+        showBottomFade.value = false
+        showLeftFade.value = false
+        showRightFade.value = false
+        return
+    }
+
+    const threshold = 4
+
+    if (isHorizontalActualLayout()) {
+        const { scrollLeft, scrollWidth, clientWidth } = el
+        const canScroll = scrollWidth > clientWidth + threshold
+
+        showLeftFade.value = canScroll && scrollLeft > threshold
+        showRightFade.value = canScroll && scrollLeft + clientWidth < scrollWidth - threshold
+        showTopFade.value = false
+        showBottomFade.value = false
+        return
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = el
+    const canScroll = scrollHeight > clientHeight + threshold
+
+    showTopFade.value = canScroll && scrollTop > threshold
+    showBottomFade.value = canScroll && scrollTop + clientHeight < scrollHeight - threshold
+    showLeftFade.value = false
+    showRightFade.value = false
+}
+
+const syncScrollFades = async () => {
+    await nextTick()
+    updateScrollFades()
+}
 
 // Touch events для свайпу
 const touchStartX = ref(0)
@@ -27,18 +94,42 @@ const visibleNews = computed(() => {
 })
 
 onMounted(async () => {
-    await loadNews()
+    await Promise.all([loadNews(), loadNotifications()])
+    await syncScrollFades()
     
     emitter.on('login', () => {
         loadNews()
+        loadNotifications()
     })
+
+    window.addEventListener('resize', updateScrollFades)
 });
+
+onUnmounted(() => {
+    window.removeEventListener('resize', updateScrollFades)
+})
+
+watch(visibleNotifications, () => {
+    syncScrollFades()
+})
 
 const loadNews = async () => {
     await wrapAsyncCall( async () => {
         const {data} = await fetchGet('getNews', { limit: 5, options: 'news' })
         news.value = data.news || []
     })
+}
+
+const loadNotifications = async () => {
+    await wrapAsyncCall(async () => {
+        const { data } = await fetchGet('getNews', {
+            options: 'notification',
+            simple: true,
+            limit: 1000,
+        })
+        notifications.value = Array.isArray(data) ? data : (data?.news || [])
+    })
+    await syncScrollFades()
 }
 
 const nextSlide = () => {
@@ -126,6 +217,51 @@ const handleSwipe = () => {
     <div class="news-slider">
         <ServerLifetimeCounter />
 
+        <div class="news-layout">
+        <aside v-if="visibleNotifications.length > 0" class="news-actual">
+            <h2 class="news-actual__title">Актуальне</h2>
+            <div class="news-actual__list-wrap">
+                <div
+                    class="news-actual__fade news-actual__fade--top"
+                    :class="{ 'is-visible': showTopFade }"
+                />
+                <div
+                    class="news-actual__fade news-actual__fade--bottom"
+                    :class="{ 'is-visible': showBottomFade }"
+                />
+                <div
+                    class="news-actual__fade news-actual__fade--left"
+                    :class="{ 'is-visible': showLeftFade }"
+                />
+                <div
+                    class="news-actual__fade news-actual__fade--right"
+                    :class="{ 'is-visible': showRightFade }"
+                />
+                <div
+                    ref="notificationsListRef"
+                    class="news-actual__list"
+                    @scroll="updateScrollFades"
+                >
+                    <div
+                        v-for="item in visibleNotifications"
+                        :key="item.id"
+                        class="news-actual__item"
+                    >
+                        <div class="news-actual__meta">
+                            <span class="news-actual__date">{{ formatNotificationDate(item.created_at) }}</span>
+                            <span
+                                v-if="item.label"
+                                class="news-actual__tag"
+                                :style="{ color: getCategoryColor(item.label) }"
+                            >[{{ item.label }}]</span>
+                        </div>
+                        <p class="news-actual__text">{{ item.title }}</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="news-main">
         <div 
             v-if="visibleNews.length > 0" 
             class="slider-container"
@@ -239,11 +375,13 @@ const handleSwipe = () => {
              
              <!-- Кнопка "ВСІ НОВИНИ" -->
              <div>
-                <router-link :to="{name: 'all-news'}" class="fantasy-btn">
-                    <span>Новини Та Оновлення</span>
+                <router-link :to="{name: 'all-news'}" class="fantasy-btn medium">
+                    <span>Всі Новини</span>
                 </router-link>
              </div>
          </div>
+        </div>
+        </div>
     </div>
 </template>
 
@@ -251,14 +389,264 @@ const handleSwipe = () => {
 .news-slider {
     position: relative;
     width: 100%;
-    min-height: 500px;
-    max-width: 1110px;
+    min-height: 485px;
+    max-width: 1080px;
     padding: 0 15px 50px 15px;
     margin: 0 auto;
     padding-top: 50px;
 
     @media (max-width: 768px) {
         padding-top: 0;
+    }
+
+    .news-layout {
+        display: flex;
+        gap: 0;
+        align-items: flex-start;
+
+        @media (max-width: 1100px) {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    .news-main {
+        flex: 1;
+        min-width: 0;
+        max-width: 1110px;
+        order: 1;
+
+        @media (max-width: 1100px) {
+            max-width: 100%;
+            order: 2;
+        }
+    }
+
+    .news-actual {
+        width: 240px;
+        flex-shrink: 0;
+        padding: 40px 0 0 30px;
+        margin-left: 30px;
+        align-self: stretch;
+        position: relative;
+        order: 2;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(
+                to bottom,
+                transparent 3%,
+                rgba(248, 248, 248, 0.15) 44%,
+                rgba(248, 248, 248, 0.15) 38%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
+        @media (max-width: 1100px) {
+            order: 1;
+            width: 100%;
+            max-width: 100%;
+            margin: 40px 0 30px;
+            padding: 0;
+
+            @media (max-width: 768px) {
+                margin: 50px 0 50px 0;
+            }
+
+            &::before {
+                display: none;
+            }
+        }
+
+        &__title {
+            font-family: "VollkornSC", sans-serif;
+            font-weight: 400;
+            font-size: 20px;
+            line-height: 100%;
+            letter-spacing: -0.07em;
+            background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 24px;
+
+            @media (max-width: 1100px) {
+                display: none;
+            }
+        }
+
+        &__list-wrap {
+            position: relative;
+
+            @media (max-width: 1100px) {
+                width: 100%;
+            }
+        }
+
+        &__fade {
+            position: absolute;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+
+            &.is-visible {
+                opacity: 1;
+            }
+
+            &--top,
+            &--bottom {
+                left: 0;
+                right: 0;
+                height: 56px;
+
+                @media (max-width: 1100px) {
+                    display: none;
+                }
+            }
+
+            &--top {
+                top: 0;
+                background: linear-gradient(to bottom, #0a0a0a 0%, transparent 100%);
+            }
+
+            &--bottom {
+                bottom: 0;
+                background: linear-gradient(to top, #0a0a0a 0%, transparent 100%);
+            }
+
+            &--left,
+            &--right {
+                top: 0;
+                bottom: 0;
+                width: 48px;
+                display: none;
+
+                @media (max-width: 1100px) {
+                    display: block;
+                }
+            }
+
+            &--left {
+                left: 0;
+                background: linear-gradient(to right, #0a0a0a 0%, transparent 100%);
+            }
+
+            &--right {
+                right: 0;
+                background: linear-gradient(to left, #0a0a0a 0%, transparent 100%);
+            }
+        }
+
+        &__list {
+            position: relative;
+            max-height: 480px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            @media (max-width: 1100px) {
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                max-height: none;
+                overflow-x: auto;
+                overflow-y: hidden;
+                width: 100%;
+                padding: 0;
+            }
+        }
+
+        &__item {
+            margin-bottom: 24px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            @media (max-width: 1100px) {
+                position: relative;
+                flex: 0 0 auto;
+                margin-bottom: 0;
+                padding: 0 24px;
+                box-sizing: border-box;
+
+                &:first-child {
+                    padding-left: 0;
+                }
+
+                &:not(:first-child)::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 1px;
+                    background: linear-gradient(
+                        to bottom,
+                        transparent 0%,
+                        rgba(248, 248, 248, 0.15) 12%,
+                        rgba(248, 248, 248, 0.15) 88%,
+                        transparent 100%
+                    );
+                    pointer-events: none;
+                }
+            }
+
+            @media (hover: none) and (pointer: coarse) {
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
+
+        &__meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        &__date {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 100%;
+            color: rgba(248, 248, 248, 0.5);
+        }
+
+        &__tag {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 100%;
+            text-transform: uppercase;
+        }
+
+        &__text {
+            font-family: "Candara", sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 150%;
+            letter-spacing: -0.01em;
+            color: #f8f8f8;
+            margin: 0;
+
+            @media (max-width: 1100px) {
+                font-size: 15px;
+            }
+        }
     }
     
     
@@ -274,8 +662,8 @@ const handleSwipe = () => {
         
         @media (max-width: 768px) {
             flex-direction: column;
-            gap: 50px;
-            height: 600px;
+            gap: 0px;
+            height: 500px;
         }
     }
 
@@ -303,6 +691,7 @@ const handleSwipe = () => {
             position: static;
             width: 100%;
             height: 100%;
+            transform: translateY(0);
         }
         
     }
@@ -455,11 +844,8 @@ const handleSwipe = () => {
             transition: all 0.3s ease;
 
             img {
-                
-                @media (max-width: 768px) {
-                    width: 40px;
-                    height: 40px;
-                }
+                width: 36px;
+                height: 36px;
             }
 
             &:active {
@@ -486,7 +872,7 @@ const handleSwipe = () => {
     
     .slider-pagination {
         display: flex;
-        gap: 8px;
+        gap: 20px;
 
         &.desktop {
 
@@ -504,8 +890,8 @@ const handleSwipe = () => {
         }
         
         .pagination-dot {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
             border: none;
             background: transparent;
             cursor: pointer;
