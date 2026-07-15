@@ -305,6 +305,19 @@ a {
     }
   }
 
+  &.medium {
+    font-size: 20px;
+    
+    &::before {
+      height: 51px;
+      left: -19px;
+    }
+
+    &::after {
+      height: 51px;
+    }
+  }
+
   &.danger {
     background: url("@/assets/images/button-bg-danger.svg") no-repeat center / cover;
 

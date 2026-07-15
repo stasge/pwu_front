@@ -16,20 +16,73 @@ const userStore = useUserStore()
 const allNews = ref<News[]>([])
 const latestNewsItem = ref<News | null>(null)
 const totalCount = ref(0)
-type NewsFilter = 'news' | 'updates' | 'all'
-type FilterParams = { options?: 'news' | 'updates'; limit?: number; page?: number }
+type NewsFilter = 'news' | 'updates' | 'notification' | 'all'
+type FilterOptions = 'news' | 'updates' | 'notification'
+type FilterParams = { options?: FilterOptions; limit?: number; page?: number }
 const selectedFilter = ref<NewsFilter>('all')
 const sortBy = ref('newest')
 const currentPage = ref(1)
 const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
 
-const getRequestParams = (limit: number, page: number): FilterParams => {
+const typeLabels: Record<string, string> = {
+    news: 'Новини',
+    updates: 'Оновлення',
+    notification: 'Сповіщення',
+}
+
+const getTypeLabel = (type: string) => typeLabels[type] || type
+
+const getRequestParams = (limit: number, page: number, options?: FilterOptions): FilterParams => {
     const params: FilterParams = { limit, page }
-    if (selectedFilter.value !== 'all') {
+    if (options) {
+        params.options = options
+    } else if (selectedFilter.value !== 'all') {
         params.options = selectedFilter.value
     }
     return params
+}
+
+// Тимчасово: для "all" тягнемо news + updates окремо, щоб виключити сповіщення
+const mergeAndSortNews = (lists: News[][]) => {
+    const seen = new Set<number>()
+    const merged: News[] = []
+    for (const list of lists) {
+        for (const item of list) {
+            if (!seen.has(item.id)) {
+                seen.add(item.id)
+                merged.push(item)
+            }
+        }
+    }
+    return merged.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+}
+
+const fetchNewsByFilter = async (limit: number, page: number) => {
+    if (selectedFilter.value !== 'all') {
+        const { data } = await fetchGet('getNews', getRequestParams(limit, page))
+        return {
+            news: (data.news || []) as News[],
+            totalCount: (data.totalCount || 0) as number,
+        }
+    }
+
+    const [newsRes, updatesRes] = await Promise.all([
+        fetchGet('getNews', getRequestParams(limit, page, 'news')),
+        fetchGet('getNews', getRequestParams(limit, page, 'updates')),
+    ])
+
+    const news = mergeAndSortNews([
+        newsRes.data.news || [],
+        updatesRes.data.news || [],
+    ]).slice(0, limit)
+
+    return {
+        news,
+        totalCount: (newsRes.data.totalCount || 0) + (updatesRes.data.totalCount || 0),
+    }
 }
 
 // Отримуємо останню новину для верхнього блоку
@@ -93,20 +146,23 @@ const visiblePages = computed(() => {
 // Функція для завантаження останньої новини
 const loadLatestNews = async () => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', getRequestParams(3, 1))
-        // Фільтруємо приховані новини для звичайних користувачів
-        const filtered = (data.news || []).filter((n: News) => userStore.isAdmin || !n.isHidden)
-        // Беремо першу доступну новину
+        // Для сповіщень верхній hero не потрібен
+        if (selectedFilter.value === 'notification') {
+            latestNewsItem.value = null
+            return
+        }
+        const { news } = await fetchNewsByFilter(3, 1)
+        const filtered = news.filter((n: News) => userStore.isAdmin || !n.isHidden)
         latestNewsItem.value = filtered.length > 0 ? filtered[0] : null
     })
 }
 
 // Функція для завантаження даних новин
-const loadNewsData = async (params?: FilterParams) => {
+const loadNewsData = async (limit = itemsPerPage, page = currentPage.value) => {
     wrapAsyncCall(async () => {
-        const { data } = await fetchGet('getNews', params ?? getRequestParams(itemsPerPage, currentPage.value))
-        allNews.value = data.news || []
-        totalCount.value = data.totalCount || 0
+        const { news, totalCount: count } = await fetchNewsByFilter(limit, page)
+        allNews.value = news
+        totalCount.value = count
     })
 }
 
@@ -114,7 +170,7 @@ const loadNewsData = async (params?: FilterParams) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        loadNewsData(getRequestParams(itemsPerPage, page))
+        loadNewsData(itemsPerPage, page)
     }
 }
 
@@ -132,25 +188,25 @@ const goToNextPage = () => {
 
 onMounted(() => {
     loadLatestNews()
-    loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+    loadNewsData()
 })
 
 // Завантажуємо новини при зміні фільтру
 watch(selectedFilter, () => {
     currentPage.value = 1
     loadLatestNews()
-    loadNewsData(getRequestParams(itemsPerPage, 1))
+    loadNewsData(itemsPerPage, 1)
 })
 // Видалення новини (для адміна)
 const deleteNews = async (id: number) => {
     await wrapAsyncCall(async () => {
         await fetchPost('deleteNews', { id })
         await loadLatestNews()
-        await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+        await loadNewsData()
         // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
         if (currentPage.value > totalPages.value) {
             currentPage.value = Math.max(1, totalPages.value)
-            await loadNewsData(getRequestParams(itemsPerPage, currentPage.value))
+            await loadNewsData(itemsPerPage, currentPage.value)
         }
     })
 }
@@ -246,6 +302,16 @@ const deleteNews = async (id: number) => {
                             />
                             <span>Оновлення</span>
                         </label>
+
+                        <label v-if="userStore.isAdmin" class="search-filters__radio">
+                            <input 
+                                v-model="selectedFilter" 
+                                type="radio" 
+                                value="notification" 
+                                name="filter"
+                            />
+                            <span>Сповіщення</span>
+                        </label>
                        
                     </div>
                 </div>
@@ -267,7 +333,7 @@ const deleteNews = async (id: number) => {
                     :key="newsItem.id"
                     class="news-grid__card"
                 >
-                    <div class="news-grid__image-container">
+                    <div class="news-grid__image-container" v-if="newsItem.image">
                         <img 
                             :src="baseURL + '/files/' + newsItem.image" 
                             :alt="newsItem.title"
@@ -285,7 +351,13 @@ const deleteNews = async (id: number) => {
                     </div>
                     <div class="news-grid__content">
                         <div class="news-grid__category flex justify-content-between align-items-center">
-                            {{ newsItem.type === 'news' ? 'Новини' : 'Оновлення' }}
+                            <span class="flex align-items-center gap-2">
+                                {{ getTypeLabel(newsItem.type) }}
+                                <span
+                                    v-if="userStore.isAdmin && newsItem.isHidden && !newsItem.image"
+                                    class="news-grid__hidden-badge news-grid__hidden-badge--inline"
+                                >Прихована</span>
+                            </span>
                             <!-- Адмін кнопки -->
                             <div v-if="userStore.isAdmin" class="news-grid__admin-controls">
                                 <button 
@@ -305,6 +377,7 @@ const deleteNews = async (id: number) => {
                         <div class="news-grid__meta">
                             <span class="news-grid__date">{{ new Date(newsItem.created_at).toLocaleDateString('uk-UA') }}</span>
                             <router-link 
+                                v-if="newsItem.type !== 'notification' || userStore.isAdmin"
                                 :to="{name: 'single-news', params: {id: newsItem.id}}" 
                                 class="news-grid__read-more"
                             >
@@ -801,6 +874,15 @@ const deleteNews = async (id: number) => {
         text-transform: uppercase;
         letter-spacing: 0.03em;
         font-weight: 700;
+
+        &--inline {
+            position: static;
+            display: inline-flex;
+            align-items: center;
+            -webkit-text-fill-color: #0a0a0a;
+            background-clip: border-box;
+            -webkit-background-clip: border-box;
+        }
     }
 
     &__image {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import InputText from 'primevue/inputtext';
@@ -11,7 +11,7 @@ import { editorConfig } from '@/utils/ckeditorConfig';
 import { useRoute } from 'vue-router';
 import type { News } from '@/models/news';
 import useVuelidate from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
+import { required, requiredIf } from '@vuelidate/validators';
 
 const { wrapAsyncCall } = useAsyncCallWrapper();
 const route = useRoute()
@@ -28,18 +28,23 @@ const form = reactive({
     image: null as File | null | string
 });
 
-const rules = {
-    title: {required},
-    text: {required},
-    image: {required},
-    type: {required},
-}
+const rules = computed(() => ({
+    title: { required },
+    text: { required },
+    image: { required: requiredIf(() => form.type !== 'notification') },
+    type: { required },
+}))
 
 const v$ = useVuelidate(rules, form)
 
+const typesWithLabel = ['updates', 'notification']
+
+const hasLabelField = (type: string) => typesWithLabel.includes(type)
+
 const typeOptions = [
     { label: 'Новини', value: 'news' },
-    { label: 'Оновлення', value: 'updates' }
+    { label: 'Оновлення', value: 'updates' },
+    { label: 'Сповіщення', value: 'notification' },
 ]
 
 onMounted(() => {
@@ -64,7 +69,7 @@ const handleSubmit = async () => {
     }
     const formData = new FormData();
     formData.append('title', form.title);
-    formData.append('label', form.type === 'updates' ? form.label : '');
+    formData.append('label', form.label);
     formData.append('isHidden', `${form.isHidden}`);
     formData.append('text', form.text);
     formData.append('link', form.link);
@@ -83,8 +88,11 @@ const handleSubmit = async () => {
 };
 
 watch(() => form.type, (newType) => {
-    if (newType !== 'updates') {
+    if (!hasLabelField(newType)) {
         form.label = ''
+    }
+    if (newType === 'notification') {
+        v$.value.image.$reset()
     }
 })
 
@@ -139,7 +147,7 @@ const fillForm = async (id: string) => {
                 />
             </div>
 
-            <div v-if="form.type === 'updates'" class="flex flex-column gap-2">
+            <div v-if="hasLabelField(form.type)" class="flex flex-column gap-2">
                 <label for="label">Лейбл</label>
                 <InputText id="label" type="text" v-model="form.label" />
             </div>
@@ -150,7 +158,10 @@ const fillForm = async (id: string) => {
             </div>
 
             <div class="flex flex-column gap-3">
-                <label for="image">Зображення</label>
+                <label for="image">
+                    Зображення
+                    <span v-if="form.type === 'notification'" class="optional-label">(необов'язково)</span>
+                </label>
                 <input type="file" id="image" @change="handleImageUpload" class="w-max" />
                 <small class="text-red" v-if="v$.image.$error">Додайте картинку</small>
                 <img v-if="previewImage" style="max-width: 200px;aspect-ratio: 16/9;" :src="previewImage" alt="#">
@@ -180,6 +191,12 @@ const fillForm = async (id: string) => {
 
     button {
         align-self: flex-end;
+    }
+
+    .optional-label {
+        opacity: 0.65;
+        font-weight: 400;
+        font-size: 0.9em;
     }
 
     .p-inputtext  {
