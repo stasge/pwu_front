@@ -16,15 +16,24 @@ const userStore = useUserStore()
 const allNews = ref<News[]>([])
 const latestNewsItem = ref<News | null>(null)
 const totalCount = ref(0)
-type NewsFilter = 'news' | 'updates' | 'all'
-type FilterParams = { options?: 'news' | 'updates'; limit?: number; page?: number }
+type NewsFilter = 'news' | 'updates' | 'notification' | 'all'
+type FilterOptions = 'news' | 'updates' | 'notification'
+type FilterParams = { options?: FilterOptions; limit?: number; page?: number }
 const selectedFilter = ref<NewsFilter>('all')
 const sortBy = ref('newest')
 const currentPage = ref(1)
 const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
 
-const getRequestParams = (limit: number, page: number, options?: 'news' | 'updates'): FilterParams => {
+const typeLabels: Record<string, string> = {
+    news: 'Новини',
+    updates: 'Оновлення',
+    notification: 'Сповіщення',
+}
+
+const getTypeLabel = (type: string) => typeLabels[type] || type
+
+const getRequestParams = (limit: number, page: number, options?: FilterOptions): FilterParams => {
     const params: FilterParams = { limit, page }
     if (options) {
         params.options = options
@@ -51,7 +60,7 @@ const mergeAndSortNews = (lists: News[][]) => {
     )
 }
 
-const fetchNewsExcludingNotifications = async (limit: number, page: number) => {
+const fetchNewsByFilter = async (limit: number, page: number) => {
     if (selectedFilter.value !== 'all') {
         const { data } = await fetchGet('getNews', getRequestParams(limit, page))
         return {
@@ -137,7 +146,12 @@ const visiblePages = computed(() => {
 // Функція для завантаження останньої новини
 const loadLatestNews = async () => {
     wrapAsyncCall(async () => {
-        const { news } = await fetchNewsExcludingNotifications(3, 1)
+        // Для сповіщень верхній hero не потрібен
+        if (selectedFilter.value === 'notification') {
+            latestNewsItem.value = null
+            return
+        }
+        const { news } = await fetchNewsByFilter(3, 1)
         const filtered = news.filter((n: News) => userStore.isAdmin || !n.isHidden)
         latestNewsItem.value = filtered.length > 0 ? filtered[0] : null
     })
@@ -146,7 +160,7 @@ const loadLatestNews = async () => {
 // Функція для завантаження даних новин
 const loadNewsData = async (limit = itemsPerPage, page = currentPage.value) => {
     wrapAsyncCall(async () => {
-        const { news, totalCount: count } = await fetchNewsExcludingNotifications(limit, page)
+        const { news, totalCount: count } = await fetchNewsByFilter(limit, page)
         allNews.value = news
         totalCount.value = count
     })
@@ -288,6 +302,16 @@ const deleteNews = async (id: number) => {
                             />
                             <span>Оновлення</span>
                         </label>
+
+                        <label v-if="userStore.isAdmin" class="search-filters__radio">
+                            <input 
+                                v-model="selectedFilter" 
+                                type="radio" 
+                                value="notification" 
+                                name="filter"
+                            />
+                            <span>Сповіщення</span>
+                        </label>
                        
                     </div>
                 </div>
@@ -309,7 +333,7 @@ const deleteNews = async (id: number) => {
                     :key="newsItem.id"
                     class="news-grid__card"
                 >
-                    <div class="news-grid__image-container">
+                    <div class="news-grid__image-container" v-if="newsItem.image">
                         <img 
                             :src="baseURL + '/files/' + newsItem.image" 
                             :alt="newsItem.title"
@@ -327,7 +351,13 @@ const deleteNews = async (id: number) => {
                     </div>
                     <div class="news-grid__content">
                         <div class="news-grid__category flex justify-content-between align-items-center">
-                            {{ newsItem.type === 'news' ? 'Новини' : 'Оновлення' }}
+                            <span class="flex align-items-center gap-2">
+                                {{ getTypeLabel(newsItem.type) }}
+                                <span
+                                    v-if="userStore.isAdmin && newsItem.isHidden && !newsItem.image"
+                                    class="news-grid__hidden-badge news-grid__hidden-badge--inline"
+                                >Прихована</span>
+                            </span>
                             <!-- Адмін кнопки -->
                             <div v-if="userStore.isAdmin" class="news-grid__admin-controls">
                                 <button 
@@ -347,6 +377,7 @@ const deleteNews = async (id: number) => {
                         <div class="news-grid__meta">
                             <span class="news-grid__date">{{ new Date(newsItem.created_at).toLocaleDateString('uk-UA') }}</span>
                             <router-link 
+                                v-if="newsItem.type !== 'notification' || userStore.isAdmin"
                                 :to="{name: 'single-news', params: {id: newsItem.id}}" 
                                 class="news-grid__read-more"
                             >
@@ -843,6 +874,15 @@ const deleteNews = async (id: number) => {
         text-transform: uppercase;
         letter-spacing: 0.03em;
         font-weight: 700;
+
+        &--inline {
+            position: static;
+            display: inline-flex;
+            align-items: center;
+            -webkit-text-fill-color: #0a0a0a;
+            background-clip: border-box;
+            -webkit-background-clip: border-box;
+        }
     }
 
     &__image {

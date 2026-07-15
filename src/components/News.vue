@@ -237,7 +237,7 @@ const handleSwipe = () => {
                     class="news-actual__fade news-actual__fade--right"
                     :class="{ 'is-visible': showRightFade }"
                 />
-                <div
+                    <div
                     ref="notificationsListRef"
                     class="news-actual__list"
                     @scroll="updateScrollFades"
@@ -669,7 +669,7 @@ const handleSwipe = () => {
 
     .slider-content-container {
         width: 100%;
-        max-width: 240px;
+        max-width: 140px;
         position: relative;
         @media (max-width: 768px) {
             max-width: 100%;
@@ -953,7 +953,7 @@ const handleSwipe = () => {
     
     .slider-image {
         max-width: 850px;
-        max-height: 610px;
+        max-height: 485px;
         width: 100%;
         height: 100%;
         position: relative;
@@ -995,7 +995,7 @@ const handleSwipe = () => {
          left: 0;
          width: 50%;
          bottom: 0;
-         background: linear-gradient(to right, #0A0A0A 0%, transparent 100%);
+         background: linear-gradient(to right, #0A0A0A 6%, transparent 100%);
          pointer-events: none;
          z-index: 1;
      }
