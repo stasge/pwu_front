@@ -7,14 +7,16 @@ import { useTractCalcData } from '@/composables/useTractCalcData';
 import type { PyramidItem } from '@/types/tractCalc';
 import {
   buildPyramidLevels,
-  countAll,
+  computeRemainingRequirements,
   formatTractateMeta,
   getTractateIcon,
 } from '@/utils/tractCalc';
+import { useTractCalcInventory } from '@/composables/useTractCalcInventory';
 
 const route = useRoute();
 const router = useRouter();
 const { tractates, isDataLoaded, loadData } = useTractCalcData();
+const { ownedCounts, adjustOwned, toggleOwned, clearInventory } = useTractCalcInventory();
 
 const collapsedSections = ref<Set<string | number>>(new Set());
 
@@ -34,15 +36,34 @@ const tractateMeta = computed(() => {
 
 const pyramidLevels = computed(() => {
   if (!tractateId.value || !currentTractate.value) return [];
-  return buildPyramidLevels(tractates.value, tractateId.value);
+  return buildPyramidLevels(
+    tractates.value,
+    tractateId.value,
+    ownedCounts.value,
+  );
 });
 
 const materialTotals = computed(() => {
   if (!tractateId.value || !currentTractate.value) {
     return { fragments: 0, pages: 0 };
   }
-  return countAll(tractates.value, tractateId.value);
+  return computeRemainingRequirements(
+    tractates.value,
+    tractateId.value,
+    ownedCounts.value,
+  );
 });
+
+const fullMaterialTotals = computed(() => {
+  if (!tractateId.value || !currentTractate.value) {
+    return { fragments: 0, pages: 0 };
+  }
+  return computeRemainingRequirements(tractates.value, tractateId.value);
+});
+
+const hasOwnedTractates = computed(() =>
+  Object.values(ownedCounts.value).some((count) => count > 0),
+);
 
 const materialItems = computed<PyramidItem[]>(() => {
   const items: PyramidItem[] = [];
@@ -52,6 +73,8 @@ const materialItems = computed<PyramidItem[]>(() => {
       id: 'fragment',
       name: 'Уривок небесної сторінки',
       count: materialTotals.value.fragments,
+      totalCount: fullMaterialTotals.value.fragments,
+      ownedCount: 0,
       description: '',
       icon: '/tract-calc/iconset/m/灵魂图腾.webp',
     });
@@ -62,6 +85,8 @@ const materialItems = computed<PyramidItem[]>(() => {
       id: 'page',
       name: 'Небесна сторінка',
       count: materialTotals.value.pages,
+      totalCount: fullMaterialTotals.value.pages,
+      ownedCount: 0,
       description: '',
       icon: '/tract-calc/iconset/m/天书_无字天书.webp',
     });
@@ -95,6 +120,16 @@ function goBack() {
 function selectTractate(id: string) {
   if (!tractates.value[id]) return;
   router.push({ name: 'tract-calculator-result', params: { id } });
+}
+
+function onToggleOwned(item: PyramidItem, event: Event) {
+  event.stopPropagation();
+  toggleOwned(item.id, item.totalCount);
+}
+
+function onAdjustOwned(item: PyramidItem, delta: number, event: Event) {
+  event.stopPropagation();
+  adjustOwned(item.id, delta, item.totalCount);
 }
 
 function redirectIfInvalid() {
@@ -145,8 +180,24 @@ watch([tractateId, isDataLoaded], () => {
             <p v-if="tractateMeta" class="tract-result__meta">
               {{ tractateMeta }}
             </p>
+            <p class="tract-result__hint">
+              Позначте вже готові трактати — калькулятор автоматично перерахує, скільки ще потрібно зібрати.
+            </p>
           </div>
         </header>
+
+        <div
+          v-if="hasOwnedTractates"
+          class="tract-result__inventory-actions"
+        >
+          <button
+            type="button"
+            class="tract-result__inventory-reset"
+            @click="clearInventory"
+          >
+            Скинути позначені трактати
+          </button>
+        </div>
 
         <div class="tract-result__levels">
           <section
@@ -181,25 +232,76 @@ watch([tractateId, isDataLoaded], () => {
             >
               <div class="tract-result__row-collapse-inner">
                 <div class="tract-result__row-content">
-                  <button
+                  <article
                     v-for="item in level.items"
                     :key="item.id"
-                    type="button"
                     class="tract-result__card"
-                    @click="selectTractate(item.id)"
+                    :class="{
+                      'tract-result__card--owned': item.ownedCount > 0,
+                      'tract-result__card--complete': item.count === 0,
+                    }"
                   >
-                    <div class="tract-result__card-top">
-                      <img
-                        :src="item.icon"
-                        :alt="item.name"
-                        class="tract-result__card-icon"
-                        width="40"
-                        height="40"
-                      >
-                      <span class="tract-result__card-count">x{{ item.count }}</span>
+                    <button
+                      type="button"
+                      class="tract-result__card-main"
+                      @click="selectTractate(item.id)"
+                    >
+                      <div class="tract-result__card-top">
+                        <img
+                          :src="item.icon"
+                          :alt="item.name"
+                          class="tract-result__card-icon"
+                          width="40"
+                          height="40"
+                        >
+                        <span class="tract-result__card-count">
+                          <template v-if="item.count === 0">Готово</template>
+                          <template v-else>x{{ item.count }}</template>
+                        </span>
+                      </div>
+                      <span class="tract-result__card-name">{{ item.name }}</span>
+                    </button>
+
+                    <div class="tract-result__card-owned">
+                      <template v-if="item.totalCount === 1">
+                        <label class="tract-result__owned-toggle">
+                          <input
+                            type="checkbox"
+                            class="tract-result__owned-checkbox"
+                            :checked="item.ownedCount > 0"
+                            @change="onToggleOwned(item, $event)"
+                          >
+                          <span class="tract-result__owned-label">Вже є</span>
+                        </label>
+                      </template>
+                      <template v-else>
+                        <span class="tract-result__owned-label">Є:</span>
+                        <div class="tract-result__owned-stepper">
+                          <button
+                            type="button"
+                            class="tract-result__owned-step"
+                            :disabled="item.ownedCount <= 0"
+                            aria-label="Зменшити кількість готових"
+                            @click="onAdjustOwned(item, -1, $event)"
+                          >
+                            −
+                          </button>
+                          <span class="tract-result__owned-value">
+                            {{ item.ownedCount }}
+                          </span>
+                          <button
+                            type="button"
+                            class="tract-result__owned-step"
+                            :disabled="item.ownedCount >= item.totalCount"
+                            aria-label="Збільшити кількість готових"
+                            @click="onAdjustOwned(item, 1, $event)"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </template>
                     </div>
-                    <span class="tract-result__card-name">{{ item.name }}</span>
-                  </button>
+                  </article>
                 </div>
               </div>
             </div>
@@ -352,6 +454,38 @@ watch([tractateId, isDataLoaded], () => {
   color: rgba(248, 248, 248, 0.85);
 }
 
+.tract-result__hint {
+  margin: 10px 0 0;
+  max-width: 720px;
+  font-family: 'Candara', sans-serif;
+  font-size: 14px;
+  line-height: 150%;
+  color: rgba(248, 248, 248, 0.65);
+}
+
+.tract-result__inventory-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.tract-result__inventory-reset {
+  padding: 8px 14px;
+  border: 1px solid rgba(248, 248, 248, 0.25);
+  border-radius: 8px;
+  background: rgba(248, 248, 248, 0.08);
+  color: rgba(248, 248, 248, 0.85);
+  font-family: 'Candara', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(248, 248, 248, 0.14);
+    border-color: rgba(248, 248, 248, 0.4);
+  }
+}
+
 .tract-result__levels {
   display: flex;
   flex-direction: column;
@@ -468,24 +602,28 @@ watch([tractateId, isDataLoaded], () => {
 .tract-result__card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   padding: 12px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 10px;
   backdrop-filter: blur(10px);
   background: rgba(248, 248, 248, 0.2);
   color: inherit;
-  cursor: pointer;
   text-align: left;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box;
   width: 130px;
   max-width: 130px;
   min-width: 0;
   overflow: hidden;
 
-  &:hover {
-    background: rgba(248, 248, 248, 0.1);
+  &--owned {
+    border-color: rgba(99, 209, 110, 0.45);
+    background: rgba(99, 209, 110, 0.12);
+  }
+
+  &--complete {
+    opacity: 0.72;
   }
 
   &--static {
@@ -494,6 +632,23 @@ watch([tractateId, isDataLoaded], () => {
     &:hover {
       transform: none;
     }
+  }
+}
+
+.tract-result__card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    opacity: 0.9;
   }
 }
 
@@ -532,5 +687,76 @@ watch([tractateId, isDataLoaded], () => {
   line-height: 1.3;
   color: rgba(248, 248, 248, 0.85);
   word-break: break-all;
+}
+
+.tract-result__card-owned {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+}
+
+.tract-result__owned-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tract-result__owned-checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: #63d16e;
+  cursor: pointer;
+}
+
+.tract-result__owned-label {
+  font-family: 'Candara', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  color: rgba(248, 248, 248, 0.75);
+}
+
+.tract-result__owned-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tract-result__owned-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(248, 248, 248, 0.25);
+  border-radius: 4px;
+  background: rgba(248, 248, 248, 0.08);
+  color: rgba(248, 248, 248, 0.9);
+  font-family: 'Candara', sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    background: rgba(248, 248, 248, 0.16);
+  }
+}
+
+.tract-result__owned-value {
+  min-width: 20px;
+  font-family: 'Candara', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+  color: rgba(248, 248, 248, 0.85);
 }
 </style>

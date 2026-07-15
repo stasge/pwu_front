@@ -34,9 +34,13 @@ export interface PyramidItem {
   id: string;
   name: string;
   count: number;
+  totalCount: number;
+  ownedCount: number;
   description: string;
   icon: string;
 }
+
+export type OwnedCounts = Record<string, number>;
 
 export interface PyramidLevel {
   level: number;

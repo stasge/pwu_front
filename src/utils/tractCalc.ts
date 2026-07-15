@@ -1,5 +1,6 @@
 import type {
   MaterialTotals,
+  OwnedCounts,
   PyramidItem,
   PyramidLevel,
   SearchResult,
@@ -108,16 +109,96 @@ export function collectCounts(
   return counts;
 }
 
-export function buildPyramidLevels(
+export interface RemainingRequirements {
+  counts: Record<string, number>;
+  fragments: number;
+  pages: number;
+}
+
+function processRemainingRequirements(
   tractates: Record<string, Tractate>,
   id: string,
-): PyramidLevel[] {
-  const counts = collectCounts(tractates, id);
-  const levels: Record<number, PyramidItem[]> = {};
+  inventory: OwnedCounts,
+  multiplier: number,
+  counts: Record<string, number>,
+  totals: MaterialTotals,
+): void {
+  const tractate = tractates[id];
+  if (!tractate) return;
 
-  Object.entries(counts).forEach(([tractateId, count]) => {
+  const materials = getMaterials(tractate);
+  if (materials.length === 0) return;
+
+  materials.forEach((material) => {
+    const childId = material.item_id;
+    const need = (material.value || 1) * multiplier;
+
+    if (childId === FRAGMENT_ITEM_ID) {
+      totals.fragments += need;
+      return;
+    }
+
+    if (childId === PAGE_ITEM_ID) {
+      totals.pages += need;
+      return;
+    }
+
+    if (!tractates[childId]) return;
+
+    const available = inventory[childId] || 0;
+    const useOwned = Math.min(available, need);
+    inventory[childId] = available - useOwned;
+    const stillNeed = need - useOwned;
+
+    if (stillNeed > 0) {
+      counts[childId] = (counts[childId] || 0) + stillNeed;
+      processRemainingRequirements(
+        tractates,
+        childId,
+        inventory,
+        stillNeed,
+        counts,
+        totals,
+      );
+    }
+  });
+}
+
+export function computeRemainingRequirements(
+  tractates: Record<string, Tractate>,
+  id: string,
+  ownedCounts: OwnedCounts = {},
+): RemainingRequirements {
+  const inventory = { ...ownedCounts };
+  const counts: Record<string, number> = {};
+  const totals: MaterialTotals = { fragments: 0, pages: 0 };
+
+  processRemainingRequirements(tractates, id, inventory, 1, counts, totals);
+
+  return { counts, ...totals };
+}
+
+function buildPyramidItemsFromCounts(
+  tractates: Record<string, Tractate>,
+  remainingCounts: Record<string, number>,
+  totalCounts: Record<string, number>,
+  ownedCounts: OwnedCounts,
+): PyramidLevel[] {
+  const levels: Record<number, PyramidItem[]> = {};
+  const tractateIds = new Set([
+    ...Object.keys(totalCounts),
+    ...Object.keys(remainingCounts),
+  ]);
+
+  tractateIds.forEach((tractateId) => {
     const tractate = tractates[tractateId];
     if (!tractate) return;
+
+    const totalCount = totalCounts[tractateId] || 0;
+    const remainingCount = remainingCounts[tractateId] || 0;
+    const ownedCount = Math.min(ownedCounts[tractateId] || 0, totalCount);
+
+    if (totalCount === 0) return;
 
     const level = tractate.level || 0;
     if (!levels[level]) levels[level] = [];
@@ -125,7 +206,9 @@ export function buildPyramidLevels(
     levels[level].push({
       id: tractateId,
       name: tractate.name,
-      count,
+      count: remainingCount,
+      totalCount,
+      ownedCount,
       description: tractate._description?.plain_text || '',
       icon: getTractateIcon(tractate, tractateId),
     });
@@ -136,8 +219,28 @@ export function buildPyramidLevels(
     .sort((a, b) => b - a)
     .map((level) => ({
       level,
-      items: levels[level],
+      items: levels[level].sort((a, b) => a.name.localeCompare(b.name, 'uk')),
     }));
+}
+
+export function buildPyramidLevels(
+  tractates: Record<string, Tractate>,
+  id: string,
+  ownedCounts: OwnedCounts = {},
+): PyramidLevel[] {
+  const totalCounts = collectCounts(tractates, id);
+  const { counts: remainingCounts } = computeRemainingRequirements(
+    tractates,
+    id,
+    ownedCounts,
+  );
+
+  return buildPyramidItemsFromCounts(
+    tractates,
+    remainingCounts,
+    totalCounts,
+    ownedCounts,
+  );
 }
 
 export function formatTractateMeta(level?: number, plainText?: string): string {
