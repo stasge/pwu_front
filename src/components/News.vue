@@ -35,7 +35,7 @@ const formatNotificationDate = (dateStr: string) => {
 
 const getCategoryColor = (label: string) => {
     const key = label.toLowerCase().trim()
-    return categoryColors[key] ?? '#f8f8f8'
+    return categoryColors[key] ?? categoryColors['оновлення']
 }
 
 const visibleNotifications = computed(() => {
@@ -631,7 +631,6 @@ const handleSwipe = () => {
             font-weight: 400;
             font-size: 14px;
             line-height: 100%;
-            text-transform: uppercase;
         }
 
         &__text {
