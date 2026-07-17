@@ -834,6 +834,10 @@ function onCloseCommentPicker() {
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.7);
+
+        @media (max-width: 768px) {
+            font-size: 24px;
+        }
     }
 
     &__content {
