@@ -997,6 +997,10 @@ const handleSwipe = () => {
          background: linear-gradient(to right, #0A0A0A 6%, transparent 100%);
          pointer-events: none;
          z-index: 1;
+
+         @media (max-width: 768px) {
+             display: none;
+         }
      }
     
      .all-news-btn {
