@@ -6,11 +6,6 @@ import { ref } from 'vue';
 
 const registerModal = ref()
 
-const handleDownload = () => {
-    // Тут має бути посилання на завантаження
-    window.open('https://files.valor.in.ua/VALOR_2.iso', '_blank');
-}
-
 const handleRegister = () => {
     registerModal.value?.showDia()
 }
@@ -22,7 +17,22 @@ const handleRegister = () => {
         <div class="download-page__hero">
             <h1 class="download-page__hero-title">Завантаження <br>Клієнта</h1>
             <div class="download-page__hero-buttons">
-                <button class="fantasy-btn" @click="handleDownload"><span>Завантажити</span></button>
+                <a
+                    class="download-page__hero-link"
+                    href="https://drive.google.com/file/d/1-QUAdZbmYoAAbLT-PqRCeDJ6xmFfkfTJ/view?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img src="@/assets/images/google-drive.png" alt="Завантажити з Google Drive">
+                </a>
+                <a
+                    class="download-page__hero-link"
+                    href="https://fex.net/uk/s/yapkmkd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img src="@/assets/images/fex-net.png" alt="Завантажити з FEX.NET">
+                </a>
             </div>
             <img src="@/assets/images/CTA-mask.png" class="download-page__hero-mask" alt="download page mask">
         </div>   
@@ -179,7 +189,22 @@ const handleRegister = () => {
              <img src="@/assets/images/CTA-mask.png" class="download-page__hero-mask-top" alt="download page mask top">
              <h1 class="download-page__hero-title">Завантаження <br>Клієнта</h1>
             <div class="download-page__hero-buttons">
-                <button class="fantasy-btn" @click="handleDownload"><span>Завантажити</span></button>
+                <a
+                    class="download-page__hero-link"
+                    href="https://drive.google.com/file/d/1-QUAdZbmYoAAbLT-PqRCeDJ6xmFfkfTJ/view?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img src="@/assets/images/google-drive.png" alt="Завантажити з Google Drive">
+                </a>
+                <a
+                    class="download-page__hero-link"
+                    href="https://fex.net/uk/s/yapkmkd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img src="@/assets/images/fex-net.png" alt="Завантажити з FEX.NET">
+                </a>
             </div>
              <img src="@/assets/images/CTA-mask.png" class="download-page__hero-mask" alt="download page mask">
         </div>          
@@ -345,10 +370,29 @@ const handleRegister = () => {
         }
     }
 
-    &__hero-button {
-        /* Використовуємо клас fantasy-btn для стилізації */
-        border: none;
-        background: transparent;
+    &__hero-link {
+        display: block;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+
+        img {
+            display: block;
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+
+        &:hover {
+            transform: scale(1.06);
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            img {
+                width: 72px;
+                height: 72px;
+            }
+        }
     }
 
     &__hero-mask {
