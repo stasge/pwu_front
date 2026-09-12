@@ -1,7 +1,8 @@
 <script setup lang='ts'>
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 import type { CharStats } from '@/models/rating';
@@ -11,6 +12,8 @@ import Footer from '@/components/Footer.vue';
 import Leaderboard1stIcon from '@/assets/images/leaderboard-1st.svg';
 import Leaderboard2ndIcon from '@/assets/images/leaderboard-2nd.svg';
 import Leaderboard3rdIcon from '@/assets/images/leaderboard-3rd.svg';
+
+type RatingMode = 'main' | 'marathon'
 
 const RaceNames = new Map<Race, string>([
   [Race.Warrior, "Воїн"],
@@ -26,7 +29,15 @@ const leadersWithIndex = computed(() =>
   leaders.value.map((item, index) => ({ index, ...item }))
 );
 
-const ratingMode = ref<'main' | 'marathon'>('main')
+const route = useRoute()
+const router = useRouter()
+
+const parseRatingMode = (value: unknown): RatingMode => {
+    const tab = Array.isArray(value) ? value[0] : value
+    return tab === 'marathon' ? 'marathon' : 'main'
+}
+
+const ratingMode = computed(() => parseRatingMode(route.query.tab))
 
 const {wrapAsyncCall} = useAsyncCallWrapper()
 
@@ -38,14 +49,22 @@ const getLeaderboard = async () => {
     })
 }
 
-const setRatingMode = (mode: 'main' | 'marathon') => {
-    ratingMode.value = mode
-    getLeaderboard()
+const setRatingMode = (mode: RatingMode) => {
+    if (mode === ratingMode.value) return
+
+    const query = { ...route.query }
+    if (mode === 'marathon') {
+        query.tab = 'marathon'
+    } else {
+        delete query.tab
+    }
+
+    router.replace({ query })
 }
 
-onMounted(async () => {
-    await getLeaderboard()
-})
+watch(ratingMode, () => {
+    getLeaderboard()
+}, { immediate: true })
 </script>
 <template>
     <Header />
@@ -55,7 +74,7 @@ onMounted(async () => {
             
             <h1 class="leaderboard__title mb-5 text-center">Таблиця лідерів</h1>
             
-            <!-- <div class="leaderboard__buttons mb-4 flex justify-content-center gap-3">
+            <div class="leaderboard__buttons mb-4 flex justify-content-center gap-3">
                 <button 
                     class="leaderboard__btn"
                     :class="{ 'leaderboard__btn--active': ratingMode === 'main' }"
@@ -70,7 +89,7 @@ onMounted(async () => {
                 >
                     Марафон прокачки
                 </button>
-            </div> -->
+            </div>
             
         <div class="table-wrapper">
             <!-- Corner icons -->
