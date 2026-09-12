@@ -57,7 +57,7 @@ const copyToClipboard = (text: string) => {
                     <span class="support-project__payment-label">Найменування отримувача:</span>
                     <div class="support-project__payment-value-container">
                         <span class="support-project__payment-value">ФОП Тимошенко Дарина Юріївна</span>
-                        <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('ФОП ГИЧАК ОЛЬГА ВОЛОДИМИРІВНА')">
+                        <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('ФОП Тимошенко Дарина Юріївна')">
                     </div>
                 </div>
                 
@@ -65,7 +65,7 @@ const copyToClipboard = (text: string) => {
                     <span class="support-project__payment-label">Рахунок отримувача (IBAN):</span>
                     <div class="support-project__payment-value-container">
                         <span class="support-project__payment-value">UA923052990000026000040719633</span>
-                        <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('UA153052990000026006024927081')">
+                        <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('UA923052990000026000040719633')">
                     </div>
                 </div>
                 
@@ -74,7 +74,7 @@ const copyToClipboard = (text: string) => {
                         <span class="support-project__payment-label">Код отримувача:</span>
                         <div class="support-project__payment-value-container">
                             <span class="support-project__payment-value">3657408504</span>
-                            <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('3356210484')">
+                            <img src="@/assets/images/copy-icon.svg" alt="Copy" class="support-project__payment-copy" @click="copyToClipboard('3657408504')">
                         </div>
                     </div>
                     <div class="support-project__payment-item-half">
