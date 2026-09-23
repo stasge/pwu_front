@@ -91,7 +91,7 @@ const payoutOptions = [
 </template>
 
 <style scoped lang="scss">
-@import './clan-bonus.scss';
+@use './clan-bonus';
 
 .clan-section__body {
     margin-top: 20px;

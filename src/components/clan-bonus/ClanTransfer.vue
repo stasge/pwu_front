@@ -52,7 +52,7 @@ const tiers = [
 </template>
 
 <style scoped lang="scss">
-@import './clan-bonus.scss';
+@use './clan-bonus';
 
 .tiers {
     list-style: none;
