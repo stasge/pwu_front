@@ -39,6 +39,12 @@ const handleDownload = () => {
             </div>
             <div class="hero__content-right w-full">
                 <div class="hero__content-right-logo-container">
+                    <svg width="0" height="0" style="position: absolute">
+                        <filter id="hero-black-to-alpha" color-interpolation-filters="sRGB">
+                            <feColorMatrix type="matrix"
+                                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.2 1.2 1.2 0 0" />
+                        </filter>
+                    </svg>
                     <video class="hero__content-right-logo-video" autoplay muted loop playsinline>
                         <source src="@/assets/video/Fireball.webm" type="video/webm">
                     </video>
@@ -126,7 +132,6 @@ const handleDownload = () => {
                 position: relative;
                 display: inline-block;
                 width: clamp(170px, 20vw, 274px);
-                isolation: isolate;
             }
 
             /* фоновий статичний логотип (нормальний режим) */
@@ -134,31 +139,20 @@ const handleDownload = () => {
                 position: relative;
                 width: 100%;
                 height: auto;
-                z-index: 1;
+                z-index: 2;
             }
 
-            /* відео зверху, обрізане маскою логотипа */
+            /* вогонь у кільці дракона зліва від VALOR; чорний фон -> прозорість через svg-фільтр
+               (screen тут не працює: .hero__content має власний z-index і не бачить фон) */
             &-logo-video {
                 position: absolute;
                 inset: 0;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                z-index: 2;
+                z-index: 1;
                 pointer-events: none;
-                mix-blend-mode: screen;
-
-                /* маска з PNG-лого (має бути з прозорістю) */
-                -webkit-mask-image: url('@/assets/images/hero-logo.png');
-                mask-image: url('@/assets/images/hero-logo.png');
-                -webkit-mask-size: contain;
-                mask-size: contain;
-                -webkit-mask-repeat: no-repeat;
-                mask-repeat: no-repeat;
-                -webkit-mask-position: center;
-                mask-position: center;
-
-                filter: contrast(1.6) brightness(1.2);
+                filter: contrast(1.6) brightness(1.2) url(#hero-black-to-alpha);
             }
 
             &-buttons {

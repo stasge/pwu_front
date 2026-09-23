@@ -3,11 +3,13 @@ import Hero from '@/components/Hero.vue'
 import News from '@/components/News.vue'
 import Steps from '@/components/Steps.vue'
 import TopDonators from '@/components/TopDonators.vue';
+import ClanBonusTabs from '@/components/clan-bonus/ClanBonusTabs.vue';
 </script>
 <template>
     <div class="content">
         <Hero />
         <News />
+        <ClanBonusTabs />
     </div>
 </template>
 
