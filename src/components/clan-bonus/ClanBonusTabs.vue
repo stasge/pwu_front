@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import ClanCashback from '@/components/clan-bonus/ClanCashback.vue';
 import ClanTransfer from '@/components/clan-bonus/ClanTransfer.vue';
+import LumaVideo from '@/components/base/LumaVideo.vue';
+import flamesVideo from '@/assets/video/Flames_Backdrop.mp4';
 import tabCashback from '@/assets/images/clan-bonus/tab-cashback.png';
 import tabCashbackHover from '@/assets/images/clan-bonus/tab-cashback-hover.png';
 import tabTransfer from '@/assets/images/clan-bonus/tab-transfer.png';
@@ -59,9 +61,7 @@ onBeforeUnmount(() => {
                 <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.2 1.2 1.2 0 0" />
             </filter>
         </svg>
-        <video class="clan-tabs__flames" autoplay muted loop playsinline>
-            <source src="@/assets/video/Flames_Backdrop.mp4" type="video/mp4">
-        </video>
+        <LumaVideo class="clan-tabs__flames" :src="flamesVideo" />
         <button v-for="tab in tabs" :key="tab.id" class="clan-tabs__tab" :aria-label="tab.title" @click="open(tab.id)">
             <img :src="tab.img" alt="" class="clan-tabs__tab-img">
             <img :src="tab.imgHover" alt="" class="clan-tabs__tab-img clan-tabs__tab-img--hover">
@@ -115,6 +115,11 @@ onBeforeUnmount(() => {
         transform: translateY(-50%);
         pointer-events: none;
         filter: url(#clan-tabs-black-to-alpha);
+
+        /* мобільні: альфу вже порахував LumaVideo у canvas */
+        &.luma-canvas {
+            filter: none;
+        }
     }
 
     &__tab {

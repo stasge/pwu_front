@@ -7,6 +7,8 @@ import LoginModal from '@/components/modals/login.vue';
 import RecoverPass from '@/components/modals/RecoverPass.vue';
 import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useRouter } from 'vue-router';
+import LumaVideo from '@/components/base/LumaVideo.vue';
+import fireballVideo from '@/assets/video/Fireball.webm';
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -45,9 +47,7 @@ const handleDownload = () => {
                                 values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.2 1.2 1.2 0 0" />
                         </filter>
                     </svg>
-                    <video class="hero__content-right-logo-video" autoplay muted loop playsinline>
-                        <source src="@/assets/video/Fireball.webm" type="video/webm">
-                    </video>
+                    <LumaVideo class="hero__content-right-logo-video" :src="fireballVideo" type="video/webm" />
                     <img class="hero__content-right-logo" src="@/assets/images/hero-logo.png" alt="hero right">
                 </div>
                 <h1 class="hero__content-right-title">
@@ -153,6 +153,11 @@ const handleDownload = () => {
                 z-index: 1;
                 pointer-events: none;
                 filter: contrast(1.6) brightness(1.2) url(#hero-black-to-alpha);
+
+                /* мобільні: альфу вже порахував LumaVideo у canvas */
+                &.luma-canvas {
+                    filter: contrast(1.6) brightness(1.2);
+                }
             }
 
             &-buttons {
