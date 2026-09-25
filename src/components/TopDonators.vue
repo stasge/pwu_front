@@ -9,7 +9,7 @@ const donators = ref([
     'PalpatinTOP',
     'Dendroid',
     'хххРАЙххх',
-    'Unknown',
+    'Zebrahead',
     'Анонім',
     'Verity',
 ]);
