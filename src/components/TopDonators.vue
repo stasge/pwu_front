@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 const donators = ref([
     'Рома', 
-    'Hidden',
+    'COCK',
     'Anonymous',
     'Gev99',
     'PalpatinTOP',
