@@ -15,6 +15,7 @@ import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
 import { useI18n } from 'vue-i18n'
 import AllRefersModal from './modals/AllRefersModal.vue';
+import GoldTotal from './GoldTotal.vue';
 
 const {t} = useI18n()
 const changeGameAccPassRef = ref()
@@ -288,6 +289,7 @@ const show = () => {
                     <span>Створити</span>
                 </button>
             </div>
+            <GoldTotal />
         </div>
     </div>
     <Modal v-model:showed="showed">
