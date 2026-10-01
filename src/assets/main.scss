@@ -275,7 +275,7 @@ a {
 }
 
 .fantasy-btn {
-  background: url("@/assets/images/button-bg.svg") no-repeat center / cover;
+  background: url("@/assets/images/button-bg.svg") no-repeat center / 100% 100%;
   border: none;
   font-weight: 400;
   font-size: 24px;
@@ -319,7 +319,7 @@ a {
   }
 
   &.danger {
-    background: url("@/assets/images/button-bg-danger.svg") no-repeat center / cover;
+    background: url("@/assets/images/button-bg-danger.svg") no-repeat center / 100% 100%;
 
     &::before {
       background: url("@/assets/images/button-bg-left-danger.svg") no-repeat center / contain;
@@ -327,6 +327,30 @@ a {
 
     &::after {
       background: url("@/assets/images/button-bg-right-danger.svg") no-repeat center / contain;
+    }
+  }
+
+  // Тонка кнопка висотою 36px
+  &.thin {
+    height: 36px;
+    padding: 0 6px;
+    font-size: 14px;
+    background: url("@/assets/images/thin-fantasy-btn-bg.png") no-repeat center / 100% 100%;
+
+    &::before,
+    &::after {
+      width: 12px;
+      height: 36px;
+    }
+
+    &::before {
+      left: -12px;
+      background: url("@/assets/images/thin-fantasy-btn-bg-left.png") no-repeat center / 100% 100%;
+    }
+
+    &::after {
+      right: -12px;
+      background: url("@/assets/images/thin-fantasy-btn-bg-right.png") no-repeat center / 100% 100%;
     }
   }
 

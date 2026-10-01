@@ -24,6 +24,7 @@ import AllNews from "@/pages/AllNews.vue";
 import NotFound from "@/pages/NotFound.vue";
 import TractCalc from "@/pages/TractCalc.vue";
 import TractCalcResult from "@/pages/TractCalcResult.vue";
+import TopUpStats from "@/pages/TopUpStats.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -118,6 +119,12 @@ const router = createRouter({
       path: "/support-project",
       name: "support-project",
       component: SupportProject,
+    },
+    {
+      path: "/top-up",
+      name: "top-up",
+      component: TopUpStats,
+      meta: { requiresAuth: true },
     },
     {
       path: "/download",

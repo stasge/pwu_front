@@ -4,7 +4,7 @@ import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import Modal from '@/components/base/modal.vue'
 import Button from 'primevue/button';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { maxLength, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import { useToast } from 'vue-toastification';
@@ -15,6 +15,7 @@ import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
 import { useI18n } from 'vue-i18n'
 import AllRefersModal from './modals/AllRefersModal.vue';
+import { formatGold, useGoldTotals } from '@/composables/useGoldTotals';
 
 const {t} = useI18n()
 const changeGameAccPassRef = ref()
@@ -128,6 +129,18 @@ const show = () => {
     resetForm()
     showed.value = true
 }
+
+const { data: goldTotals, loading: goldLoading, error: goldError, load: loadGoldTotals } = useGoldTotals()
+
+onMounted(() => loadGoldTotals())
+
+// Перезавантажуємо суму, коли змінюється набір активних ігрових акаунтів (видалення / відновлення / створення)
+watch(
+    () => (userStore.user?.game_user ?? []).map(acc => `${acc.id_game}:${acc.is_deleted}`).join(','),
+    (value, oldValue) => {
+        if (value !== oldValue) loadGoldTotals()
+    }
+)
 </script>
 <template>
     <div class="profile">
@@ -155,7 +168,7 @@ const show = () => {
                     
                     <div class="profile__personal-header flex justify-content-between align-items-center">
                         <h2 class="profile__block-title">Персональні дані</h2>
-                        <button class="profile__change-password-btn profile__change-password-btn--desktop fantasy-btn small" @click="changePass">
+                        <button class="profile__change-password-btn profile__change-password-btn--desktop fantasy-btn small thin" @click="changePass">
                             <img src="@/assets/images/feather.svg" alt="Edit">
                             <span>Змінити пароль</span>
                         </button>
@@ -177,23 +190,31 @@ const show = () => {
                         </div>
                         
                         <div class="profile__personal-info flex flex-column gap-3">
-                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                            <div class="profile__personal-info-row flex flex-wrap gap-2 align-items-center">
                                 <span class="profile__personal-info-label">Email:</span>
                                 <span>{{ userStore.user?.email }}</span>
-                                <img v-if="userStore.user?.is_verified" src="@/assets/images/email-verification.svg" alt="Verified" class="profile__verification-icon">
-                                <img v-else src="@/assets/images/email-verification-red.svg" alt="Verified" class="profile__verification-icon">
-                                <span v-if="userStore.user?.is_verified" class="profile__verified-text">Вериф.</span>
-                                <span v-else class="profile__verified-text-red">Не вериф.</span>
+                                <svg
+                                    class="profile__verification-icon"
+                                    :class="{ 'profile__verification-icon--unverified': !userStore.user?.is_verified }"
+                                    width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                    role="img"
+                                    :aria-label="userStore.user?.is_verified ? 'Пошту верифіковано' : 'Пошту не верифіковано'"
+                                >
+                                    <title>{{ userStore.user?.is_verified ? 'Пошту верифіковано' : 'Пошту не верифіковано' }}</title>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.62061 12.0068L3.83892 8.42256C3.83892 8.42256 -0.00207991 10.3737 8.45085e-07 10.4125C2.59782 11.1057 5.73258 13.8437 7.08506 15.5C9.42962 12.1108 12.7935 8.81816 15.6719 7.01589C15.013 5.80283 15.0823 2.09431 16 0.5C10.7127 5.62953 6.62061 12.0068 6.62061 12.0068Z" fill="currentColor"/>
+                                </svg>
                             </div>
-                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
-                                <span class="profile__personal-info-label">Логін:</span>
-                                <span>{{ userStore.user?.username }}</span>
+                            <div class="profile__personal-info-row flex flex-wrap column-gap-5 row-gap-2 align-items-center">
+                                <span class="flex gap-2 align-items-center">
+                                    <span class="profile__personal-info-label">Логін:</span>
+                                    <span>{{ userStore.user?.username }}</span>
+                                </span>
+                                <span class="flex gap-2 align-items-center">
+                                    <span class="profile__game-accounts-label">Ігрові акаунти:</span>
+                                    <span>{{ userStore.user?.game_user.length }}</span>
+                                </span>
                             </div>
-                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
-                                <span class="profile__game-accounts-label">Ігрові акаунти:</span>
-                                <span>{{ userStore.user?.game_user.length }}</span>
-                            </div>
-                            <div class="profile__personal-info-row flex flex-wrap gap-3 align-items-center">
+                            <div class="profile__personal-info-row flex flex-wrap gap-2 align-items-center">
                                 <span class="profile__personal-info-label">Номер телефону:</span>
                                 <span v-if="userStore.user?.phone">{{ userStore.user?.phone }}</span>
                                 <span v-else>Відсутній</span>
@@ -206,12 +227,36 @@ const show = () => {
                             </div>
                         </div>
                     </div>
-                    <button class="profile__change-password-btn profile__change-password-btn--mobile fantasy-btn small" @click="changePass">
+                    <button class="profile__change-password-btn profile__change-password-btn--mobile fantasy-btn small thin" @click="changePass">
                         <img src="@/assets/images/feather.svg" alt="Edit">
                         <span>Змінити пароль</span>
                     </button>
                 </div>
                 
+                <!-- Блок ПОПОВНЕННЯ -->
+                <div class="profile__top-up">
+                    <div class="profile__block-corner profile__block-corner--top-left"></div>
+                    <div class="profile__block-corner profile__block-corner--top-right"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-left"></div>
+                    <div class="profile__block-corner profile__block-corner--bottom-right"></div>
+
+                    <h2 class="profile__block-title text-center">Поповнення</h2>
+
+                    <div class="profile__top-up-total" :class="{ 'profile__top-up-total--loading': goldLoading }">
+                        <img src="@/assets/images/clan-bonus/3-gold.svg" alt="Gold">
+                        <span>{{ goldTotals ? formatGold(goldTotals.total.adjustedGold) : '—' }}</span>
+                    </div>
+                    <p v-if="goldError" class="profile__top-up-text profile__top-up-text--error">{{ goldError }}</p>
+                    <p v-else class="profile__top-up-text">
+                        Загальна кількість голди, поповненої на всі ваші ігрові акаунти за весь час.
+                    </p>
+
+                    <router-link :to="{ name: 'top-up' }" class="profile__top-up-btn fantasy-btn small thin">
+                        <img src="@/assets/images/clan-bonus/gold.svg" alt="Gold">
+                        <span>Статистика поповнень</span>
+                    </router-link>
+                </div>
+
                 <!-- Блок РЕФЕРАЛЬНА ПРОГРАМА -->
                 <div class="profile__referral">
                     <div class="profile__block-corner profile__block-corner--top-left"></div>
@@ -219,7 +264,7 @@ const show = () => {
                     <div class="profile__block-corner profile__block-corner--bottom-left"></div>
                     <div class="profile__block-corner profile__block-corner--bottom-right"></div>
                     
-                    <h2 class="profile__block-title text-center">Реферальна програма</h2>
+                    <h2 class="profile__block-title text-center">Рефералка</h2>
                     
                     <div v-if="userStore.user?.my_ref" class="profile__referral-content flex flex-column gap-4">
                         <div class="profile__referral-code-wrapper">
@@ -230,9 +275,9 @@ const show = () => {
                             </div>
                         </div>
                         
-                        <button class="profile__referral-list-btn fantasy-btn small" @click="allRefersModalRef.showDia()">
+                        <button class="profile__referral-list-btn fantasy-btn small thin" @click="allRefersModalRef.showDia()">
                             <img src="@/assets/images/ref-icon.svg" alt="Referrals">
-                            <span>Список рефералів</span>
+                            <span>Мої реферали</span>
                         </button>
                     </div>
                 </div>
@@ -245,7 +290,7 @@ const show = () => {
                 
                 <div class="profile__right-header flex justify-content-between align-items-center mb-4">
                     <h2 class="profile__right-title text-center md:text-left flex-grow-1">Ігрові акаунти</h2>
-                    <button class="fantasy-btn small profile__create-btn profile__create-btn--desktop" @click="show()">
+                    <button class="fantasy-btn small thin profile__create-btn profile__create-btn--desktop" @click="show()">
                         <img src="@/assets/images/Plus.svg" alt="Plus">
                         <span>Створити</span>
                     </button>
@@ -283,7 +328,7 @@ const show = () => {
                         </div>
                     </div>
                 </div>
-                <button class="fantasy-btn small profile__create-btn profile__create-btn--mobile" @click="show()">
+                <button class="fantasy-btn small thin profile__create-btn profile__create-btn--mobile" @click="show()">
                     <img src="@/assets/images/Plus.svg" alt="Plus">
                     <span>Створити</span>
                 </button>
@@ -378,9 +423,16 @@ const show = () => {
             flex-direction: column;
             gap: 15px;
         }
+
+        > * {
+            @media (max-width: 767px) {
+                flex: 0 0 auto !important;
+            }
+        }
     }
 
     &__personal,
+    &__top-up,
     &__referral {
         position: relative;
         padding: clamp(20px, 3vw, 30px);
@@ -390,18 +442,87 @@ const show = () => {
     }
 
     &__personal {
-        max-width: 717px;
+        flex: 1 1 510px;
+        min-width: 0;
 
         @media (max-width: 991px) {
-            max-width: 100%;
+            flex-basis: 100%;
+        }
+    }
+
+    &__top-up {
+        flex: 0 1 315px;
+        min-width: 270px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        @media (max-width: 991px) {
+            flex: 1 1 0;
+        }
+    }
+
+    &__top-up-total {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        transition: opacity 0.2s ease;
+
+        img {
+            width: 38px;
+            height: auto;
+        }
+
+        span {
+            font-size: 36px;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        &--loading { opacity: 0.5; }
+    }
+
+    &__top-up-text {
+        margin: 10px 0 10px;
+        font-family: "Candara", sans-serif;
+        font-size: 13px;
+        line-height: 1.2;
+        color: rgba(248, 248, 248, 0.5);
+
+        &--error { color: #ff6b6b; }
+    }
+
+    &__top-up-btn {
+        margin-top: auto;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        font-size: 14px !important;
+        white-space: nowrap;
+        text-decoration: none;
+
+        img {
+            position: relative;
+            z-index: 2;
+            width: 16px;
         }
     }
 
     &__referral {
-        max-width: 343px;
+        flex: 0 1 218px;
+        min-width: 200px;
+        padding-left: 20px;
+        padding-right: 20px;
+        display: flex;
+        flex-direction: column;
 
         @media (max-width: 991px) {
-            max-width: 100%;
+            flex: 1 1 0;
         }
     }
 
@@ -467,8 +588,8 @@ const show = () => {
     }
 
     &__avatar {
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         background: rgba(93, 119, 144, 0.1);
         display: flex;
@@ -543,16 +664,13 @@ const show = () => {
     }
 
     &__verification-icon {
-        width: 20px;
-        height: 20px;
-    }
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        color: #AEE961;
 
-    &__verified-text {
-        color: #AEE961 !important;
-        font-size: 12px;
-
-        &-red {
-            color: #FF0000 !important;
+        &--unverified {
+            color: #FF0000;
         }
     }
 
@@ -599,6 +717,7 @@ const show = () => {
     }
 
     &__referral-content {
+        flex: 1;
         align-items: center;
     }
 
@@ -614,7 +733,7 @@ const show = () => {
 
     &__referral-label {
         color: #f8f8f8;
-        font-size: 16px;
+        font-size: 14px;
         margin: 0;
         opacity: 0.5;
     }
@@ -628,7 +747,8 @@ const show = () => {
 
     &__referral-code {
         font-weight: 400;
-        font-size: 42px;
+        font-size: 22px;
+        white-space: nowrap;
         line-height: 120%;
         letter-spacing: -0.04em;
         background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
@@ -649,7 +769,7 @@ const show = () => {
 
     &__referral-list-btn {
         align-self: center;
-        margin-top: 20px;
+        margin-top: auto;
     }
 
     &__right {
