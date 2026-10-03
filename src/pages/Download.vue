@@ -19,7 +19,7 @@ const handleRegister = () => {
             <div class="download-page__hero-buttons">
                 <a
                     class="download-page__hero-link"
-                    href="https://drive.google.com/file/d/1-QUAdZbmYoAAbLT-PqRCeDJ6xmFfkfTJ/view?usp=sharing"
+                    href="https://drive.google.com/file/d/1ziZ83od-PeOZgvTT_Zcxylem_kKBW6iB/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -191,7 +191,7 @@ const handleRegister = () => {
             <div class="download-page__hero-buttons">
                 <a
                     class="download-page__hero-link"
-                    href="https://drive.google.com/file/d/1-QUAdZbmYoAAbLT-PqRCeDJ6xmFfkfTJ/view?usp=sharing"
+                    href="https://drive.google.com/file/d/1ziZ83od-PeOZgvTT_Zcxylem_kKBW6iB/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
