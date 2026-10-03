@@ -221,6 +221,13 @@ import Footer from "@/components/Footer.vue";
         </ul>
         Порушення цього правила може призвести до тимчасового або постійного блокування акаунта.
       </li>
+      <li>
+        <span class="block font-bold">Заборона «ферми» у PvP</span>
+        У PvP заборонено використання <strong>«ферми»</strong> — одночасне керування кількома персонажами через стороннє ПЗ та автоматизацію асисту по лідеру групи.
+        <p class="mt-2">
+          Для подання скарги необхідно надати <strong>скріншоти або відеозапис</strong> порушення. Після перевірки та підтвердження використання такої автоматизації залучені персонажі блокуються на <strong>1 добу</strong>.
+        </p>
+      </li>
     </ol>
     <img src="@/assets/images/download-divider.svg" class="terms-page__divider w-full" alt="terms page divider">
 
