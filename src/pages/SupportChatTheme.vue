@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
 import { fetchPost, fetchPut, fetchDelete } from '@/utils/fetchApi';
-import type { Message } from '@/models/theme';
+import type { Message, Theme } from '@/models/theme';
 import { required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import { formatKyivDateTime } from '@/utils/dateUtils';
@@ -10,7 +10,7 @@ import { useUserStore } from '@/stores/userStore';
 import { ClassicEditor } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 import { createEditorConfig } from '@/utils/ckeditorConfig';
-import Button from 'primevue/button';
+import Corners from '@/components/base/Corners.vue';
 
 
 const userStore = useUserStore()
@@ -24,7 +24,9 @@ const page = ref(1)
 const limit = ref(10)
 const total = ref(0)
 const isLoading = ref(false)
-const theme = ref<Message | null>(null)
+const theme = ref<Theme | null>(null)
+// state === 1 — тема закрита, доступний лише перегляд
+const isClosed = computed(() => !!theme.value?.state)
 const editingMessageId = ref<number | string | null>(null)
 const editingText = ref('')
 const editingEditor = ref<any>(null)
@@ -129,6 +131,7 @@ onMounted(() => {
 });
 
 const sendMessage = async () => {
+    if (isClosed.value) return
     if (!await v$.value.$validate()) {
         return
     }
@@ -165,7 +168,7 @@ const closeImageFullscreen = () => {
 };
 
 const canEditMessage = (message: Message) => {
-    if (!userStore.user) return false;
+    if (!userStore.user || isClosed.value) return false;
     // Не можна редагувати перше повідомлення (текст теми)
     if (typeof message.id === 'string' && message.id === 'theme-text') return false;
     // Кожен може редагувати тільки свої повідомлення
@@ -173,7 +176,7 @@ const canEditMessage = (message: Message) => {
 };
 
 const canDeleteMessage = (message: Message) => {
-    if (!userStore.user) return false;
+    if (!userStore.user || isClosed.value) return false;
     // Не можна видаляти перше повідомлення (текст теми)
     if (typeof message.id === 'string' && message.id === 'theme-text') return false;
     // Кожен може видаляти тільки свої повідомлення
@@ -229,113 +232,111 @@ const deleteMessage = async (messageId: number) => {
     }
 };
 
+// Перше повідомлення — текст самої теми
+const isTopic = (message: Message) => (message.id as number | string) === 'theme-text';
+
 </script>
 <template>
-    <div class="chat-support-theme">
-        <div class="chat-support-theme__inner">
-            <div class="chat-support-theme__container">
-                <h1 class="chat-support-theme__title">Повідомлення</h1>
-                <div class="chat-support-theme__messages messages" @scroll="handleScroll" ref="messagesContainer"
-                    style="max-height: 55vh; overflow-y: auto;">
-                    <div v-if="messages.length" class="messages__item item" v-for="message in messages"
-                        :key="message.id" :class="{ 'flex-row-reverse': message.is_admin }">
-                        <div class="item__avatar flex align-items-center justify-content-center">
-                            <svg v-if="!message.user?.avatar" class="writer__avatar" width="30" height="30"
-                                viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z"
-                                    fill="#e26f0f" />
-                                <path
-                                    d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z"
-                                    fill="#e26f0f" />
-                            </svg>
-                            <img v-else :src="filesBase + message.user.avatar" alt="Avatar" />
-                        </div>
-                        <div class="item__content">
-                            <div class="item__header">
-                                <span class="item__username">{{ message.user.username }}</span>
-                                <div class="item__header-right">
-                                    <span class="item__date">{{ formatKyivDateTime(message.created_at) }}</span>
-                                    <div v-if="canEditMessage(message) || canDeleteMessage(message)" class="item__actions">
-                                        <button 
-                                            v-if="canEditMessage(message)" 
-                                            @click="startEditing(message)" 
-                                            class="item__action-btn"
-                                            :disabled="editingMessageId !== null && editingMessageId !== message.id"
-                                            title="Редагувати">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="blue" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </button>
-                                        <button 
-                                            v-if="canDeleteMessage(message)" 
-                                            @click="deleteMessage(message.id)" 
-                                            class="item__action-btn item__action-btn--delete"
-                                            :disabled="editingMessageId !== null"
-                                            title="Видалити">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </button>
-                                    </div>
+    <div class="ticket">
+        <router-link :to="{ name: 'support-chat' }" class="ticket__back">
+            <i class="pi pi-arrow-left"></i>
+            <span>До всіх тем</span>
+        </router-link>
+
+        <div class="ticket__header">
+            <h1 class="ticket__title">{{ theme?.name || 'Повідомлення' }}</h1>
+            <span v-if="theme" class="ticket__badge" :class="{ 'ticket__badge--closed': isClosed }">
+                <i v-if="isClosed" class="pi pi-lock"></i>
+                {{ isClosed ? 'Закрита' : 'Відкрита' }}
+            </span>
+        </div>
+
+        <div class="ticket__panel">
+            <Corners />
+            <div class="ticket__messages custom-scroll" @scroll="handleScroll" ref="messagesContainer">
+                <div v-if="isLoading" class="ticket__state">Завантаження...</div>
+
+                <div v-for="message in messages" :key="message.id" class="msg"
+                    :class="{ 'msg--admin': message.is_admin, 'msg--topic': isTopic(message) }">
+                    <div class="msg__avatar">
+                        <img v-if="message.user?.avatar" :src="filesBase + message.user.avatar" alt="Avatar" />
+                        <svg v-else width="26" height="26" viewBox="0 0 50 50" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M25 24.9997C29.6023 24.9997 33.3333 21.2687 33.3333 16.6663C33.3333 12.064 29.6023 8.33301 25 8.33301C20.3976 8.33301 16.6666 12.064 16.6666 16.6663C16.6666 21.2687 20.3976 24.9997 25 24.9997Z"
+                                fill="currentColor" />
+                            <path
+                                d="M41.6667 39.583V41.6663C41.6667 42.2189 41.4472 42.7488 41.0565 43.1395C40.6658 43.5302 40.1359 43.7497 39.5834 43.7497H10.4167C9.86417 43.7497 9.33427 43.5302 8.94357 43.1395C8.55287 42.7488 8.33337 42.2189 8.33337 41.6663V39.583C8.33337 36.2678 9.65033 33.0884 11.9945 30.7442C14.3387 28.4 17.5182 27.083 20.8334 27.083H29.1667C32.4819 27.083 35.6613 28.4 38.0055 30.7442C40.3497 33.0884 41.6667 36.2678 41.6667 39.583Z"
+                                fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="msg__bubble">
+                        <div class="msg__header">
+                            <div class="msg__author">
+                                <span class="msg__username">{{ message.user.username }}</span>
+                                <span v-if="message.is_admin" class="msg__role">Адміністрація</span>
+                                <span v-if="isTopic(message)" class="msg__role msg__role--topic">Тема</span>
+                            </div>
+                            <div class="msg__header-right">
+                                <span class="msg__date">{{ formatKyivDateTime(message.created_at) }}</span>
+                                <div v-if="canEditMessage(message) || canDeleteMessage(message)" class="msg__actions">
+                                    <button v-if="canEditMessage(message)" type="button" class="msg__action"
+                                        :disabled="editingMessageId !== null && editingMessageId !== message.id"
+                                        title="Редагувати" @click="startEditing(message)">
+                                        <i class="pi pi-pencil"></i>
+                                    </button>
+                                    <button v-if="canDeleteMessage(message)" type="button"
+                                        class="msg__action msg__action--delete" :disabled="editingMessageId !== null"
+                                        title="Видалити" @click="deleteMessage(message.id)">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div>
-                                <svg class="item__romb" :class="{ 'reverced': message.is_admin }" width="20" height="26"
-                                    viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M0.5 12.9999C13.9644 9.31125 21.6304 7.03946 35.5 0.5L35.5 25.1913C19.7721 16.4417 12.593 14.7101 0.5 12.9999Z"
-                                        fill="white" />
-                                </svg>
-                                <div v-if="editingMessageId === message.id" class="item__edit">
-                                    <ckeditor 
-                                        v-model="editingText" 
-                                        :editor="ClassicEditor" 
-                                        :config="updateEditorConfig"
-                                        @ready="(editor: any) => { 
-                                            editingEditor.value = editor; 
-                                            editor.setData(message.text);
-                                        }"
-                                    />
-                                    <div class="item__edit-actions">
-                                        <Button size="small" class="success" @click="saveEdit">Зберегти</Button>
-                                        <Button size="small" class="danger" @click="cancelEditing">Скасувати</Button>
-                                    </div>
-                                </div>
-                                <p v-else class="item__text" v-html="message.text" @click="(e) => {
-                                    const t = e.target as HTMLElement;
-                                    if (t && t.tagName === 'IMG') {
-                                        openImageFullscreen((t as HTMLImageElement).src);
-                                    }
-                                }"></p>
+                        </div>
+                        <div v-if="editingMessageId === message.id" class="msg__edit">
+                            <ckeditor v-model="editingText" :editor="ClassicEditor" :config="updateEditorConfig"
+                                @ready="(editor: any) => {
+                                    editingEditor = editor;
+                                    editor.setData(message.text);
+                                }" />
+                            <div class="msg__edit-actions">
+                                <button type="button" class="fantasy-btn small thin msg__save" @click="saveEdit">
+                                    <span>Зберегти</span>
+                                </button>
+                                <button type="button" class="ticket__link-btn" @click="cancelEditing">Скасувати</button>
                             </div>
                         </div>
-                    </div>
-                    <div v-else>
-                        <div class="text-center my-3 text-white">
-                            <span>Немає повідомлень</span>
-                        </div>
-                    </div>
-                    <div v-if="isLoading" class="text-center text-white my-2">
-                        <span>Завантаження...</span>
+                        <div v-else class="msg__text" v-html="message.text" @click="(e) => {
+                            const t = e.target as HTMLElement;
+                            if (t && t.tagName === 'IMG') {
+                                openImageFullscreen((t as HTMLImageElement).src);
+                            }
+                        }"></div>
                     </div>
                 </div>
-                <div v-if="userStore.user" class="comments__textarea mt-5">
-                    <form @submit.prevent="sendMessage">
-                        <div class="relative">
-                            <ckeditor v-model="form.text" :editor="ClassicEditor" :config="editorConfig" />
-                            <!-- <button @click.prevent="toggleEmojiPicker" class="emoji-button">😊</button> -->
-                            <!-- <EmojiPicker @onEmojiPicker="addEmoji" :showEmojiPicker="showEmojiPicker"
-                                class="emoji" /> -->
-                        </div>
-                        <button class="btn btn-sm mt-2">Відправити</button>
-                    </form>
-                </div>
+
+                <div v-if="!messages.length && !isLoading" class="ticket__state">Немає повідомлень</div>
             </div>
         </div>
 
+        <div v-if="isClosed" class="ticket__closed">
+            <i class="pi pi-lock"></i>
+            <div>
+                <p class="ticket__closed-title">Тема закрита</p>
+                <p class="ticket__closed-text">Писати нові повідомлення неможливо — доступний лише перегляд.</p>
+            </div>
+        </div>
+
+        <form v-else-if="userStore.user" class="ticket__reply" @submit.prevent="sendMessage">
+            <Corners />
+            <h2 class="ticket__reply-title">Ваша відповідь</h2>
+            <ckeditor v-model="form.text" :editor="ClassicEditor" :config="editorConfig" />
+            <button type="submit" class="fantasy-btn small ticket__send">
+                <span>Відправити</span>
+            </button>
+        </form>
     </div>
+
     <div v-if="fullscreenImage" id="fullscreen-image-modal" class="fullscreen-image-modal"
         @click.self="closeImageFullscreen">
         <img :src="fullscreenImage" alt="image" />
@@ -343,288 +344,396 @@ const deleteMessage = async (messageId: number) => {
     </div>
 </template>
 <style scoped lang="scss">
-.chat-support-theme {
-    width: 100%;
-    color: #fff;
+$gold-gradient: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
 
-    :deep(a) {
-        color: #e26f0f !important;
-        text-decoration: underline;
+.ticket {
+    width: 100%;
+    max-width: 1110px;
+    color: #f8f8f8;
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(248, 248, 248, 0.6);
+        font-size: 16px;
+        transition: color 0.2s ease;
+
+        i {
+            font-size: 13px;
+        }
+
+        &:hover {
+            color: #fadfae;
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 12px;
     }
 
     &__title {
-        font-weight: bold;
-        color: #fff;
-        text-align: center;
-        margin-bottom: 10px;
+        margin: 0;
+        min-width: 0;
+        font-size: clamp(28px, 3vw, 48px);
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: -0.05em;
+        overflow-wrap: anywhere;
+        background: $gold-gradient;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .messages {
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: rgba(17, 175, 25, 0.15);
+        color: #7ee083;
         font-family: "Candara", sans-serif;
-        color: black;
+        font-size: 14px;
+
+        i {
+            font-size: 12px;
+        }
+
+        &--closed {
+            background: rgba(214, 40, 40, 0.2);
+            color: #ff8a8a;
+        }
+    }
+
+    &__panel {
+        position: relative;
+        margin-top: 24px;
+        padding: 10px;
+        border-radius: 5px;
+        background: rgba(26, 26, 26, 0.95);
+    }
+
+    &__messages {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        background-color: rgba(93, 119, 144, 0.1);
-        border-radius: 20px;
+        gap: 18px;
+        max-height: 60vh;
+        overflow-y: auto;
+        padding: 20px 20px 20px 10px;
+
+        @media (max-width: 767px) {
+            padding: 10px 6px 10px 0;
+            gap: 14px;
+        }
+    }
+
+    &__state {
         padding: 20px;
-        margin-top: 20px;
-
-        @media (max-width: 768px) {
-            padding: 10px;
-        }
-
-        scrollbar-width: thin;
-        scrollbar-color: #e26f0f rgba(93, 119, 144, 0.1);
-
-        &::-webkit-scrollbar {
-            width: 8px;
-            background: rgba(93, 119, 144, 0.1);
-            border-radius: 8px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: #e26f0f;
-            border-radius: 8px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-            background: #ff9800;
-        }
+        text-align: center;
+        color: rgba(248, 248, 248, 0.5);
+        font-size: 16px;
     }
 
-    .item {
+    &__closed {
+        position: relative;
         display: flex;
-        gap: 30px;
+        align-items: center;
+        gap: 16px;
+        margin-top: 20px;
+        padding: 20px 30px;
+        border-radius: 5px;
+        border-left: 3px solid #d62828;
+        background: rgba(214, 40, 40, 0.1);
 
-        @media (max-width: 768px) {
-            gap: 20px;
+        > i {
+            font-size: 24px;
+            color: #ff8a8a;
         }
 
-
-        &__avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: rgba(93, 119, 144, 0.2);
-
-            @media (max-width: 768px) {
-                width: 35px;
-                height: 35px;
-            }
-
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-        }
-
-        &__content {
-            background: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 80%;
-            position: relative;
-
-            * {
-                max-width: 100%;
-                height: auto;
-            }
-
-            ::v-deep(:is(ol, ul)) {
-                margin: 0;
-                padding-left: 15px;
-            }
-
-            ::v-deep(img) {
-                cursor: zoom-in;
-            }
-
-            @media (max-width: 768px) {
-                padding: 6px;
-            }
-
-        }
-
-        &__header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            gap: 20px;
-            align-items: center;
-        }
-
-        &__header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        &__username {
-            font-weight: bold;
-            color: #333;
-        }
-
-        &__date {
-            font-size: 0.8rem;
-        }
-
-        &__actions {
-            display: flex;
-            gap: 5px;
-            opacity: 1;
-            transition: opacity 0.2s;
-        }
-
-        &__action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            transition: color 0.2s;
-            border-radius: 4px;
-
-            &:hover:not(:disabled) {
-                color: #e26f0f;
-                background-color: rgba(226, 111, 15, 0.1);
-            }
-
-            &:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-
-            &--delete:hover:not(:disabled) {
-                color: #dc3545;
-                background-color: rgba(220, 53, 69, 0.1);
-            }
-
-            svg {
-                width: 16px;
-                height: 16px;
-            }
-        }
-
-        &__edit {
-            margin-top: 10px;
-
-            ::v-deep(.ck-editor) {
-                width: 100% !important;
-            }
-
-            ::v-deep(.ck-editor__editable_inline) {
-                min-height: 150px;
-            }
-        }
-
-        &__edit-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        &__text {
-            font-size: 0.9rem;
-            color: #333;
-            word-break: break-all;
-            overflow-wrap: anywhere;
-            max-width: 100%;
-        }
-
-        &__romb {
-            position: absolute;
-            top: 0;
-            left: -16px;
-
-            &.reverced {
-                left: auto;
-                right: -16px;
-                transform: rotate(180deg);
-            }
+        p {
+            margin: 0;
         }
     }
 
-    .emoji {
-        position: absolute;
-        top: 5px;
-        right: 10px;
-        z-index: 1000;
+    &__closed-title {
+        font-size: 20px;
+        color: #ff8a8a;
     }
 
-    .emoji-button {
-        position: absolute;
-        top: 5px;
-        right: 10px;
-        z-index: 1000;
-        background: none;
-        border: none;
-        font-size: 24px;
-        cursor: pointer;
-        margin-bottom: 8px;
+    &__closed-text {
+        margin-top: 4px !important;
+        font-family: "Candara", sans-serif;
+        font-size: 15px;
+        color: rgba(248, 248, 248, 0.7);
     }
 
-    ::v-deep(.ck-editor) {
-        width: clamp(300px, 70vw, 887px) !important;
+    &__reply {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        padding: clamp(20px, 3vw, 30px);
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
 
-        @media (min-width: 1080px) {
+        :deep(.ck-editor) {
             width: 100% !important;
         }
 
-        @media (max-width: 768px) {
-            width: 90vw !important;
+        :deep(.ck-editor__editable_inline) {
+            min-height: 160px;
+            word-break: break-word;
+        }
+
+        :deep(.ck-content) {
+            min-height: 160px;
         }
     }
 
-    ::v-deep(.ck-editor__editable_inline) {
-        word-break: break-word;
-        min-height: 200px;
+    &__reply-title {
+        margin: 0 0 16px;
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.03em;
     }
 
-    .comments__edit-notice {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: rgba(226, 111, 15, 0.2);
-        border: 1px solid #e26f0f;
-        border-radius: 8px;
-        padding: 10px 15px;
-        margin-bottom: 10px;
-        color: #fff;
-        font-size: 0.9rem;
-
-        span {
-            font-weight: 500;
-        }
+    &__send {
+        align-self: flex-end;
+        margin: 20px 20px 0;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
     }
 
-    .comments__edit-cancel {
-        background: none;
+    &__link-btn {
+        padding: 0;
         border: none;
-        cursor: pointer;
-        color: #fff;
-        padding: 4px;
+        border-bottom: 1px solid rgba(248, 248, 248, 0.5);
+        background: none;
+        color: rgba(248, 248, 248, 0.7);
+        font-family: "VollkornSC", sans-serif;
+        font-size: 15px;
+        line-height: 1.1;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+}
+
+.msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+
+    @media (max-width: 767px) {
+        gap: 8px;
+    }
+
+    &--admin {
+        flex-direction: row-reverse;
+
+        .msg__bubble {
+            background: rgba(226, 111, 15, 0.12);
+            border-color: rgba(226, 111, 15, 0.35);
+        }
+
+        .msg__avatar {
+            color: #e26f0f;
+            border-color: rgba(226, 111, 15, 0.5);
+        }
+    }
+
+    &--topic .msg__bubble {
+        max-width: 100%;
+        background: rgba(250, 250, 250, 0.08);
+        border-color: rgba(250, 223, 174, 0.3);
+    }
+
+    &__avatar {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 4px;
-        transition: background-color 0.2s;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgba(248, 248, 248, 0.15);
+        border-radius: 50%;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.4);
+        color: rgba(248, 248, 248, 0.5);
 
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        @media (max-width: 767px) {
+            width: 34px;
+            height: 34px;
         }
 
-        svg {
-            width: 16px;
-            height: 16px;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     }
 
+    &__bubble {
+        min-width: 0;
+        max-width: 80%;
+        padding: 12px 16px;
+        border: 1px solid rgba(248, 248, 248, 0.08);
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+
+        @media (max-width: 767px) {
+            max-width: calc(100% - 42px);
+            padding: 10px 12px;
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 4px 20px;
+        margin-bottom: 8px;
+    }
+
+    &__author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    &__username {
+        font-size: 16px;
+        color: #fadfae;
+        overflow-wrap: anywhere;
+    }
+
+    &__role {
+        padding: 1px 8px;
+        border-radius: 10px;
+        background: rgba(226, 111, 15, 0.25);
+        color: #fbd298;
+        font-family: "Candara", sans-serif;
+        font-size: 12px;
+
+        &--topic {
+            background: rgba(248, 248, 248, 0.1);
+            color: rgba(248, 248, 248, 0.7);
+        }
+    }
+
+    &__header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    &__date {
+        font-family: "Candara", sans-serif;
+        font-size: 13px;
+        color: rgba(248, 248, 248, 0.4);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 2px;
+    }
+
+    &__action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: none;
+        border-radius: 3px;
+        background: none;
+        color: rgba(248, 248, 248, 0.5);
+        font-size: 13px;
+        transition: color 0.2s ease, background-color 0.2s ease;
+
+        &:hover:not(:disabled) {
+            color: #fadfae;
+            background: rgba(226, 111, 15, 0.15);
+        }
+
+        &--delete:hover:not(:disabled) {
+            color: #ff8a8a;
+            background: rgba(214, 40, 40, 0.15);
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+    }
+
+    &__text {
+        font-family: "Candara", sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+        color: rgba(248, 248, 248, 0.9);
+        overflow-wrap: anywhere;
+
+        :deep(p) {
+            margin: 0 0 6px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        :deep(:is(ol, ul)) {
+            margin: 0 0 6px;
+            padding-left: 20px;
+        }
+
+        :deep(img) {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+            cursor: zoom-in;
+        }
+
+        :deep(a) {
+            color: #e26f0f;
+            text-decoration: underline;
+        }
+    }
+
+    &__edit {
+        :deep(.ck-editor) {
+            width: 100% !important;
+        }
+
+        :deep(.ck-editor__editable_inline),
+        :deep(.ck-content) {
+            min-height: 140px;
+        }
+    }
+
+    &__edit-actions {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-top: 12px;
+        padding-left: 14px;
+    }
+
+    &__save {
+        padding: 0 12px !important;
+    }
 }
 
 .fullscreen-image-modal {
@@ -639,15 +748,13 @@ const deleteMessage = async (messageId: number) => {
     justify-content: center;
     z-index: 9999;
     cursor: zoom-out;
-    transition: background 0.2s;
 
     img {
         width: auto;
         max-width: 95vw;
         max-height: 90vh;
-        border-radius: 10px;
+        border-radius: 5px;
         box-shadow: 0 0 20px #000a;
-        background: #fff;
         cursor: default;
     }
 
@@ -660,12 +767,11 @@ const deleteMessage = async (messageId: number) => {
         background: none;
         border: none;
         cursor: pointer;
-        z-index: 10001;
         transition: color 0.2s;
-    }
 
-    .close-btn:hover {
-        color: #e26f0f;
+        &:hover {
+            color: #e26f0f;
+        }
     }
 }
 </style>

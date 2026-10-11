@@ -40,7 +40,7 @@ const create = async () => {
         emit('createTheme')
         reset()
         isDiaShown.value = false
-    }, null, 'Тема успішно створена')
+    }, null, 'Звернення успішно створено')
 }
 
 
@@ -61,31 +61,31 @@ defineExpose({
 <template>
     <Modal v-model:showed="isDiaShown" @closeDia="reset">
         <template #header>
-            <h2 class="modal__title">Створення теми</h2>
+            <h2 class="modal__title">Створення звернення</h2>
         </template>
         <template #body>
             <form @submit.prevent="create" class="create-theme flex flex-column justify-content-center w-full">
                 <div class="field w-full">
-                    <label for="name" class="w-full">Назва теми</label>
+                    <label for="name" class="w-full">Назва звернення</label>
                     <div class="custom-input w-full" :class="{ error: v$.name.$error }">
                         <div class="input-bg"></div>
                         <input 
                             v-model="form.name" 
                             id="name" 
                             type="text" 
-                            placeholder="Введіть назву теми"
+                            placeholder="Введіть назву звернення"
                         >
                     </div>
                 </div>
                 <div class="field w-full">
-                    <label for="text" class="w-full">Текст теми</label>
+                    <label for="text" class="w-full">Текст звернення</label>
                     <ckeditor
                         v-model="form.text"
                         :editor="ClassicEditor"
                         :config="editorConfig"
                     />
                 </div>
-                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Створити</span></button>
+                <button type="submit" class="fantasy-btn mt-3 align-self-center"><span>Надіслати</span></button>
             </form>
         </template>
     </Modal>

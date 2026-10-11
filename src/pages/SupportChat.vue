@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import Button from 'primevue/button';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { ref, onMounted, watch } from 'vue';
 import { fetchPost } from '@/utils/fetchApi';
 import type { Theme } from '@/models/theme';
 import CreateTheme from '@/components/modals/CreateTheme.vue';
-import { format } from 'date-fns';
-import SelectButton from 'primevue/selectbutton';
+import Corners from '@/components/base/Corners.vue';
+import { formatKyivDateTime } from '@/utils/dateUtils';
 import { truncateText } from '@/utils/text';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useUserStore } from '@/stores/userStore';
-import Paginator from 'primevue/paginator';
+import Pagination from '@/components/base/Pagination.vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
@@ -56,6 +55,11 @@ const getThemes = async (stateParam: null | number = null) => {
     syncQueryWithPagination();
 };
 
+const selectState = (value: null | number) => {
+    state.value = value
+    page.value = 1
+}
+
 const toggleSingleState = async (id: number, newState: number) => {
     const params = {
         id,
@@ -68,12 +72,6 @@ const toggleSingleState = async (id: number, newState: number) => {
         userStore.getUnreadCount();
     });
 };
-
-const onPageChange = (event: any) => {
-    page.value = event.page + 1
-    limit.value = event.rows
-    getThemes(state.value)
-}
 
 onMounted(() => {
     // Встановлюємо значення з query при завантаженні
@@ -92,224 +90,425 @@ watch([state, page, limit], ([newState]) => {
 });
 </script>
 <template>
-    <div class="chat-support">
-        <div class="chat-support__inner">
-            <div class="chat-support__container">
-                <h1 class="chat-support__title">Підтримка</h1>
-                <div class="flex align-items-center justify-content-between gap-2">
-                    <Button label="Створити нову тему" icon="pi pi-plus" @click="createThemeRef.showDia()"
-                        class="success" />
-                    <div class="mb-3 flex justify-content-center">
-                        <SelectButton v-model="state" :options="stateOptions" optionLabel="label" optionValue="value"
-                            class="state-select" />
-                    </div>
-                </div>
-                <div class="chat-support__themes">
-                    <router-link 
-                        v-if="themes.length" 
-                        v-for="theme in themes" 
-                        :key="theme.id"
-                        :to="{ name: 'support-chat-theme', params: { theme_id: theme.id } }"
-                    >
-                        <div class="theme chat-support__theme" :class="{ active: !theme.state }">
-                            <div class="flex align-items-center justify-content-between gap-2">
-                                <h2 class="theme__title">{{ theme.name }}</h2>
-                                <div class="theme__messages flex align-items-center gap-1 relative">
-                                    <span class="text-xl">{{ theme.is_unread }}</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M4.99995 23.2H3.74995L4.49995 22.15C5.04995 21.35 5.44995 20.4 5.64995 19.15C2.09995 17.55 0.199951 14.5501 0.199951 10.6001C0.199951 4.55005 4.74996 0.800049 12.1 0.800049C19.45 0.800049 24 4.55005 24 10.6001C24 16.7001 19.55 20.4 12.1 20.4C11.95 20.4 11.75 20.4 11.6 20.4C10.4 21.7 8.39995 23.2 4.99995 23.2ZM12 2.10005C5.34995 2.10005 1.39995 5.25005 1.39995 10.6001C1.39995 15.1501 4.19995 17.2 6.49995 18.15L6.94995 18.3501L6.89995 18.8501C6.74995 20.0001 6.49996 21.0001 6.09996 21.8501C8.49996 21.5501 9.89995 20.3501 10.6499 19.3501L10.85 19.1001H11.3C11.5 19.1001 11.75 19.1001 11.95 19.1001C21.5 19.1001 22.55 13.1501 22.55 10.6001C22.6 5.30005 18.65 2.10005 12 2.10005Z"
-                                            fill="#fff" />
-                                    </svg>
-                                    <div v-if="theme.is_unread" class="unread-indicator"></div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2 mt-2">
-                                <span class="text-sm">Створено: </span>
-                                <span class="text-sm font-bold">{{ theme.user.username }}</span>
-                                <span class="text-sm ml-auto">Всього повідомлень: {{ theme.messages_count }}</span>
-                            </div>
-                            <div class="flex flex-column gap-2 mt-2">
-                                <span>Текст:</span>
-                                <div class="theme__text" v-html="truncateText(theme.text, 200)"></div>
-                            </div>
-                            <div v-if="theme.last" class="theme__last flex flex-column gap-2 justify-content-between mt-2">
-                                <span>Останнє повідомлення: </span>
-                                <div class="flex relative w-full">
-                                    <svg class="theme__last-romb" width="20" height="26" viewBox="0 0 36 26" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M0.5 12.9999C13.9644 9.31125 21.6304 7.03946 35.5 0.5L35.5 25.1913C19.7721 16.4417 12.593 14.7101 0.5 12.9999Z"
-                                            fill="white" />
-                                    </svg>
-                                    <div class="theme__last-text w-full">
-                                        <div>
-                                            <span class="text-base font-bold">{{ theme.last.user.username + ': '
-                                                }}</span>
-                                            <span class="text-base" v-html="truncateText(theme.last.text, 100)"></span>
-                                        </div>
-                                        <div v-if="theme.last" class="flex justify-content-end mt-2">
-                                            <span class="text-xs">{{ format(theme.last.created_at, 'dd-MM-yyyy hh:mm')
-                                                }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-if="userStore.isAdmin" class="flex justify-content-between mt-2">
-                                <div @click.stop class="flex align-items-center gap-2">
-                                    <label for="closeTheme">Закрити тему</label>
-                                    <ToggleSwitch 
-                                        :model-value="!!theme.state" 
-                                        id="closeTheme"
-                                        @update:model-value="(val: any) => toggleSingleState(theme.id, val ? 1 : 0)" 
-                                    />
-                                </div>
-                                <span class="text-sm ml-auto"> {{ format(theme.created_at, 'dd-MM-yyyy hh:mm') }}</span>
-                            </div>
+    <div class="support">
+        <div class="support__header">
+            <h1 class="support__title">Підтримка</h1>
+            <button type="button" class="fantasy-btn small support__create" @click="createThemeRef.showDia()">
+                <span>Створити звернення</span>
+            </button>
+        </div>
+
+        <div class="support__tabs">
+            <button
+                v-for="option in stateOptions"
+                :key="String(option.value)"
+                type="button"
+                class="support__tab"
+                :class="{ 'support__tab--active': state === option.value }"
+                @click="selectState(option.value)"
+            >
+                {{ option.label }}
+            </button>
+        </div>
+
+        <div class="support__themes">
+            <div
+                v-for="theme in themes"
+                :key="theme.id"
+                class="theme"
+                :class="{ 'theme--closed': theme.state }"
+            >
+                <Corners />
+                <router-link :to="{ name: 'support-chat-theme', params: { theme_id: theme.id } }" class="theme__link">
+                    <div class="theme__head">
+                        <div class="theme__title-wrap">
+                            <h2 class="theme__title">{{ theme.name }}</h2>
+                            <span v-if="theme.state" class="theme__badge theme__badge--closed">
+                                <i class="pi pi-lock"></i> Закрита
+                            </span>
+                            <span v-else class="theme__badge">Відкрита</span>
                         </div>
-                    </router-link>
-                    <div v-else class="chat-support__no-themes">
-                        <p>Немає доступних тем.</p>
+                        <div class="theme__unread" :class="{ 'theme__unread--active': theme.is_unread }"
+                            :title="theme.is_unread ? 'Непрочитані повідомлення' : 'Немає нових повідомлень'">
+                            <i class="pi pi-comments"></i>
+                            <span>{{ theme.is_unread }}</span>
+                        </div>
                     </div>
+
+                    <div class="theme__meta">
+                        <span>Автор: <b>{{ theme.user.username }}</b></span>
+                        <span>Повідомлень: <b>{{ theme.messages_count }}</b></span>
+                        <span class="theme__meta-date">{{ formatKyivDateTime(theme.created_at) }}</span>
+                    </div>
+
+                    <div class="theme__text" v-html="truncateText(theme.text, 200)"></div>
+
+                    <div v-if="theme.last" class="theme__last">
+                        <div class="theme__last-head">
+                            <span class="theme__last-label">Останнє повідомлення</span>
+                            <span class="theme__last-date">{{ formatKyivDateTime(theme.last.created_at) }}</span>
+                        </div>
+                        <div class="theme__last-text">
+                            <b>{{ theme.last.user.username }}:</b>
+                            <span v-html="truncateText(theme.last.text, 200)"></span>
+                        </div>
+                    </div>
+                </router-link>
+
+                <div v-if="userStore.isAdmin" class="theme__admin">
+                    <label :for="`closeTheme-${theme.id}`">Закрити тему</label>
+                    <ToggleSwitch
+                        :model-value="!!theme.state"
+                        :input-id="`closeTheme-${theme.id}`"
+                        @update:model-value="(val: any) => toggleSingleState(theme.id, val ? 1 : 0)"
+                    />
                 </div>
-                <Paginator
-                    v-if="total > limit"
-                    :first="(page - 1) * limit"
-                    :rows="limit"
-                    :totalRecords="total"
-                    :rowsPerPageOptions="[5, 10, 20, 30]"
-                    class="mt-4"
-                    @page="onPageChange"
-                />
+            </div>
+
+            <div v-if="!themes.length" class="support__empty">
+                <Corners />
+                <i class="pi pi-inbox"></i>
+                <p>Немає доступних тем.</p>
             </div>
         </div>
 
+        <Pagination
+            v-model:page="page"
+            :total-pages="Math.ceil(total / limit)"
+            class="support__paginator"
+        />
     </div>
 
     <CreateTheme ref="createThemeRef" @createTheme="getThemes" />
 </template>
 <style scoped lang="scss">
-.chat-support {
+$gold-gradient: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+
+.support {
     width: 100%;
-    color: #fff;
+    max-width: 1110px;
+    color: #f8f8f8;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 
     &__title {
-        color: #fff;
-        margin-bottom: 20px;
-        text-align: center;
+        margin: 0;
+        font-size: clamp(32px, 4vw, 64px);
+        font-weight: 400;
+        letter-spacing: -0.07em;
+        background: $gold-gradient;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__create {
+        margin: 0 20px;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    &__tabs {
+        position: relative;
+        display: inline-flex;
+        gap: 6px;
+        margin-top: 30px;
+        padding: 8px;
+        border-radius: 5px;
+        background: rgba(26, 26, 26, 0.9);
+
+        @media (max-width: 767px) {
+            display: flex;
+            width: 100%;
+        }
+    }
+
+    &__tab {
+        padding: 8px 22px;
+        border: none;
+        border-radius: 3px;
+        background: none;
+        color: rgba(248, 248, 248, 0.6);
+        font-family: "VollkornSC", sans-serif;
+        font-size: 16px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        @media (max-width: 767px) {
+            flex: 1;
+            padding: 8px 10px;
+        }
+
+        &:hover {
+            color: #f8f8f8;
+        }
+
+        &--active {
+            background: rgba(226, 111, 15, 0.2);
+            color: #fadfae;
+        }
     }
 
     &__themes {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         margin-top: 20px;
-        min-height: 55vh;
+        min-height: 40vh;
+    }
 
-        .chat-support__theme {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            background-color: rgba(93, 119, 144, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 100%;
+    &__empty {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 60px 20px;
+        border-radius: 5px;
+        background: rgba(250, 250, 250, 0.05);
+        color: rgba(248, 248, 248, 0.5);
+        font-size: 18px;
 
-            &:hover {
-                background-color: rgba(93, 119, 144, 0.2);
-            }
+        i {
+            font-size: 32px;
         }
     }
 
-    .unread-indicator {
-        width: 12px;
-        height: 12px;
-        background-color: #ff0000;
-        border-radius: 50%;
-        position: absolute;
-        right: -5px;
-        top: -2px;
+    &__paginator {
+        margin-top: 30px;
+    }
+}
+
+.theme {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: clamp(20px, 3vw, 30px);
+    border-radius: 5px;
+    background: rgba(250, 250, 250, 0.05);
+    color: #f8f8f8;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background: rgba(250, 250, 250, 0.09);
     }
 
-    .theme {
-        opacity: 0.5;
+    &__link {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        color: inherit;
+    }
 
-        &__title {
-            font-size: 1.2rem;
-            color: #fff;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 350px;
+    &--closed {
+        background: rgba(250, 250, 250, 0.025);
+
+        .theme__title,
+        .theme__text,
+        .theme__last {
+            opacity: 0.6;
         }
+    }
 
-        &.active {
-            opacity: 1;
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    &__title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+
+        @media (max-width: 767px) {
+            flex-wrap: wrap;
+            gap: 6px 10px;
         }
+    }
 
-        &__text {
-            font-family: "Candara", sans-serif;
-            padding: 10px;
-            background-color: rgba(93, 119, 144, 0.2);
-            border-radius: 5px;
-        }
+    &__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.03em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
-        &__last {
-            display: flex;
-            gap: 5px;
-            height: 100%;
-        }
-
-        &__last-romb {
-            position: relative;
-            top: 24px;
-            left: 5px;
-            transform: translateY(-100%);
-        }
-
-        &__last-text {
-            font-family: "Candara", sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            background-color: #fff;
-            color: black;
-            padding: 10px;
-            border-radius: 9px;
-            word-break: break-all;
+        @media (max-width: 767px) {
+            font-size: 18px;
+            white-space: normal;
             overflow-wrap: anywhere;
-            max-width: 100%;
-            overflow: hidden;
+        }
+    }
 
-            span {
-                font-size: 16px;
-                line-height: 130%;
-            }
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: rgba(17, 175, 25, 0.15);
+        color: #7ee083;
+        font-family: "Candara", sans-serif;
+        font-size: 13px;
 
-            ::v-deep(a) {
-                color: #e26f0f !important;
+        i {
+            font-size: 11px;
+        }
+
+        &--closed {
+            background: rgba(214, 40, 40, 0.2);
+            color: #ff8a8a;
+        }
+    }
+
+    &__unread {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        color: rgba(248, 248, 248, 0.4);
+        font-size: 18px;
+
+        i {
+            font-size: 20px;
+        }
+
+        &--active {
+            color: #fadfae;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: -3px;
+                left: 14px;
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: #e26f0f;
+                box-shadow: 0 0 8px #e26f0f;
             }
         }
     }
 
-    ::v-deep(.p-togglebutton) {
-        background-color: rgba(93, 119, 144, 0.1);
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 24px;
+        font-family: "Candara", sans-serif;
+        font-size: 14px;
+        color: rgba(248, 248, 248, 0.5);
+
+        b {
+            font-weight: 400;
+            color: #f8f8f8;
+        }
+    }
+
+    &__meta-date {
+        margin-left: auto;
+
+        @media (max-width: 767px) {
+            margin-left: 0;
+        }
+    }
+
+    &__text {
+        font-family: "Candara", sans-serif;
+        font-size: 15px;
+        line-height: 1.4;
+        color: rgba(248, 248, 248, 0.85);
+        overflow-wrap: anywhere;
+
+        :deep(*) {
+            margin: 0;
+        }
+
+        :deep(img) {
+            display: none;
+        }
+    }
+
+    &__last {
+        padding: 12px 16px;
+        border-left: 2px solid #e26f0f;
+        border-radius: 0 5px 5px 0;
+        background: rgba(0, 0, 0, 0.4);
+        font-family: "Candara", sans-serif;
+    }
+
+    &__last-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: rgba(248, 248, 248, 0.5);
+    }
+
+    &__last-text {
+        font-size: 15px;
+        color: rgba(248, 248, 248, 0.85);
+        overflow-wrap: anywhere;
+
+        b {
+            font-weight: 400;
+            color: #fadfae;
+            margin-right: 4px;
+        }
+
+        :deep(*) {
+            display: inline;
+            margin: 0;
+        }
+
+        :deep(img) {
+            display: none;
+        }
+    }
+
+    &__admin {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        align-self: flex-start;
+        padding-top: 14px;
+        width: 100%;
+        border-top: 1px solid rgba(248, 248, 248, 0.1);
+        font-size: 15px;
+        label {
+            cursor: pointer;
+        }
+    }
+
+    &__text :deep(a),
+    &__last-text :deep(a) {
+        color: #e26f0f;
+    }
+
+    :deep(.p-toggleswitch-slider) {
+        background: rgba(248, 248, 248, 0.15);
         border: none;
-        color: #fff;
     }
 
-    ::v-deep(.p-togglebutton:not(:disabled):not(.p-togglebutton-checked):hover) {
-        background-color: rgba(93, 119, 144, 0.1);
+    :deep(.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider) {
+        background: #e26f0f;
     }
 
-    ::v-deep(.p-togglebutton.p-togglebutton-checked::before) {
-        background-color: rgba(93, 119, 144, 0.2);
+    :deep(.p-toggleswitch-handle) {
+        background: #f8f8f8 !important;
     }
-    
 }
 </style>
