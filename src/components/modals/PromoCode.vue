@@ -67,8 +67,17 @@ const checkPromoCode = async () => {
   );
 };
 
-const chooseAccount = (id: number) => {
-  form.game_id = id;
+type AccountStatus = "available" | "used" | "noRoles";
+
+const getAccountStatus = (acc: { is_active: boolean; user: GameUser }): AccountStatus => {
+  if (!acc.is_active) return "used";
+  if (!acc.user.roles?.length) return "noRoles";
+  return "available";
+};
+
+const chooseAccount = (acc: { is_active: boolean; user: GameUser }) => {
+  if (getAccountStatus(acc) !== "available") return;
+  form.game_id = acc.user.id_game;
 };
 
 const applyPromo = async () => {
@@ -120,19 +129,33 @@ defineExpose({
         </button>
       </form>
       <div v-else-if="availableAccounts.length && !form.game_id" class="w-full">
-        <p>Обрати можна лише акаунти зі створеними персонажами</p>
+        <p>Обрати можна лише акаунти зі створеними персонажами, на яких цей промокод ще не застосовано</p>
         <div class="game-acc__wrapper custom-scroll">
           <div
             v-for="(acc, index) in availableAccounts"
             :key="acc.user.id"
             class="game-acc__item"
-            :class="{'inactive': !acc.is_active || !acc.user.roles?.length}"
-            @click.stop="chooseAccount(acc.user.id_game)"
+            :class="{ inactive: getAccountStatus(acc) !== 'available' }"
+            @click.stop="chooseAccount(acc)"
           >
-            <p>{{ index + 1 }}.</p>
+            <p>
+              <span
+                v-if="getAccountStatus(acc) === 'used'"
+                class="game-acc__icon game-acc__icon--used game-acc__icon--start"
+                title="Промокод уже застосовано на цьому акаунті"
+              >✓</span>
+              {{ index + 1 }}.
+            </p>
             <p>{{ acc.user.username }}</p>
             <p>{{ format(acc.user.created_at, "dd-MM-yyyy") }}</p>
-            <p>Персонажі: {{ acc.user.roles?.length ?? 0 }}</p>
+            <p>
+              Персонажі: {{ acc.user.roles?.length ?? 0 }}
+              <span
+                v-if="getAccountStatus(acc) === 'noRoles'"
+                class="game-acc__icon game-acc__icon--noRoles"
+                title="Спочатку створіть персонажа в грі"
+              >!</span>
+            </p>
           </div>
         </div>
       </div>
@@ -179,14 +202,50 @@ defineExpose({
     background: rgba($color: #000000, $alpha: 0.4);
     border-radius: 10px;
     cursor: pointer;
+    position: relative;
 
     & > * {
       text-align: center;
     }
 
     &.inactive {
-      pointer-events: none;
+      cursor: not-allowed;
       background: rgba($color: #000000, $alpha: 0.1);
+
+      & > p {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+
+    &--used {
+      color: #7fd38a;
+    }
+
+    &--noRoles {
+      color: #f0c060;
+    }
+
+    &--start {
+      position: absolute;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0;
     }
   }
 }

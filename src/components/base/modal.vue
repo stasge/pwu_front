@@ -1,22 +1,12 @@
 <script setup lang='ts'>
-import { ref } from 'vue';
-
-const modalRef = ref<HTMLElement | null>(null)
 const props = defineProps<{showed: boolean}>()
 const emit = defineEmits(['update:showed', 'closeDia'])
-
-function closeModal(e: Event) {
-    if (modalRef.value && !modalRef.value?.contains(e.target as Node)) {
-        emit('update:showed', false)
-        emit('closeDia')
-    }
-}
 
 </script>
 <template>
     <Teleport to="body">
-        <div v-if="showed" @click="closeModal" class="back-mask w-screen h-screen flex align-items-center justify-content-center cursor-pointer">
-            <div ref="modalRef" class="modal flex flex-column align-items-center justify-content-between">
+        <div v-if="showed" class="back-mask w-screen h-screen flex align-items-center justify-content-center">
+            <div class="modal flex flex-column align-items-center justify-content-between">
                 <!-- Corner icons -->
                 <div class="corner-icon corner-tl">
                     <img src="@/assets/images/Corner-TL.svg" alt="Top Left Corner" />
