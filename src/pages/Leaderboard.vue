@@ -7,6 +7,7 @@ import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
 import type { CharStats } from '@/models/rating';
 import { Race } from '@/models/rating';
+import marathonRating from '@/data/marathonRating.json';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import Leaderboard1stIcon from '@/assets/images/leaderboard-1st.svg';
@@ -42,9 +43,14 @@ const ratingMode = computed(() => parseRatingMode(route.query.tab))
 const {wrapAsyncCall} = useAsyncCallWrapper()
 
 const getLeaderboard = async () => {
+    // Марафон завершено — показуємо зафіксовані фінальні результати
+    if (ratingMode.value === 'marathon') {
+        leaders.value = marathonRating as CharStats[]
+        return
+    }
+
     await wrapAsyncCall(async () => {
-        const endpoint = ratingMode.value === 'marathon' ? '/ratingM' : '/rating'
-        const {data: _leaders} = await fetchGet(endpoint)
+        const {data: _leaders} = await fetchGet('/rating')
         leaders.value = _leaders
     })
 }
