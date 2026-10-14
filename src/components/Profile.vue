@@ -15,6 +15,7 @@ import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
 import { useI18n } from 'vue-i18n'
 import AllRefersModal from './modals/AllRefersModal.vue';
+import ProfileActivity from './ProfileActivity.vue';
 import { formatGold, useGoldTotals } from '@/composables/useGoldTotals';
 
 const {t} = useI18n()
@@ -333,6 +334,8 @@ watch(
                     <span>Створити</span>
                 </button>
             </div>
+            <!-- Блок ЩОДЕННА АКТИВНІСТЬ -->
+            <ProfileActivity v-if="userStore.user?.game_user.length" />
         </div>
     </div>
     <Modal v-model:showed="showed">
