@@ -29,6 +29,10 @@ import TopUpStats from "@/pages/TopUpStats.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
+    // відкриття/закриття кланового сайдбара не повинно скролити сторінку
+    if (to.path === from.path && to.query.clan !== from.query.clan) {
+      return false;
+    }
     if (to.hash) {
       return {
         el: to.hash,

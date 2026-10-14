@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import ClanCashback from '@/components/clan-bonus/ClanCashback.vue';
 import ClanTransfer from '@/components/clan-bonus/ClanTransfer.vue';
 import LumaVideo from '@/components/base/LumaVideo.vue';
@@ -16,15 +17,21 @@ const tabs = [
     { id: 'transfer', title: 'Бонус за перехід клану', img: tabTransfer, imgHover: tabTransferHover, component: ClanTransfer },
 ] as const
 
-const opened = ref<PanelId | null>(null)
-const activeTab = computed(() => tabs.find(tab => tab.id === opened.value))
+const route = useRoute()
+const router = useRouter()
+
+// стан сайдбара живе в ?clan=cashback|transfer, щоб на нього можна було дати посилання
+const activeTab = computed(() => tabs.find(tab => tab.id === route.query.clan))
+const opened = computed(() => activeTab.value?.id ?? null)
 
 const open = (id: PanelId) => {
-    opened.value = id
+    router.replace({ query: { ...route.query, clan: id } })
 }
 
 const close = () => {
-    opened.value = null
+    const query = { ...route.query }
+    delete query.clan
+    router.replace({ query })
 }
 
 const onKeydown = (e: KeyboardEvent) => {
@@ -46,7 +53,7 @@ watch(opened, (value) => {
     } else {
         window.removeEventListener('keydown', onKeydown)
     }
-})
+}, { immediate: true })
 
 onBeforeUnmount(() => {
     setScrollLock(false)

@@ -2,6 +2,7 @@
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
 import { ref, computed, onMounted } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import { fetchGet } from '@/utils/fetchApi'
 import type { News } from '@/models/news';
@@ -9,7 +10,13 @@ import { useUserStore } from '@/stores/userStore';
 
 const openQuestions = ref<Set<number>>(new Set());
 
-const faqData = [
+type FaqItem = {
+    question: string
+    answer: string
+    links?: { text: string, to: RouteLocationRaw }[]
+}
+
+const faqData: FaqItem[] = [
     {
         question: "Коли День Народження сервера?",
         answer: "23.05.2025 в 19:00"
@@ -24,7 +31,11 @@ const faqData = [
     },
     {
         question: "Чи є клановий бонус за перехід?",
-        answer: "Ні, такого бонусу не буде. Наразі працює реферальна програма. Деталі у особистому кабінеті"
+        answer: "Так! Клани, які переходять на Valor, отримують щомісячний бонус голдою, а також діє клановий кешбек до 30% від донатів учасників.",
+        links: [
+            { text: "Бонус за перехід клану", to: { name: 'home', query: { clan: 'transfer' } } },
+            { text: "Клановий кешбек", to: { name: 'home', query: { clan: 'cashback' } } },
+        ]
     },
     {
         question: "Чи призиваються літаючі пети дру у данжах?",
@@ -194,6 +205,8 @@ onMounted(() => {
                         <div class="about__content-features">
                             <div class="about__content-feature">Україномовний контент</div>
                             <div class="about__content-feature">Власна база даних - <a href="https://db.valor.in.ua/" target="_blank">https://db.valor.in.ua/</a></div>
+                            <div class="about__content-feature">Клановий кешбек до 30% - <router-link :to="{ name: 'home', query: { clan: 'cashback' } }">детальніше</router-link></div>
+                            <div class="about__content-feature">Бонус за перехід клану - <router-link :to="{ name: 'home', query: { clan: 'transfer' } }">детальніше</router-link></div>
                             <div class="about__content-feature">Власний лаунчер зі спрощеною системою входу на декілька акаунтів</div>
                             <div class="about__content-feature">Щотижневі PvP турніри у різних форматах</div>
                             <div class="about__content-feature">Перероблена система луту у Місті Інею</div>
@@ -367,6 +380,9 @@ onMounted(() => {
                             <div class="about__faq-answer">
                                 <div class="about__faq-answer-content">
                                     {{ item.answer }}
+                                    <span v-if="item.links" class="about__faq-links">
+                                        <router-link v-for="link in item.links" :key="link.text" :to="link.to">{{ link.text }}</router-link>
+                                    </span>
                                 </div>
                             </div>
                             <img src="@/assets/images/faq-divider.svg" alt="divider" class="about__faq-divider about__faq-divider--bottom">
@@ -399,6 +415,9 @@ onMounted(() => {
                             <div class="about__faq-answer">
                                 <div class="about__faq-answer-content">
                                     {{ item.answer }}
+                                    <span v-if="item.links" class="about__faq-links">
+                                        <router-link v-for="link in item.links" :key="link.text" :to="link.to">{{ link.text }}</router-link>
+                                    </span>
                                 </div>
                             </div>
                             <img src="@/assets/images/faq-divider.svg" alt="divider" class="about__faq-divider about__faq-divider--bottom">
@@ -810,6 +829,22 @@ onMounted(() => {
 
         @media (max-width: 768px) {
             font-size: 13px;
+        }
+    }
+
+    &__faq-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 20px;
+        margin-top: 10px;
+
+        a {
+            color: #fbd298;
+            transition: opacity 0.3s ease;
+
+            &:hover {
+                opacity: 0.8;
+            }
         }
     }
 
