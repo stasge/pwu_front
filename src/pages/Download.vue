@@ -27,7 +27,7 @@ const handleRegister = () => {
                 </a>
                 <a
                     class="download-page__hero-link"
-                    href="https://fex.net/uk/s/yapkmkd"
+                    href="https://fex.net/uk/s/bfmkpeb"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -199,7 +199,7 @@ const handleRegister = () => {
                 </a>
                 <a
                     class="download-page__hero-link"
-                    href="https://fex.net/uk/s/yapkmkd"
+                    href="https://fex.net/uk/s/bfmkpeb"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
