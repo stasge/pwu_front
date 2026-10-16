@@ -25,6 +25,9 @@ import NotFound from "@/pages/NotFound.vue";
 import TractCalc from "@/pages/TractCalc.vue";
 import TractCalcResult from "@/pages/TractCalcResult.vue";
 import TopUpStats from "@/pages/TopUpStats.vue";
+import Polls from "@/pages/Polls.vue";
+import PollPage from "@/pages/PollPage.vue";
+import AdminPolls from "@/pages/AdminPolls.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -101,6 +104,24 @@ const router = createRouter({
           name: "admin-panel",
           meta: { requiresAuth: true, onlyAdmin: true },
           component: AdminPanel,
+        },
+        {
+          path: "/page/admin-polls",
+          name: "admin-polls",
+          meta: { requiresAuth: true, onlyAdmin: true },
+          component: AdminPolls,
+        },
+        {
+          path: "/page/polls",
+          name: "polls",
+          meta: { requiresAuth: true },
+          component: Polls,
+        },
+        {
+          path: "/page/polls/:id",
+          name: "poll",
+          meta: { requiresAuth: true },
+          component: PollPage,
         },
       ],
     },

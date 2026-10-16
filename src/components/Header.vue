@@ -7,8 +7,26 @@ import RecoverPass from '@/components/modals/RecoverPass.vue';
 import RecoverPassCode from '@/components/modals/RecoverPassCode.vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet } from '@/utils/fetchApi';
+import { usePollsStore } from '@/stores/pollsStore';
+
+const POLLS_UNREAD_REFRESH_MS = 2 * 60 * 1000
 
 const userStore = useUserStore()
+const pollsStore = usePollsStore()
+let pollsUnreadTimer: ReturnType<typeof setInterval> | undefined
+
+const pollsUnreadLabel = computed(() => pollsStore.unreadCount > 99 ? '99+' : String(pollsStore.unreadCount))
+
+// Лічильник нових голосувань — тільки для авторизованого користувача
+watch(() => userStore.user?.id, (id) => {
+    clearInterval(pollsUnreadTimer)
+    if (!id) {
+        pollsStore.reset()
+        return
+    }
+    pollsStore.loadUnreadCount()
+    pollsUnreadTimer = setInterval(() => pollsStore.loadUnreadCount(), POLLS_UNREAD_REFRESH_MS)
+}, { immediate: true })
 const isBurgerOpen = ref(false)
 const isToolsOpen = ref(false)
 const toolsDropdownRef = ref<HTMLElement | null>(null)
@@ -56,6 +74,7 @@ onMounted(async () => {
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
     setBodyScrollLocked(false)
+    clearInterval(pollsUnreadTimer)
 })
 
 function toggleBurger() {
@@ -201,14 +220,23 @@ function handleClickOutside(event: MouseEvent) {
                         </a>
                     </template>
                     <template v-else>
-                        <router-link :to="{ name: 'profile' }" class="header-right__auth flex align-items-center gap-3">
+                        <router-link
+                            :to="{ name: 'profile' }"
+                            class="header-right__auth flex align-items-center gap-3"
+                            :title="pollsStore.unreadCount > 0 ? `Нових голосувань: ${pollsStore.unreadCount}` : undefined"
+                        >
                             <span class="header-right__auth-icon">
                                 <img src="@/assets/icons/profile-icon.svg" alt="profile">
                             </span>
+                            <span v-if="pollsStore.unreadCount > 0" class="header-polls-badge">{{ pollsUnreadLabel }}</span>
                         </router-link>
                     </template>
                 </div>
                 <button @click="toggleBurger" class="header-burger">
+                    <span
+                        v-if="userStore.isLoggedIn && pollsStore.unreadCount > 0 && !isBurgerOpen"
+                        class="header-polls-badge header-polls-badge--burger"
+                    >{{ pollsUnreadLabel }}</span>
                     <img src="@/assets/images/burger-icon.svg" alt="menu" class="header-burger-icon" :class="{ 'header-burger-icon--hidden': isBurgerOpen }">
                     <img src="@/assets/images/burger-icon-close.svg" alt="close" class="header-burger-icon header-burger-icon--close" :class="{ 'header-burger-icon--visible': isBurgerOpen }">
                 </button>
@@ -260,6 +288,15 @@ function handleClickOutside(event: MouseEvent) {
                             <router-link :to="{ name: 'profile' }" @click="isBurgerOpen = false" class="header-burger-profile flex align-items-center gap-2">
                                 <span>Особистий кабінет</span>
                                 <img src="@/assets/images/arrow-next.svg" alt="arrow" class="header-burger-profile-arrow">
+                            </router-link>
+                            <router-link
+                                v-if="pollsStore.unreadCount > 0"
+                                :to="{ name: 'polls' }"
+                                @click="isBurgerOpen = false"
+                                class="header-burger-polls flex align-items-center gap-2"
+                            >
+                                Нові голосування
+                                <span class="header-polls-badge header-polls-badge--inline">{{ pollsUnreadLabel }}</span>
                             </router-link>
                         </template>
                     </li>
@@ -541,6 +578,7 @@ function handleClickOutside(event: MouseEvent) {
         }
 
         &__auth {
+            position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
             opacity: 1;
@@ -734,6 +772,53 @@ function handleClickOutside(event: MouseEvent) {
         object-position: bottom;
         opacity: 0.3;
     }
+}
+
+.header-polls-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: #e53935;
+    color: #fff;
+    font-family: "Candara", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    pointer-events: none;
+    animation: header-polls-pulse 1.6s infinite;
+
+    &--burger {
+        top: -14px;
+        right: -18px;
+        z-index: 3;
+    }
+
+    &--inline {
+        position: static;
+        animation: none;
+    }
+}
+
+.header-burger-item .header-burger-polls {
+    margin-top: 14px;
+    font-size: 16px;
+    color: #fbd298;
+
+    .header-polls-badge {
+        font-size: 11px;
+        color: #fff;
+    }
+}
+
+@keyframes header-polls-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(229, 57, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
 }
 
 .header-dropdown-enter-active,
