@@ -163,7 +163,7 @@ watch(pollId, (id) => {
             <p v-if="poll.description" class="poll-page__description">{{ poll.description }}</p>
 
             <ul class="poll-page__info">
-                <li>Хто може голосувати: гравці, у яких хоча б один персонаж <b>60+ рівня</b> і був активний за <b>останні 7 днів</b></li>
+                <li>Хто може голосувати: гравці, у яких хоча б один персонаж <b>60+ рівня</b> і був активний за <b>останні 2 дні</b></li>
                 <li>{{ visibilityHint }}</li>
                 <li v-if="poll.canVote">Голос не можна змінити або відкликати.</li>
             </ul>
