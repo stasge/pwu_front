@@ -1,7 +1,10 @@
 <script setup lang='ts'>
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { ActivityProgress, ActivityRole } from '@/models/activity';
-import { isActivityDone, roleSummary } from '@/composables/useUserActivity';
+import { isActivityDone, isRewardReceived, roleSummary } from '@/composables/useUserActivity';
+import { ACTIVITY_REWARD_TIERS, getActivityRewardTier, type ActivityRewardKind } from '@/data/activityRewards';
+import chestClosedImg from '@/assets/images/chest-closed.png';
+import chestOpenedImg from '@/assets/images/chest-opened.png';
 
 const showed = ref(false)
 const role = ref<ActivityRole | null>(null)
@@ -42,12 +45,36 @@ const status = computed(() => {
     return 'progress'
 })
 
+const rewardReceived = computed(() => !!role.value && isRewardReceived(role.value))
+
 const statusText = computed(() => ({
     reward: 'Нагороду отримано',
     done: 'Усе виконано',
     progress: 'В процесі',
     empty: 'Немає активностей',
 })[status.value])
+
+const rewardTier = computed(() => role.value ? getActivityRewardTier(role.value.lvl) : null)
+const nextRewardTier = computed(() => {
+    const lvl = role.value?.lvl ?? 0
+    return ACTIVITY_REWARD_TIERS.find(tier => tier.minLevel > lvl) ?? null
+})
+const rewardOpen = ref(false)
+
+const rewardChest = computed(() => rewardReceived.value ? chestOpenedImg : chestClosedImg)
+
+const rewardIcons: Record<ActivityRewardKind, string> = {
+    exp: 'pi-star-fill',
+    spirit: 'pi-sparkles',
+    book: 'pi-box',
+    gold: 'pi-wallet',
+    reputation: 'pi-crown',
+    stone: 'pi-box',
+}
+
+const amountFormat = new Intl.NumberFormat('uk-UA')
+
+watch(role, () => { rewardOpen.value = false })
 
 const RING_RADIUS = 34
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS
@@ -92,6 +119,62 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                 {{ role.lvl }} рівень<template v-if="accountName"> · {{ accountName }}</template>
                             </p>
                             <span class="ra__badge">{{ statusText }}</span>
+                        </div>
+
+                        <div
+                            class="ra-reward"
+                            :class="[{ 'ra-reward--received': rewardReceived, 'ra-reward--open': rewardOpen, 'ra-reward--none': !rewardTier }]"
+                            @mouseenter="rewardOpen = true"
+                            @mouseleave="rewardOpen = false"
+                        >
+                            <button
+                                type="button"
+                                class="ra-reward__chest"
+                                aria-label="Нагорода за щоденну активність"
+                                :aria-expanded="rewardOpen"
+                                @click="rewardOpen = !rewardOpen"
+                                @focus="rewardOpen = true"
+                                @blur="rewardOpen = false"
+                            >
+                                <img :src="rewardChest" alt="">
+                                <span v-if="rewardReceived" class="ra-reward__check"><i class="pi pi-check"></i></span>
+                            </button>
+                            <span class="ra-reward__caption">{{ rewardReceived ? 'Отримано' : 'Нагорода' }}</span>
+
+                            <Transition name="ra-pop">
+                                <div v-if="rewardOpen" class="ra-reward__tip" role="tooltip">
+                                    <template v-if="rewardTier">
+                                        <p class="ra-reward__tip-title">Нагорода за день</p>
+                                        <p class="ra-reward__tip-sub">
+                                            За виконання активностей · рівень {{ rewardTier.minLevel }}+
+                                        </p>
+                                        <ul class="ra-reward__list">
+                                            <li v-for="item in rewardTier.items" :key="item.kind" class="ra-reward__item">
+                                                <i class="pi" :class="[rewardIcons[item.kind], `ra-reward__icon--${item.kind}`]"></i>
+                                                <span class="ra-reward__item-name">{{ item.name }}</span>
+                                                <span class="ra-reward__item-amount">×{{ amountFormat.format(item.amount) }}</span>
+                                            </li>
+                                        </ul>
+                                        <p v-if="rewardReceived" class="ra-reward__note ra-reward__note--ok">
+                                            <i class="pi pi-check"></i> Сьогодні вже отримано — нагороду автоматично надіслано на персонажа
+                                        </p>
+                                        <template v-else>
+                                            <p class="ra-reward__note">
+                                                Нагорода надійде на персонажа автоматично, щойно всі активності буде виконано
+                                            </p>
+                                            <p v-if="nextRewardTier" class="ra-reward__note">
+                                                З {{ nextRewardTier.minLevel }} рівня нагорода буде більшою
+                                            </p>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <p class="ra-reward__tip-title">Нагорода недоступна</p>
+                                        <p class="ra-reward__tip-sub">
+                                            Щоденні нагороди відкриваються з {{ ACTIVITY_REWARD_TIERS[0].minLevel }} рівня
+                                        </p>
+                                    </template>
+                                </div>
+                            </Transition>
                         </div>
                     </div>
 
@@ -258,6 +341,10 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         align-items: center;
         gap: 18px;
         padding-right: 40px;
+
+        @media (max-width: 767px) {
+            gap: 12px;
+        }
     }
 
     &__ring {
@@ -266,7 +353,16 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         width: 80px;
         height: 80px;
 
-        svg { transform: rotate(-90deg); }
+        svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        @media (max-width: 767px) {
+            width: 56px;
+            height: 56px;
+        }
     }
 
     &__ring-bg {
@@ -294,9 +390,16 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         color: var(--accent);
 
         i { font-size: 24px; }
+
+        @media (max-width: 767px) {
+            font-size: 14px;
+
+            i { font-size: 18px; }
+        }
     }
 
     &__head-info {
+        flex: 1;
         min-width: 0;
         display: flex;
         flex-direction: column;
@@ -334,6 +437,7 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         background: var(--accent-soft);
         border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     }
+
 
     &__stats {
         display: grid;
@@ -529,6 +633,204 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
 
         .ra-item__points { color: rgba(248, 248, 248, 0.5); }
     }
+}
+
+.ra-reward {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 5;
+
+    &__chest {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        padding: 0;
+        border: 1px solid rgba(251, 210, 152, 0.25);
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 60%, rgba(251, 210, 152, 0.18) 0%, rgba(0, 0, 0, 0.5) 70%);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+        @media (max-width: 767px) {
+            width: 50px;
+            height: 50px;
+
+            img { width: 34px !important; }
+        }
+
+        img {
+            width: 44px;
+            height: auto;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+            transition: transform 0.2s ease;
+        }
+    }
+
+    &:hover &__chest,
+    &--open &__chest {
+        border-color: rgba(251, 210, 152, 0.7);
+        box-shadow: 0 0 18px rgba(251, 210, 152, 0.25);
+
+        img { transform: translateY(-2px) scale(1.06); }
+    }
+
+    // Усе виконано — нагорода вже автоматично надіслана
+    &--received &__chest {
+        border-color: rgba(174, 233, 97, 0.6);
+        background: radial-gradient(circle at 50% 60%, rgba(174, 233, 97, 0.16) 0%, rgba(0, 0, 0, 0.5) 70%);
+        animation: ra-chest-glow 1.6s ease-in-out infinite alternate;
+    }
+
+    &--received &__caption {
+        color: #AEE961;
+    }
+
+    &__check {
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #AEE961;
+        color: #111;
+        border: 2px solid #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        i { font-size: 10px; font-weight: 700; }
+    }
+
+    &--none &__chest img {
+        filter: grayscale(1) brightness(0.7);
+    }
+
+    &__caption {
+        font-family: "Candara", sans-serif;
+        font-size: 12px;
+        color: rgba(248, 248, 248, 0.5);
+    }
+
+    &__tip {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: -10px;
+        width: 270px;
+        padding: 16px;
+        background: #0b0b0b;
+        border: 1px solid rgba(251, 210, 152, 0.3);
+        border-radius: 5px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+        text-align: left;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 36px;
+            width: 10px;
+            height: 10px;
+            background: #0b0b0b;
+            border-left: 1px solid rgba(251, 210, 152, 0.3);
+            border-top: 1px solid rgba(251, 210, 152, 0.3);
+            transform: rotate(45deg);
+        }
+    }
+
+    &__tip-title {
+        margin: 0;
+        font-size: 18px;
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__tip-sub {
+        margin: 4px 0 0;
+        font-family: "Candara", sans-serif;
+        font-size: 12px;
+        color: rgba(248, 248, 248, 0.5);
+    }
+
+    &__list {
+        list-style: none;
+        margin: 12px 0 0;
+        padding: 12px 0 0;
+        border-top: 1px solid rgba(251, 210, 152, 0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Candara", sans-serif;
+        font-size: 14px;
+
+        .pi {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            background: rgba(251, 210, 152, 0.1);
+            color: #fbd298;
+        }
+    }
+
+    &__icon--spirit.pi { color: #8fd3ff; background: rgba(143, 211, 255, 0.1); }
+    &__icon--reputation.pi { color: #d9a6ff; background: rgba(217, 166, 255, 0.1); }
+    &__icon--book.pi,
+    &__icon--stone.pi { color: #e26f0f; background: rgba(226, 111, 15, 0.12); }
+
+    &__item-name {
+        flex: 1;
+        color: rgba(248, 248, 248, 0.85);
+    }
+
+    &__item-amount {
+        color: #fbd298;
+        white-space: nowrap;
+    }
+
+    &__note {
+        margin: 12px 0 0;
+        font-family: "Candara", sans-serif;
+        font-size: 12px;
+        color: rgba(248, 248, 248, 0.45);
+
+        &--ok { color: #AEE961; }
+    }
+}
+
+@keyframes ra-chest-glow {
+    from { box-shadow: 0 0 6px rgba(174, 233, 97, 0.2); }
+    to { box-shadow: 0 0 20px rgba(174, 233, 97, 0.45); }
+}
+
+.ra-pop-enter-active,
+.ra-pop-leave-active {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.ra-pop-enter-from,
+.ra-pop-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
 }
 
 .ra-bar {

@@ -34,6 +34,12 @@ export const roleSummary = (role: ActivityRole) => {
     }
 }
 
+/** Нагорода відправляється автоматично, тож усе виконано = нагороду отримано. */
+export const isRewardReceived = (role: ActivityRole) => {
+    const { done, total } = roleSummary(role)
+    return !!role.complete || (total > 0 && done === total)
+}
+
 /** Щоденна активність персонажів на всіх ігрових акаунтах (GET user/activity). */
 export function useUserActivity() {
     const userStore = useUserStore()
