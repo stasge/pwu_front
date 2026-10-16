@@ -9,6 +9,7 @@ import { ukPlural } from '@/utils/dateUtils';
 import { usePollsStore } from '@/stores/pollsStore';
 import { useUserStore } from '@/stores/userStore';
 import PollVotersModal from '@/components/modals/PollVotersModal.vue';
+import PollVoteConfirmModal from '@/components/modals/PollVoteConfirmModal.vue';
 import {
     POLL_STATUS_LABELS,
     type Poll,
@@ -143,6 +144,16 @@ const open = async () => {
     }
 }
 
+const voteConfirmRef = ref<InstanceType<typeof PollVoteConfirmModal> | null>(null)
+
+/** Голос не можна змінити, тож спершу просимо підтвердження */
+const askVoteConfirm = () => {
+    if (!poll.value || selectedOptionId.value == null || voting.value) return
+    const option = poll.value.options.find(o => o.id === selectedOptionId.value)
+    if (!option) return
+    voteConfirmRef.value?.showDia({ pollTitle: poll.value.title, optionText: option.text })
+}
+
 const vote = async () => {
     if (!poll.value || selectedOptionId.value == null || voting.value) return
     voting.value = true
@@ -242,7 +253,7 @@ watch(pollId, (id) => {
                     v-if="poll.canVote"
                     class="fantasy-btn small poll-page__vote-btn"
                     :disabled="selectedOptionId == null || voting"
-                    @click="vote"
+                    @click="askVoteConfirm"
                 >
                     <span>{{ voting ? 'Перевіряємо право голосу…' : 'Проголосувати' }}</span>
                 </button>
@@ -287,6 +298,7 @@ watch(pollId, (id) => {
         <div v-else-if="loading" class="poll-page__empty">Завантаження…</div>
 
         <PollVotersModal ref="votersModalRef" />
+        <PollVoteConfirmModal ref="voteConfirmRef" @confirm="vote" />
     </div>
 </template>
 <style scoped lang="scss">
