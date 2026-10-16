@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
@@ -60,6 +60,32 @@ const openVotersModal = (option: PollOption) => {
 }
 
 const isMe = (voter: PollVoter) => voter.userId === userStore.user?.id
+
+/** Підказка «що означає активний»: відкривається по кліку, закривається кліком поза нею або Escape */
+const activeTipOpen = ref(false)
+const activeTipRef = ref<HTMLElement | null>(null)
+
+const onActiveTipOutside = (e: MouseEvent) => {
+    if (activeTipRef.value && !activeTipRef.value.contains(e.target as Node)) activeTipOpen.value = false
+}
+const onActiveTipKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') activeTipOpen.value = false
+}
+
+watch(activeTipOpen, open => {
+    if (open) {
+        document.addEventListener('click', onActiveTipOutside)
+        document.addEventListener('keydown', onActiveTipKeydown)
+    } else {
+        document.removeEventListener('click', onActiveTipOutside)
+        document.removeEventListener('keydown', onActiveTipKeydown)
+    }
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', onActiveTipOutside)
+    document.removeEventListener('keydown', onActiveTipKeydown)
+})
 
 const visibilityHint = computed(() => {
     if (!poll.value) return ''
@@ -163,7 +189,22 @@ watch(pollId, (id) => {
             <p v-if="poll.description" class="poll-page__description">{{ poll.description }}</p>
 
             <ul class="poll-page__info">
-                <li>Хто може голосувати: гравці, у яких хоча б один персонаж <b>60+ рівня</b> і був активний за <b>останні 2 дні</b></li>
+                <li>Хто може голосувати: гравці, у яких хоча б один персонаж <b>60+ рівня</b> і був
+                    <span ref="activeTipRef" class="active-tip">
+                        <button
+                            type="button"
+                            class="active-tip__term"
+                            :aria-expanded="activeTipOpen"
+                            aria-controls="active-tip-text"
+                            @click="activeTipOpen = !activeTipOpen"
+                        >активний</button>
+                        <Transition name="active-tip">
+                            <span v-if="activeTipOpen" id="active-tip-text" class="active-tip__bubble" role="tooltip">
+                                <b>Активний</b> — щодня виконує щонайменше <b>50%</b> щоденної активності персонажа
+                            </span>
+                        </Transition>
+                    </span>
+                    за <b>останні 2 дні</b></li>
                 <li>{{ visibilityHint }}</li>
                 <li v-if="poll.canVote">Голос не можна змінити або відкликати.</li>
             </ul>
@@ -332,6 +373,8 @@ watch(pollId, (id) => {
         color: rgba(248, 248, 248, 0.6);
 
         b { color: #fbd298; font-weight: 400; }
+
+        li { position: relative; }
     }
 
     &__options {
@@ -405,6 +448,92 @@ watch(pollId, (id) => {
         font-size: 22px;
         font-weight: 400;
     }
+}
+
+.active-tip {
+    position: relative;
+    display: inline-block;
+
+    &__term {
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
+        color: #fbd298;
+        text-decoration: underline dashed rgba(251, 210, 152, 0.7);
+        text-underline-offset: 3px;
+        cursor: help;
+        transition: color 0.2s ease;
+
+        &:hover,
+        &[aria-expanded="true"] {
+            color: #fadfae;
+            text-decoration-style: solid;
+        }
+    }
+
+    &__bubble {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 50%;
+        z-index: 20;
+        width: max-content;
+        max-width: min(280px, 80vw);
+        padding: 12px 14px;
+        transform: translateX(-50%);
+        background: #0b0b0b;
+        border: 1px solid rgba(251, 210, 152, 0.3);
+        border-radius: 5px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+        font-family: "Candara", sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        color: rgba(248, 248, 248, 0.85);
+        text-align: left;
+        white-space: normal;
+
+        b { color: #fbd298; font-weight: 400; }
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #0b0b0b;
+            border-left: 1px solid rgba(251, 210, 152, 0.3);
+            border-top: 1px solid rgba(251, 210, 152, 0.3);
+            transform: translateX(-50%) rotate(45deg);
+        }
+
+        // На вузьких екранах слово може бути біля правого краю — розтягуємо підказку на весь рядок списку
+        @media (max-width: 600px) {
+            left: 0;
+            right: 0;
+            width: auto;
+            max-width: none;
+            transform: none;
+
+            &::before {
+                display: none;
+            }
+        }
+    }
+
+    @media (max-width: 600px) {
+        position: static;
+    }
+}
+
+.active-tip-enter-active,
+.active-tip-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.active-tip-enter-from,
+.active-tip-leave-to {
+    opacity: 0;
 }
 
 .poll-option {
