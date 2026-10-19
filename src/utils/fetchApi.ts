@@ -10,7 +10,10 @@ const retryRequest = async (uri: string, options: any) => {
     try {
         return await ofetch(uri, options);
     } catch (error: any) {
-        if (error?.response?.status === 401) {
+        const status = error?.response?.status;
+        // Прострочений JWT деякі ендпоінти повертають як 400 з текстом помилки JWT
+        const isJwtExpired = status === 400 && /jwt/i.test(error?.data?.msg ?? '');
+        if (status === 401 || isJwtExpired) {
             await refreshToken();
             return ofetch(uri, options);
         }

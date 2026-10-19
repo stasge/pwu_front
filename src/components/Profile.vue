@@ -11,22 +11,27 @@ import { useToast } from 'vue-toastification';
 import { calculateTimeLeft, formatKyivDate } from '@/utils/dateUtils';
 import ChangeGameAccPass from '@/components/modals/ChangeGameAccPass.vue';
 import ChangePhone from './modals/ChangePhone.vue';
+import ChangeName from './modals/ChangeName.vue';
 import ChangeMainPassword from './modals/ChangeMainPassword.vue';
 import PromoCode from './modals/PromoCode.vue';
 import { useI18n } from 'vue-i18n'
 import AllRefersModal from './modals/AllRefersModal.vue';
 import ProfileActivity from './ProfileActivity.vue';
 import { formatGold, useGoldTotals } from '@/composables/useGoldTotals';
+import { usePollsStore } from '@/stores/pollsStore';
+import { ukPlural } from '@/utils/dateUtils';
 
 const {t} = useI18n()
 const changeGameAccPassRef = ref()
 const changePhoneRef = ref()
+const changeNameRef = ref()
 const changeMainPasswordRef = ref()
 const promoCodeRef = ref()
 const allRefersModalRef = ref()
 const filesBase = import.meta.env.VITE_FILES_URL
 
 const userStore = useUserStore()
+const pollsStore = usePollsStore()
 const { wrapAsyncCall } = useAsyncCallWrapper()
 const showed = ref(false)
 const passwordHidden = ref(true)
@@ -133,7 +138,10 @@ const show = () => {
 
 const { data: goldTotals, loading: goldLoading, error: goldError, load: loadGoldTotals } = useGoldTotals()
 
-onMounted(() => loadGoldTotals())
+onMounted(() => {
+    loadGoldTotals()
+    pollsStore.loadUnreadCount()
+})
 
 // Перезавантажуємо суму, коли змінюється набір активних ігрових акаунтів (видалення / відновлення / створення)
 watch(
@@ -148,6 +156,10 @@ watch(
         <div class="profile__header flex justify-content-between align-items-center w-full mb-6">
             <h1 class="profile__title text-center md:text-left flex-grow-1">Особистий кабінет</h1>
             <div class="flex column-gap-6 row-gap-3 flex-wrap justify-content-center flex-grow-1 md:justify-content-end">
+                <router-link :to="{ name: 'polls' }" class="profile__polls-btn fantasy-btn small">
+                    <span>Голосування</span>
+                    <span v-if="pollsStore.unreadCount > 0" class="profile__polls-badge">{{ pollsStore.unreadCount }}</span>
+                </router-link>
                 <button class="profile__promo-btn fantasy-btn small" @click="promoCodeRef.showDia()">
                     <img width="20" src="@/assets/images/Jewel.svg" alt="Jewel">
                     <span>Ввести промокод</span>
@@ -158,6 +170,14 @@ watch(
                 </button>
             </div>
         </div>
+        <router-link v-if="pollsStore.unreadCount > 0" :to="{ name: 'polls' }" class="profile__polls-notice">
+            <span class="profile__polls-notice-dot"></span>
+            <span class="profile__polls-notice-text">
+                Є <b>{{ pollsStore.unreadCount }}</b>
+                {{ ukPlural(pollsStore.unreadCount, 'нове голосування', 'нові голосування', 'нових голосувань') }} — ваш голос важливий
+            </span>
+            <span class="profile__polls-notice-link">Перейти →</span>
+        </router-link>
         <div class="profile__container flex gap-5 justify-content-between w-full flex-wrap">
             <!-- Блок ПЕРСОНАЛЬНІ ДАНІ -->
             <div class="profile__left-block flex gap-5 flex-wrap lg:flex-nowrap w-full">
@@ -204,6 +224,18 @@ watch(
                                     <title>{{ userStore.user?.is_verified ? 'Пошту верифіковано' : 'Пошту не верифіковано' }}</title>
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M6.62061 12.0068L3.83892 8.42256C3.83892 8.42256 -0.00207991 10.3737 8.45085e-07 10.4125C2.59782 11.1057 5.73258 13.8437 7.08506 15.5C9.42962 12.1108 12.7935 8.81816 15.6719 7.01589C15.013 5.80283 15.0823 2.09431 16 0.5C10.7127 5.62953 6.62061 12.0068 6.62061 12.0068Z" fill="currentColor"/>
                                 </svg>
+                            </div>
+                            <div class="profile__personal-info-row flex flex-wrap gap-2 align-items-center">
+                                <span class="profile__personal-info-label">Ім'я:</span>
+                                <span v-if="userStore.user?.name?.trim()" class="profile__name">{{ userStore.user.name }}</span>
+                                <span v-else class="profile__name profile__name--empty">Не вказано</span>
+                                <img
+                                    src="@/assets/images/feather.svg"
+                                    alt="Edit"
+                                    :title="userStore.user?.name?.trim() ? 'Змінити ім’я' : 'Додати ім’я'"
+                                    class="profile__edit-icon cursor-pointer"
+                                    @click="changeNameRef.showDia(!!userStore.user?.name?.trim(), userStore.user?.name)"
+                                >
                             </div>
                             <div class="profile__personal-info-row flex flex-wrap column-gap-5 row-gap-2 align-items-center">
                                 <span class="flex gap-2 align-items-center">
@@ -386,6 +418,7 @@ watch(
     </Modal>
     <ChangeGameAccPass ref="changeGameAccPassRef"/>
     <ChangePhone ref="changePhoneRef"/>
+    <ChangeName ref="changeNameRef"/>
     <ChangeMainPassword  ref="changeMainPasswordRef"/>
     <PromoCode ref="promoCodeRef"/>
     <AllRefersModal ref="allRefersModalRef"/>
@@ -417,8 +450,79 @@ watch(
     }
 
     &__exit-btn,
-    &__promo-btn {
+    &__promo-btn,
+    &__polls-btn {
         margin-left: 15px;
+    }
+
+    &__polls-btn {
+        position: relative;
+        padding-left: 12px;
+        padding-right: 12px;
+        text-decoration: none;
+    }
+
+    &__polls-badge {
+        position: absolute !important;
+        top: -6px;
+        right: -22px;
+        z-index: 3 !important;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 99px;
+        background: #e53935 !important;
+        -webkit-text-fill-color: #fff !important;
+        color: #fff;
+        font-family: "Candara", sans-serif !important;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 20px;
+        text-align: center;
+        animation: profile-polls-pulse 1.6s infinite;
+    }
+
+    &__polls-notice {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 14px 20px;
+        border: 1px solid rgba(251, 210, 152, 0.35);
+        border-radius: 5px;
+        background: rgba(251, 210, 152, 0.06);
+        color: #f8f8f8;
+        font-family: "Candara", sans-serif;
+        font-size: 16px;
+        text-decoration: none;
+        transition: background 0.2s ease;
+
+        &:hover {
+            background: rgba(251, 210, 152, 0.12);
+        }
+
+        b {
+            color: #fbd298;
+        }
+    }
+
+    &__polls-notice-text {
+        flex: 1 1 200px;
+    }
+
+    &__polls-notice-dot {
+        flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #e53935;
+        animation: profile-polls-pulse 1.6s infinite;
+    }
+
+    &__polls-notice-link {
+        margin-left: auto;
+        color: #fbd298;
     }
 
     &__left-block {
@@ -687,6 +791,15 @@ watch(
             display: block;
             width: 100%;
             text-align: center;
+        }
+    }
+
+    &__name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+
+        &--empty {
+            opacity: 0.5;
         }
     }
 
@@ -999,6 +1112,12 @@ watch(
     }
 
 }
+@keyframes profile-polls-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(229, 57, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+}
+
 ::-webkit-scrollbar {
    width: 6px;
 }

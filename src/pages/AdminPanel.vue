@@ -115,6 +115,11 @@ onMounted(() => {
     <div class="users">
         <div class="users__inner">
             <div class="users__container">
+                <div class="flex justify-content-end mb-3">
+                    <router-link :to="{ name: 'admin-polls' }" class="fantasy-btn small thin px-3">
+                        <span>Керування опитуваннями</span>
+                    </router-link>
+                </div>
                 <h1 class="users__title mb-5 text-center">Користувачі</h1>
                 <div class="flex justify-content-start align-items-center mb-3">
                     <InputText v-model="searchUsername" placeholder="Пошук користувача" class="w-full" style="max-width: 300px"
