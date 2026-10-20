@@ -120,7 +120,7 @@ const openRole = (role: ActivityRole, accountName: string) => {
                             <span class="role-card__meta">
                                 <template v-if="statusOf(role, summary) === 'reward'">Нагороду отримано</template>
                                 <template v-else-if="summary.total">
-                                    {{ summary.done }}/{{ summary.total }} · {{ summary.points }}/{{ summary.maxPoints }} оч.
+                                    Виконано {{ summary.done }}/{{ summary.total }}
                                 </template>
                                 <template v-else>Немає активностей</template>
                             </span>
