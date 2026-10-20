@@ -90,9 +90,20 @@ const onRewardPointerEnter = (e: PointerEvent) => {
 const onRewardPointerLeave = (e: PointerEvent) => {
     if (e.pointerType === 'mouse') rewardOpen.value = false
 }
-const onRewardClick = (e: MouseEvent) => {
+/**
+ * Тип вказівника беремо з pointerdown: Safari на iPhone віддає click після тапу
+ * з pointerType «mouse», тож на сам click покладатися не можна.
+ * Клавіатура (Enter/пробіл) дає click без pointerdown — тоді тип порожній.
+ */
+let rewardPointerType = ''
+const onRewardPointerDown = (e: PointerEvent) => {
+    rewardPointerType = e.pointerType
+}
+const onRewardClick = () => {
+    const pointerType = rewardPointerType
+    rewardPointerType = ''
     // Для мишки підказку вже показало наведення
-    if ((e as PointerEvent).pointerType === 'mouse') return
+    if (pointerType === 'mouse') return
     rewardOpen.value = !rewardOpen.value
 }
 const onRewardOutside = (e: PointerEvent) => {
@@ -163,6 +174,7 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                 class="ra-reward__chest"
                                 aria-label="Нагорода за щоденну активність"
                                 :aria-expanded="rewardOpen"
+                                @pointerdown="onRewardPointerDown"
                                 @click="onRewardClick"
                                 @blur="rewardOpen = false"
                             >
