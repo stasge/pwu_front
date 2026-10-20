@@ -75,6 +75,36 @@ const rewardIcons: Record<ActivityRewardKind, string> = {
 const amountFormat = new Intl.NumberFormat('uk-UA')
 
 watch(role, () => { rewardOpen.value = false })
+watch(showed, value => { if (!value) rewardOpen.value = false })
+
+/**
+ * Мишка відкриває підказку наведенням, дотик і клавіатура — кліком.
+ * На телефоні тап емулює ще й наведення та фокус: якщо їх слухати, перший тап
+ * відкриває підказку і той самий click одразу її закриває.
+ */
+const rewardRef = ref<HTMLElement | null>(null)
+
+const onRewardPointerEnter = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') rewardOpen.value = true
+}
+const onRewardPointerLeave = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse') rewardOpen.value = false
+}
+const onRewardClick = (e: MouseEvent) => {
+    // Для мишки підказку вже показало наведення
+    if ((e as PointerEvent).pointerType === 'mouse') return
+    rewardOpen.value = !rewardOpen.value
+}
+const onRewardOutside = (e: PointerEvent) => {
+    if (rewardRef.value && !rewardRef.value.contains(e.target as Node)) rewardOpen.value = false
+}
+
+watch(rewardOpen, open => {
+    if (open) document.addEventListener('pointerdown', onRewardOutside)
+    else document.removeEventListener('pointerdown', onRewardOutside)
+})
+
+onBeforeUnmount(() => document.removeEventListener('pointerdown', onRewardOutside))
 
 const RING_RADIUS = 34
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS
@@ -122,18 +152,18 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                         </div>
 
                         <div
+                            ref="rewardRef"
                             class="ra-reward"
                             :class="[{ 'ra-reward--received': rewardReceived, 'ra-reward--open': rewardOpen, 'ra-reward--none': !rewardTier }]"
-                            @mouseenter="rewardOpen = true"
-                            @mouseleave="rewardOpen = false"
+                            @pointerenter="onRewardPointerEnter"
+                            @pointerleave="onRewardPointerLeave"
                         >
                             <button
                                 type="button"
                                 class="ra-reward__chest"
                                 aria-label="Нагорода за щоденну активність"
                                 :aria-expanded="rewardOpen"
-                                @click="rewardOpen = !rewardOpen"
-                                @focus="rewardOpen = true"
+                                @click="onRewardClick"
                                 @blur="rewardOpen = false"
                             >
                                 <img :src="rewardChest" alt="">
