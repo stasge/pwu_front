@@ -169,12 +169,23 @@ watch(
                 </button>
             </div>
         </div>
-        <router-link v-if="pollsStore.unreadCount > 0" :to="{ name: 'polls' }" class="profile__polls-notice">
-            <span class="profile__polls-notice-dot"></span>
-            <span class="profile__polls-notice-text">
-                Є <b>{{ pollsStore.unreadCount }}</b>
-                {{ ukPlural(pollsStore.unreadCount, 'нове голосування', 'нові голосування', 'нових голосувань') }} — ваш голос важливий
-            </span>
+        <!-- На десктопі — тільки коли є нові голосування; на мобільних заміняє кнопку «Голосування» і видно завжди -->
+        <router-link
+            :to="{ name: 'polls' }"
+            class="profile__polls-notice"
+            :class="{ 'profile__polls-notice--quiet': pollsStore.unreadCount === 0 }"
+        >
+            <template v-if="pollsStore.unreadCount > 0">
+                <span class="profile__polls-notice-dot"></span>
+                <span class="profile__polls-notice-text">
+                    Є <b>{{ pollsStore.unreadCount }}</b>
+                    {{ ukPlural(pollsStore.unreadCount, 'нове голосування', 'нові голосування', 'нових голосувань') }} — ваш голос важливий
+                </span>
+            </template>
+            <template v-else>
+                <i class="pi pi-chart-bar profile__polls-notice-icon"></i>
+                <span class="profile__polls-notice-text">Голосування</span>
+            </template>
             <span class="profile__polls-notice-link">Перейти →</span>
         </router-link>
         <div class="profile__container flex gap-5 justify-content-between w-full flex-wrap">
@@ -454,6 +465,11 @@ watch(
 
     &__polls-btn {
         position: relative;
+
+        @media (max-width: 767px) {
+            display: none !important;
+        }
+
         padding-left: 12px;
         padding-right: 12px;
         text-decoration: none;
@@ -502,10 +518,32 @@ watch(
         b {
             color: #fbd298;
         }
+
+        // Без нових голосувань смуга потрібна лише на мобільних, де вона заміняє кнопку
+        &--quiet {
+            border-color: rgba(248, 248, 248, 0.12);
+            background: rgba(250, 250, 250, 0.05);
+
+            @media (min-width: 768px) {
+                display: none;
+            }
+        }
+    }
+
+    &__polls-notice-icon {
+        flex-shrink: 0;
+        font-size: 15px;
+        color: #fbd298;
     }
 
     &__polls-notice-text {
         flex: 1 1 200px;
+
+        // На мобільних тримаємо «Перейти →» в одному рядку з текстом
+        @media (max-width: 767px) {
+            flex-basis: 0;
+            min-width: 0;
+        }
     }
 
     &__polls-notice-dot {
@@ -518,6 +556,7 @@ watch(
     }
 
     &__polls-notice-link {
+        flex-shrink: 0;
         margin-left: auto;
         color: #fbd298;
     }
