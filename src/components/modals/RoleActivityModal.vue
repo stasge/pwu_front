@@ -180,16 +180,8 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
 
                     <div class="ra__stats">
                         <div class="ra__stat">
-                            <span class="ra__stat-label">Очки</span>
-                            <span class="ra__stat-value">{{ summary.points }}<small>/{{ summary.maxPoints }}</small></span>
-                        </div>
-                        <div class="ra__stat">
                             <span class="ra__stat-label">Виконано</span>
                             <span class="ra__stat-value">{{ summary.done }}<small>/{{ summary.total }}</small></span>
-                        </div>
-                        <div class="ra__stat">
-                            <span class="ra__stat-label">Недоступно</span>
-                            <span class="ra__stat-value">{{ locked.length }}</span>
                         </div>
                     </div>
 
@@ -214,7 +206,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                             <span class="ra-bar__fill" :style="{ width: percent(item) + '%' }"></span>
                                         </div>
                                     </div>
-                                    <span class="ra-item__points">{{ item.points }}/{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -230,7 +221,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                             <span class="ra-item__count">{{ item.completed }}/{{ item.required }}</span>
                                         </div>
                                     </div>
-                                    <span class="ra-item__points">{{ item.points }}/{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -244,7 +234,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                         <span class="ra-item__name">{{ item.name }}</span>
                                         <span class="ra-item__hint">Доступно з {{ item.minLevel }} рівня</span>
                                     </div>
-                                    <span class="ra-item__points">{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -441,7 +430,7 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
 
     &__stats {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
         gap: 10px;
         margin-top: 24px;
     }
@@ -598,14 +587,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         color: rgba(248, 248, 248, 0.5);
     }
 
-    &__points {
-        flex-shrink: 0;
-        font-family: "Candara", sans-serif;
-        font-size: 13px;
-        color: #fbd298;
-        white-space: nowrap;
-    }
-
     &--done {
         background: rgba(174, 233, 97, 0.05);
         border-left-color: #AEE961;
@@ -618,7 +599,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         }
 
         .ra-item__name { color: rgba(248, 248, 248, 0.75); }
-        .ra-item__points { color: #AEE961; }
     }
 
     &--locked {
@@ -630,8 +610,6 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
             background: rgba(248, 248, 248, 0.1);
             color: rgba(248, 248, 248, 0.7);
         }
-
-        .ra-item__points { color: rgba(248, 248, 248, 0.5); }
     }
 }
 
