@@ -704,6 +704,11 @@ oembed {
 
   .ck-content {
     min-height: 400px;
+
+    a {
+      color: #e26f0f;
+      text-decoration: underline;
+    }
   }
 
 }
