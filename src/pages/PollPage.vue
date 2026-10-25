@@ -215,7 +215,7 @@ watch(pollId, (id) => {
                             </span>
                         </Transition>
                     </span>
-                    <b>2 дні</b> за <b>останній тиждень</b></li>
+                    {{ ' ' }}<b>2 дні</b> за <b>останній тиждень</b></li>
                 <li>{{ visibilityHint }}</li>
                 <li v-if="poll.canVote">Голос не можна змінити або відкликати.</li>
             </ul>
