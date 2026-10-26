@@ -271,6 +271,10 @@ onMounted(() => {
                             <img src="@/assets/images/rupor.png" alt="Рупор x5" class="about__promo-reward-icon">
                             <span class="about__promo-reward-text">Рупор x5</span>
                         </div>
+                        <div class="about__promo-reward">
+                            <img src="@/assets/images/promo-fly.png" alt="Політ на 7 днів" class="about__promo-reward-icon about__promo-reward-icon--wide">
+                            <span class="about__promo-reward-text">Політ на 7 днів</span>
+                        </div>
                     </div>
                 </div>
                 <img src="@/assets/images/CTA-mask.png" class="about__promo-mask-top" alt="promo mask top">
@@ -991,6 +995,12 @@ onMounted(() => {
             @media (max-width: 768px) {
                 width: 35px;
                 height: 35px;
+            }
+
+            &--wide {
+                @media (max-width: 768px) {
+                    width: auto;
+                }
             }
         }
 
