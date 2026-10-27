@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useTournamentLive } from '@/composables/useTournamentLive'
 import { useUserStore } from '@/stores/userStore'
-import { CATEGORIES, categoryFinished, formatLabel, getEntryTeams, isTeamReg, podium, teamLabel } from '@/tournament/logic'
+import { CATEGORIES, categoryFinished, formatLabel, getEntryTeams, isTeamReg } from '@/tournament/logic'
 import type { Category } from '@/tournament/types'
 import CategoryBoard from '@/components/tournament/CategoryBoard.vue'
 import '@/tournament/theme.scss'
@@ -30,18 +30,6 @@ const cat = computed<Category | null>(() =>
     selected.value && activeCategories.value.includes(selected.value) ? selected.value : activeCategories.value[0] ?? null
 )
 
-/** Завершені категорії, крім відкритої (там подіум і так видно) — щоб результат не губився */
-const finishedOthers = computed(() => {
-    const d = data.value
-    if (!d) return []
-    return activeCategories.value
-        .filter((c) => c !== cat.value && categoryFinished(d.tournaments[c]))
-        .map((c) => {
-            const p = podium(d.tournaments[c])!
-            return { cat: c, first: teamLabel(d, c, p.first), second: teamLabel(d, c, p.second), third: teamLabel(d, c, p.third) }
-        })
-})
-
 const catLabel = (c: Category) => (c === '90-98' ? '90–98' : c)
 
 const updatedLabel = computed(() => {
@@ -66,15 +54,6 @@ const updatedLabel = computed(() => {
         </div>
 
         <template v-else-if="data && cat">
-            <div v-if="finishedOthers.length" class="finished-strip">
-                <div v-for="f in finishedOthers" :key="f.cat" class="finished-strip__item">
-                    <span class="finished-strip__title">{{ catLabel(f.cat) }} — завершено</span>
-                    <span class="finished-strip__place"><b>1</b> {{ f.first }}</span>
-                    <span class="finished-strip__place"><b>2</b> {{ f.second }}</span>
-                    <span class="finished-strip__place"><b>3</b> {{ f.third }}</span>
-                    <button type="button" class="ghost-btn ghost-btn--accent finished-strip__go" @click="selected = f.cat">Результати</button>
-                </div>
-            </div>
             <nav v-if="activeCategories.length > 1" class="app-nav" aria-label="Категорії">
                 <button
                     v-for="c in activeCategories"

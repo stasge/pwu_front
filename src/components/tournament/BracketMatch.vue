@@ -53,7 +53,7 @@ const onInput = (side: 1 | 2, event: Event) => {
             @click="copyText(buildMatchAnnounce(data, cat, match, stage), 'Оголошення скопійовано')"
         ><i class="pi pi-copy"></i></button>
         <div class="bracket-match">
-            <div v-for="s in sides" :key="s.side" class="bracket-match__side">
+            <div v-for="s in sides" :key="s.side" class="bracket-match__side" :class="{ 'is-winner': !!winner && winner === s.id }">
                 <div
                     class="bracket-match__name"
                     :class="{

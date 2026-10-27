@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { announceRoundLabel, boLabel, playersPerTeam, roundLabel } from '@/tournament/logic'
 import type { Category, Match, TournamentData } from '@/tournament/types'
 import BracketMatch from './BracketMatch.vue'
+import PvpCorners from './PvpCorners.vue'
 
 const props = defineProps<{
     data: TournamentData
@@ -24,16 +25,15 @@ const earlyRounds = computed(() =>
 )
 </script>
 <template>
-    <div v-if="bracket && finalMatch && !earlyRounds.length" class="bracket bracket--finals-only" :class="`bracket--size-${playersPerTeam(data, cat)}`">
-        <div class="bracket__podium">
-            <div class="bracket__podium-block bracket__podium-block--final">
-                <div class="bracket__round-title bracket__round-title--accent">Фінал · {{ boLabel(finalMatch.bestOf) }}</div>
-                <BracketMatch :data="data" :cat="cat" :match="finalMatch" stage="Фінал" :editable="editable" />
-            </div>
-            <div class="bracket__podium-block">
-                <div class="bracket__round-title bracket__round-title--accent">Бій за 3 місце · {{ boLabel(bracket.thirdPlace.bestOf) }}</div>
-                <BracketMatch :data="data" :cat="cat" :match="bracket.thirdPlace" stage="Бій за 3 місце" :editable="editable" />
-            </div>
+    <div v-if="bracket && finalMatch && !earlyRounds.length" class="panel-card finals-stage">
+        <PvpCorners />
+        <div class="finals-stage__block finals-stage__block--final">
+            <div class="finals-stage__title">Фінал <small>{{ boLabel(finalMatch.bestOf) }}</small></div>
+            <BracketMatch :data="data" :cat="cat" :match="finalMatch" stage="Фінал" :editable="editable" />
+        </div>
+        <div class="finals-stage__block finals-stage__block--third">
+            <div class="finals-stage__title">Бій за 3 місце <small>{{ boLabel(bracket.thirdPlace.bestOf) }}</small></div>
+            <BracketMatch :data="data" :cat="cat" :match="bracket.thirdPlace" stage="Бій за 3 місце" :editable="editable" />
         </div>
     </div>
     <div v-else-if="bracket && finalMatch" class="bracket" :class="`bracket--size-${playersPerTeam(data, cat)}`">

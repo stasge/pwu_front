@@ -1053,44 +1053,6 @@ $text: #f8f8f8;
         }
     }
 
-    .finished-strip {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .finished-strip__item {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px 18px;
-        padding: 12px 16px;
-        border: 1px solid rgba(251, 210, 152, 0.45);
-        border-radius: 8px;
-        background: linear-gradient(90deg, rgba(251, 210, 152, 0.14) 0%, rgba(250, 250, 250, 0.04) 100%);
-        font-family: 'Candara', sans-serif;
-        font-size: 14px;
-    }
-
-    .finished-strip__title {
-        font-family: 'VollkornSC', sans-serif;
-        font-size: 18px;
-        letter-spacing: -0.04em;
-        @include gold-text;
-    }
-
-    .finished-strip__place {
-        color: rgba(248, 248, 248, 0.9);
-
-        b {
-            font-weight: 400;
-            color: $gold;
-        }
-    }
-
-    .finished-strip__go { margin-left: auto; }
-
     .tiebreak-card {
         margin-top: 16px;
         padding: 12px;
@@ -1292,25 +1254,102 @@ $text: #f8f8f8;
         pointer-events: none;
     }
 
-    // лише фінал + 3 місце (4–5 команд): два блоки поруч, як «подіум» у pvp-teams
-    .bracket__podium {
+    // лише фінал + 3 місце (4–5 команд): «сцена» по центру, фінал — головний акцент
+    .finals-stage {
         display: flex;
-        flex-wrap: wrap;
-        gap: 24px 32px;
-        padding-top: 8px;
-    }
+        flex-direction: column;
+        align-items: center;
+        gap: 44px;
+        padding: 48px 20px 52px;
+        background:
+            radial-gradient(ellipse 60% 55% at 50% 30%, rgba(251, 210, 152, 0.08) 0%, transparent 70%),
+            rgba(250, 250, 250, 0.06);
 
-    .bracket__podium-block {
-        flex: 0 1 340px;
-        min-width: 0;
-
-        &--final .bracket-match {
-            border-color: rgba(251, 210, 152, 0.6);
-            box-shadow: 0 0 18px rgba(251, 210, 152, 0.18);
+        @media (max-width: 576px) {
+            gap: 32px;
+            padding: 32px 12px 36px;
         }
     }
 
-    .bracket--finals-only .bracket-match { min-width: 0; }
+    .finals-stage__block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+
+        .bracket-match-wrap { width: 100%; }
+        .bracket-match { min-width: 0; }
+
+        &--final { max-width: 640px; }
+        &--third { max-width: 540px; }
+    }
+
+    .finals-stage__title {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+
+        small {
+            font-family: 'Candara', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0;
+            color: rgba(251, 210, 152, 0.7);
+            -webkit-text-fill-color: rgba(251, 210, 152, 0.7);
+        }
+    }
+
+    .finals-stage__block--final {
+        .finals-stage__title {
+            font-size: clamp(34px, 5vw, 52px);
+            filter: drop-shadow(0 0 14px rgba(251, 210, 152, 0.25));
+            @include gold-text;
+        }
+
+        .bracket-match {
+            border: 2px solid rgba(251, 210, 152, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 28px rgba(251, 210, 152, 0.2), inset 0 1px 0 rgba(248, 248, 248, 0.06);
+        }
+
+        .bracket-match__side { min-height: 64px; }
+
+        .bracket-match__name {
+            padding: 0 24px;
+            font-size: clamp(17px, 2.2vw, 24px);
+        }
+
+        .bracket-match__scorebox { min-width: 76px; }
+        .bracket-match__scorebox--readonly { font-size: clamp(20px, 2.4vw, 28px); }
+        .bracket-match__score { width: 52px; font-size: 20px; }
+        .bracket-match__step { flex-basis: 28px; font-size: 18px; }
+    }
+
+    .finals-stage__block--third {
+        .finals-stage__title {
+            font-size: clamp(24px, 3.2vw, 34px);
+            color: rgba(248, 248, 248, 0.6);
+        }
+
+        .bracket-match { border-radius: 8px; }
+        .bracket-match__side { min-height: 52px; }
+
+        .bracket-match__name {
+            padding: 0 20px;
+            font-size: clamp(15px, 1.9vw, 20px);
+        }
+
+        .bracket-match__scorebox { min-width: 64px; }
+        .bracket-match__scorebox--readonly { font-size: clamp(17px, 2vw, 22px); }
+    }
+
+    // рахунок переможця підсвічений, як на «сцені» фіналу
+    .bracket-match__side.is-winner .bracket-match__scorebox {
+        background: rgba(251, 210, 152, 0.16);
+        font-weight: 600;
+    }
 
     .bracket-match-wrap {
         position: relative;
