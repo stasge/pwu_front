@@ -1278,11 +1278,22 @@ $text: #f8f8f8;
         gap: 16px;
         width: 100%;
 
-        .bracket-match-wrap { width: 100%; }
-        .bracket-match { min-width: 0; }
+        max-width: 640px;
 
-        &--final { max-width: 640px; }
-        &--third { max-width: 540px; }
+        // картки фіналу й бою за 3 місце однакового розміру; фінал виділено рамкою і заголовком
+        .bracket-match-wrap { width: 100%; }
+        .bracket-match { min-width: 0; border-radius: 10px; }
+        .bracket-match__side { min-height: 64px; }
+
+        .bracket-match__name {
+            padding: 0 24px;
+            font-size: clamp(17px, 2.2vw, 24px);
+        }
+
+        .bracket-match__scorebox { min-width: 76px; }
+        .bracket-match__scorebox--readonly { font-size: clamp(20px, 2.4vw, 28px); }
+        .bracket-match__score { width: 52px; font-size: 20px; }
+        .bracket-match__step { flex-basis: 28px; font-size: 18px; }
     }
 
     .finals-stage__title {
@@ -1310,21 +1321,8 @@ $text: #f8f8f8;
 
         .bracket-match {
             border: 2px solid rgba(251, 210, 152, 0.7);
-            border-radius: 10px;
             box-shadow: 0 0 28px rgba(251, 210, 152, 0.2), inset 0 1px 0 rgba(248, 248, 248, 0.06);
         }
-
-        .bracket-match__side { min-height: 64px; }
-
-        .bracket-match__name {
-            padding: 0 24px;
-            font-size: clamp(17px, 2.2vw, 24px);
-        }
-
-        .bracket-match__scorebox { min-width: 76px; }
-        .bracket-match__scorebox--readonly { font-size: clamp(20px, 2.4vw, 28px); }
-        .bracket-match__score { width: 52px; font-size: 20px; }
-        .bracket-match__step { flex-basis: 28px; font-size: 18px; }
     }
 
     .finals-stage__block--third {
@@ -1333,16 +1331,7 @@ $text: #f8f8f8;
             color: rgba(248, 248, 248, 0.6);
         }
 
-        .bracket-match { border-radius: 8px; }
-        .bracket-match__side { min-height: 52px; }
-
-        .bracket-match__name {
-            padding: 0 20px;
-            font-size: clamp(15px, 1.9vw, 20px);
-        }
-
-        .bracket-match__scorebox { min-width: 64px; }
-        .bracket-match__scorebox--readonly { font-size: clamp(17px, 2vw, 22px); }
+        .bracket-match { border-width: 2px; }
     }
 
     // рахунок переможця підсвічений, як на «сцені» фіналу
