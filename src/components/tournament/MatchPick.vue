@@ -9,11 +9,14 @@ const props = defineProps<{
     cat: Category
     match: Match
     editable?: boolean
+    /** результат бою ні на що не впливає — можна видалити */
+    pointless?: boolean
 }>()
 
 const emit = defineEmits<{
     pick: [side: 1 | 2]
     copy: []
+    remove: [event: Event]
 }>()
 
 const winner = computed(() => resolveMatchWinner(props.match))
@@ -25,7 +28,7 @@ const sideClass = (id: string | null) => ({
 })
 </script>
 <template>
-    <div class="match-pick" :class="{ 'match-pick--readonly': !editable }">
+    <div class="match-pick" :class="{ 'match-pick--readonly': !editable, 'match-pick--pointless': pointless }">
         <component
             :is="editable ? 'button' : 'div'"
             class="match-pick__team"
@@ -36,6 +39,7 @@ const sideClass = (id: string | null) => ({
         <div class="match-pick__meta">
             <span class="bo-tag">BO1</span>
             <span class="match-pick__score">{{ played ? `${match.score1 || 0}:${match.score2 || 0}` : '—' }}</span>
+            <span v-if="pointless" class="pointless-tag" title="Результат бою не змінить, хто куди проходить">не впливає</span>
             <span v-if="match.forfeit" class="forfeit-tag" title="Технічна перемога (дискваліфікація)">тех.</span>
         </div>
         <component
@@ -45,8 +49,13 @@ const sideClass = (id: string | null) => ({
             :type="editable ? 'button' : undefined"
             @click="editable && emit('pick', 2)"
         >{{ teamLabel(data, cat, match.p2) }}</component>
-        <button v-if="editable" type="button" class="match-copy-btn" title="Копіювати оголошення" @click="emit('copy')">
-            <i class="pi pi-copy"></i>
-        </button>
+        <div v-if="editable" class="match-pick__tools">
+            <button type="button" class="match-copy-btn" title="Копіювати оголошення" @click="emit('copy')">
+                <i class="pi pi-copy"></i>
+            </button>
+            <button v-if="pointless" type="button" class="match-copy-btn match-copy-btn--danger" title="Видалити непотрібний бій" @click="emit('remove', $event)">
+                <i class="pi pi-trash"></i>
+            </button>
+        </div>
     </div>
 </template>

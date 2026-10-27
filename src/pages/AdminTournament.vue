@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper'
 import { adminGetTournament, adminSaveTournament, TOURNAMENT_STATUS_LABELS, type TournamentSnapshot } from '@/tournament/api'
-import { CATEGORIES, createDefaultState, normalizeData } from '@/tournament/logic'
+import { CATEGORIES, categoryFinished, createDefaultState, normalizeData } from '@/tournament/logic'
 import type { TournamentData, TournamentStatus } from '@/tournament/types'
 import RegistrationPanel from '@/components/tournament/RegistrationPanel.vue'
 import RandomizerPanel from '@/components/tournament/RandomizerPanel.vue'
@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
             <nav class="app-nav" aria-label="Розділи">
                 <button type="button" class="app-nav__btn" :class="{ 'is-active': tab === 'register' }" @click="tab = 'register'">Реєстрація</button>
                 <button type="button" class="app-nav__btn" :class="{ 'is-active': tab === 'teams' }" @click="tab = 'teams'">Команди</button>
-                <button v-for="c in CATEGORIES" :key="c" type="button" class="app-nav__btn" :class="{ 'is-active': tab === c }" @click="tab = c">{{ c === '90-98' ? '90–98' : c }}</button>
+                <button v-for="c in CATEGORIES" :key="c" type="button" class="app-nav__btn" :class="{ 'is-active': tab === c }" @click="tab = c">{{ c === '90-98' ? '90–98' : c }}<small v-if="categoryFinished(data.tournaments[c])"> 🏆 завершено</small></button>
             </nav>
 
             <RegistrationPanel v-if="tab === 'register'" :data="data" />

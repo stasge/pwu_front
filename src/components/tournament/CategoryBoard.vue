@@ -11,6 +11,7 @@ import {
     podium,
     setupTournament,
     teamLabel,
+    teamMembers,
 } from '@/tournament/logic'
 import type { Category, TournamentData } from '@/tournament/types'
 import { useTournamentAction } from '@/composables/useTournamentAction'
@@ -101,7 +102,10 @@ const setup = (event: Event) => {
                         <span v-if="isDq(team.id)" class="dq-tag">дискв.</span>
                     </div>
                     <ul class="team-card__list">
-                        <li v-for="nick in team.label.split(' — ')" :key="nick" class="team-card__item">{{ nick }}</li>
+                        <li v-for="m in teamMembers(data, cat, team)" :key="m.nick" class="team-card__item member-row">
+                            <span>{{ m.nick }}</span>
+                            <span v-if="m.class" class="member-row__meta">{{ m.class }} · <b>{{ m.level }}</b></span>
+                        </li>
                     </ul>
                 </div>
             </div>

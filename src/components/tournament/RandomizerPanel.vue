@@ -5,6 +5,7 @@ import {
     CATEGORIES,
     commitFormedTeam,
     disbandFormedTeam,
+    findPlayerByNick,
     FORMATS,
     formedTeamsUsedInTournament,
     pickRandomTeam,
@@ -153,7 +154,12 @@ const copyFormed = () =>
                         >✕</button>
                     </div>
                     <ul class="team-card__list">
-                        <li v-for="nick in team" :key="nick" class="team-card__item">{{ nick }}</li>
+                        <li v-for="nick in team" :key="nick" class="team-card__item member-row">
+                            <span>{{ nick }}</span>
+                            <span v-if="findPlayerByNick(data, nick).class" class="member-row__meta">
+                                {{ findPlayerByNick(data, nick).class }} · <b>{{ findPlayerByNick(data, nick).level }}</b>
+                            </span>
+                        </li>
                     </ul>
                 </div>
             </div>

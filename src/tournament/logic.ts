@@ -12,6 +12,7 @@ import type {
     Group,
     Match,
     Player,
+    PlayerSnapshot,
     RegTeam,
     StandingRow,
     Tiebreak,
@@ -643,6 +644,12 @@ export function podium(tour: CategoryTournament) {
     return { first, second: resolveMatchLoser(final), third: resolveMatchWinner(bracket.thirdPlace) }
 }
 
+/** Категорію завершено: зіграно і фінал, і бій за 3 місце */
+export function categoryFinished(tour: CategoryTournament) {
+    const p = podium(tour)
+    return !!p?.first && !!p.third
+}
+
 /* ===== Команди турніру ===== */
 
 /** Команди, які підуть у турнір: з командної реєстрації або з рандомайзера */
@@ -655,6 +662,23 @@ export function getEntryTeams(data: TournamentData, cat: Category): Entry[] {
         label: members.join(' — '),
         source: 'randomizer',
     }))
+}
+
+/** Гравець за ніком з будь-якої категорії (класи/рівні для команд рандомайзера) */
+export function findPlayerByNick(data: TournamentData, nick: string): PlayerSnapshot {
+    const lower = nick.toLowerCase()
+    for (const cat of CATEGORIES) {
+        const found = getPlayers(data, cat).find((p) => p.nick.toLowerCase() === lower)
+        if (found) return { nick: found.nick, class: found.class, level: found.level }
+    }
+    return { nick, class: '', level: 0 }
+}
+
+/** Склад команди турніру з класами й рівнями */
+export function teamMembers(data: TournamentData, cat: Category, entry: Entry): PlayerSnapshot[] {
+    const team = data.teams[cat].find((t) => t.id === entry.id)
+    if (team) return team.members.map((m) => ({ nick: m.nick, class: m.class, level: m.level }))
+    return entry.label.split(' — ').map((nick) => findPlayerByNick(data, nick))
 }
 
 export function teamLabel(data: TournamentData, cat: Category, id: string | null) {
@@ -759,6 +783,74 @@ function shouldSkipTiebreakCluster(cluster: Cluster, standings: StandingRow[], p
 export function mainGroupFullyPlayed(group: Group) {
     const main = group.matches.filter((m) => !m.tiebreak)
     return main.length > 0 && main.every((m) => resolveMatchWinner(m) != null)
+}
+
+/** Більше незіграних боїв не перебираємо (2^k варіантів) — у групах до 5 команд їх максимум 10 */
+const MAX_PENDING_FOR_ANALYSIS = 12
+
+/**
+ * Незіграні групові бої, результат яких ні на що не впливає: при будь-якому розкладі
+ * решти боїв кожна команда опиняється в тій самій зоні (фінал / 3 місце / виліт, або
+ * посів у сітці), хоч би хто виграв цей бій. Напр. дві команди, що й так обидві йдуть у фінал.
+ */
+export function pointlessGroupMatchIds(tour: CategoryTournament, group: Group): Set<string> {
+    const plan = tour.bracketPlan
+    const result = new Set<string>()
+    if (plan !== 'finals-from-top4' && plan !== 'cross-semis') return result
+    const main = group.matches.filter((m) => !m.tiebreak)
+    const pending = main.filter((m) => m.p1 && m.p2 && !resolveMatchWinner(m))
+    if (!pending.length || pending.length > MAX_PENDING_FOR_ANALYSIS) return result
+
+    const dq = disqualifiedIds(tour)
+    const baseWins = new Map(group.teamIds.map((id) => [id, 0]))
+    for (const m of main) {
+        const w = resolveMatchWinner(m)
+        if (w && m.p1 && m.p2) baseWins.set(w, (baseWins.get(w) || 0) + 1)
+    }
+
+    /** Для кожної команди — множина зон, куди вона може потрапити (з урахуванням нічиїх) */
+    const zonesFor = (mask: number) => {
+        const wins = new Map(baseWins)
+        pending.forEach((m, i) => {
+            const w = (mask >> i) & 1 ? m.p2! : m.p1!
+            wins.set(w, (wins.get(w) || 0) + 1)
+        })
+        const active = group.teamIds.filter((id) => !dq.has(id))
+        return group.teamIds
+            .map((id) => {
+                if (dq.has(id)) return 'out'
+                const own = wins.get(id) || 0
+                const best = 1 + active.filter((o) => (wins.get(o) || 0) > own).length
+                const worst = active.filter((o) => (wins.get(o) || 0) >= own).length
+                const zones = new Set<string>()
+                for (let place = best; place <= worst; place++) zones.add(placementZone(plan, place))
+                return [...zones].sort().join(',')
+            })
+            .join('|')
+    }
+
+    const total = 1 << pending.length
+    const cache = new Map<number, string>()
+    const zonesCached = (mask: number) => {
+        if (!cache.has(mask)) cache.set(mask, zonesFor(mask))
+        return cache.get(mask)!
+    }
+    pending.forEach((m, i) => {
+        const bit = 1 << i
+        for (let mask = 0; mask < total; mask++) {
+            if (mask & bit) continue
+            if (zonesCached(mask) !== zonesCached(mask | bit)) return
+        }
+        result.add(m.id)
+    })
+    return result
+}
+
+/** Прибрати непотрібний груповий бій (див. pointlessGroupMatchIds) */
+export function removeGroupMatch(tour: CategoryTournament, group: Group, matchId: string) {
+    group.matches = group.matches.filter((m) => m.id !== matchId)
+    group.tiebreaks = []
+    ensureGroupTiebreaks(tour, group)
 }
 
 function tiebreakFullyPlayed(tb: Tiebreak) {

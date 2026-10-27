@@ -8,6 +8,8 @@ import {
     mainGroupFullyPlayed,
     pickGroupWinner,
     pickTiebreakWinner,
+    pointlessGroupMatchIds,
+    removeGroupMatch,
     randomizeTiebreak,
     resolveTiebreakOrder,
     teamLabel,
@@ -33,6 +35,7 @@ const tour = computed(() => props.data.tournaments[props.cat])
 const group = computed(() => tour.value.groups[props.groupIndex])
 const standings = computed(() => groupStandings(tour.value, group.value, { includeTiebreaks: true }))
 const mainMatches = computed(() => group.value.matches.filter((m) => !m.tiebreak))
+const pointless = computed(() => pointlessGroupMatchIds(tour.value, group.value))
 const tiebreaks = computed(() => (mainGroupFullyPlayed(group.value) ? group.value.tiebreaks : []))
 
 const label = (id: string | null) => teamLabel(props.data, props.cat, id)
@@ -54,6 +57,11 @@ const toggleDq = (event: Event, id: string, dq?: boolean) => {
         )
     )
 }
+
+const removeMatch = (event: Event, match: Match) =>
+    ask(event, `Бій ${label(match.p1)} vs ${label(match.p2)} ні на що не впливає: обидві команди потраплять туди ж за будь-якого результату. Видалити його?`, () =>
+        run(() => removeGroupMatch(tour.value, group.value, match.id), 'Бій видалено')
+    )
 
 const randomNote = (tb: Tiebreak) =>
     tb.randomOrder && resolveTiebreakOrder(tb).order ? describeRandomPlacement(props.data, props.cat, group.value, tb) : []
@@ -113,10 +121,13 @@ const randomNote = (tb: Tiebreak) =>
                 :cat="cat"
                 :match="m"
                 :editable="editable"
+                :pointless="pointless.has(m.id)"
                 @pick="(side) => run(() => pickGroupWinner(tour, group, m, side))"
                 @copy="copyMatch(m, `Група ${group.name}`)"
+                @remove="(event) => removeMatch(event, m)"
             />
             <div v-if="!mainMatches.length" class="empty-state">Немає матчів</div>
+            <p v-if="editable && pointless.size" class="tiebreak-note pointless-note">Позначені бої «не впливає» можна не грати — їхній результат не змінить, хто куди проходить.</p>
         </div>
 
         <div v-for="tb in tiebreaks" :key="tb.id" class="tiebreak-card">
