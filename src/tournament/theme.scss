@@ -331,8 +331,8 @@ $text: #f8f8f8;
         min-width: 120px;
 
         &--nick { flex: 3 1 180px; min-width: 140px; }
-        &--class { flex: 0 0 9.5rem; min-width: 9.5rem; max-width: 9.5rem; }
-        &--level { flex: 0 0 5.25rem; min-width: 5.25rem; max-width: 5.25rem; }
+        &--class { flex: 0 0 152px; min-width: 152px; max-width: 152px; }
+        &--level { flex: 0 0 84px; min-width: 84px; max-width: 84px; }
         &--level .field__input { text-align: center; }
         &--auto { flex: 0 0 auto; }
     }
@@ -479,12 +479,12 @@ $text: #f8f8f8;
             vertical-align: middle;
         }
 
-        .col-num { width: 2.4rem; }
-        .col-level { width: 5rem; }
-        .col-class { width: 7.6rem; }
-        .col-check { width: 2.4rem; }
-        .col-actions { width: 2.6rem; }
-        .col-stat { width: 3.6rem; }
+        .col-num { width: 38px; }
+        .col-level { width: 80px; }
+        .col-class { width: 122px; }
+        .col-check { width: 38px; }
+        .col-actions { width: 42px; }
+        .col-stat { width: 58px; }
 
         th.col-num, td.col-num,
         th.col-level, td.col-level,
@@ -503,9 +503,9 @@ $text: #f8f8f8;
         }
 
         &--teams {
-            .col-class { width: 9.5rem; }
-            .col-level { width: 4.5rem; }
-            .col-actions { width: 3.2rem; }
+            .col-class { width: 152px; }
+            .col-level { width: 72px; }
+            .col-actions { width: 51px; }
 
             td.col-nick, td.col-class, td.col-level {
                 white-space: normal;
@@ -617,8 +617,8 @@ $text: #f8f8f8;
         gap: 10px;
         padding: 6px 0;
 
-        .field { flex: 0 1 auto; min-width: 8rem; }
-        .field--level { min-width: 0; width: 5rem; }
+        .field { flex: 0 1 auto; min-width: 128px; }
+        .field--level { min-width: 0; width: 80px; }
     }
 
     .sub-form__title {
@@ -638,8 +638,8 @@ $text: #f8f8f8;
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
+        gap: 24px;
+        margin-bottom: 24px;
     }
 
     .counter {
@@ -669,8 +669,8 @@ $text: #f8f8f8;
         justify-content: center;
         align-items: flex-end;
         flex-wrap: wrap;
-        gap: 2rem;
-        margin-bottom: 1rem;
+        gap: 32px;
+        margin-bottom: 16px;
 
         .field { flex: 0 0 auto; min-width: 110px; }
         .field__input { height: 42px; padding: 8px 12px; }
@@ -682,7 +682,7 @@ $text: #f8f8f8;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px 16px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 24px;
         padding: 12px 16px;
         border: 1px solid rgba(248, 248, 248, 0.12);
         border-radius: 8px;
@@ -1548,4 +1548,190 @@ $text: #f8f8f8;
 
 .pvp .data-table tbody tr.data-table__slot-empty td:first-child {
     color: rgba(248, 248, 248, 0.35);
+}
+
+/* ===== Горизонтальна прокрутка (ScrollX) і мобільна адаптація ===== */
+
+.pvp {
+    // колір «поверхні», в який зливаються краї прокрутки
+    --pvp-surface: #0a0a0a;
+
+    .panel-card,
+    .pool { --pvp-surface: #202020; }
+
+    .scroll-x {
+        position: relative;
+        min-width: 0;
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 12px;
+            z-index: 3;
+            width: 36px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        &::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--pvp-surface) 0%, transparent 100%);
+        }
+
+        &::after {
+            right: 0;
+            background: linear-gradient(270deg, var(--pvp-surface) 0%, transparent 100%);
+        }
+
+        &--left::before,
+        &--right::after { opacity: 1; }
+    }
+
+    .scroll-x__inner {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(251, 210, 152, 0.6) rgba(248, 248, 248, 0.06);
+
+        &::-webkit-scrollbar { height: 6px; }
+
+        &::-webkit-scrollbar-track {
+            border-radius: 99px;
+            background: rgba(248, 248, 248, 0.06);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 99px;
+            background: linear-gradient(90deg, #fadfae 0%, #fbd298 100%);
+        }
+    }
+
+    .scroll-x__hint {
+        position: absolute;
+        top: 50%;
+        right: 6px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border: 1px solid rgba(251, 210, 152, 0.5);
+        border-radius: 50%;
+        background: rgba(15, 16, 19, 0.85);
+        color: #fbd298;
+        font-size: 12px;
+        pointer-events: none;
+        transform: translateY(-50%);
+        animation: pvp-scroll-hint 1.6s ease-in-out infinite;
+    }
+
+    // таблиці не стискаються до нечитабельного — замість цього гортаються
+    .standings-table { min-width: 300px; }
+    .data-table:not(.standings-table) { min-width: 480px; }
+    .data-table--teams { min-width: 560px; }
+
+    // сітка тепер гортається всередині ScrollX
+    .bracket { overflow: visible; }
+
+    @media (max-width: 576px) {
+        .pvp__title { margin-bottom: 14px; }
+
+        .app-nav { gap: 6px; }
+
+        .app-nav__btn {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .persist-bar {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .panel-card { padding: 18px 12px 12px; }
+
+        .pool {
+            margin-bottom: 32px;
+            padding: 18px 12px 12px;
+        }
+
+        .pool__grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+
+        .pool__cell {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .counters { gap: 12px; }
+
+        .counter {
+            flex: 1 1 0;
+            min-width: 0;
+            padding: 10px 12px;
+        }
+
+        .counter__label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .rand-actions { gap: 16px; }
+
+        .field--class,
+        .field--level {
+            flex: 1 1 96px;
+            min-width: 96px;
+            max-width: none;
+        }
+
+        .tour-setup { padding: 12px; }
+
+        .standings-table {
+            th, td { padding-left: 6px; padding-right: 6px; }
+            .col-num { width: 29px; }
+            .col-stat { width: 46px; }
+
+            td.col-nick {
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+        }
+
+        .match-pick { gap: 6px; }
+
+        .match-pick__team {
+            padding: 7px 8px;
+            font-size: 12px;
+        }
+
+        .match-pick__meta { min-width: 40px; }
+
+        .tiebreak-card { padding: 10px; }
+
+        .bracket__tree { min-height: 400px; }
+
+        .bracket__col { min-width: 236px; }
+        .bracket__col--finals { min-width: 244px; }
+        .bracket-match { min-width: 210px; }
+        .bracket__pair { padding-right: 34px; }
+
+        .podium { gap: 10px; }
+        .podium__place { padding: 12px 14px; }
+        .podium__num { font-size: 28px; }
+
+        .teams-grid { gap: 10px; }
+    }
+}
+
+@keyframes pvp-scroll-hint {
+    0%, 100% { transform: translate(0, -50%); }
+    50% { transform: translate(4px, -50%); }
 }

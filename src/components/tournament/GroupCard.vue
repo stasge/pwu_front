@@ -21,6 +21,7 @@ import type { Category, Match, Tiebreak, TournamentData } from '@/tournament/typ
 import { useTournamentAction } from '@/composables/useTournamentAction'
 import MatchPick from './MatchPick.vue'
 import PvpCorners from './PvpCorners.vue'
+import ScrollX from './ScrollX.vue'
 
 const props = defineProps<{
     data: TournamentData
@@ -71,6 +72,7 @@ const randomNote = (tb: Tiebreak) =>
         <PvpCorners />
         <h3 class="group-title">Група {{ group.name }}</h3>
 
+        <ScrollX>
         <table class="data-table standings-table">
             <thead>
                 <tr>
@@ -112,6 +114,7 @@ const randomNote = (tb: Tiebreak) =>
                 </tr>
             </tbody>
         </table>
+        </ScrollX>
 
         <div class="group-matches">
             <MatchPick

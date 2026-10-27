@@ -26,6 +26,7 @@ import {
 import type { Category, Player, RegTeam, TournamentData } from '@/tournament/types'
 import { useTournamentAction } from '@/composables/useTournamentAction'
 import PvpCorners from './PvpCorners.vue'
+import ScrollX from './ScrollX.vue'
 
 const props = defineProps<{ data: TournamentData }>()
 
@@ -192,7 +193,7 @@ const confirmRemoveTeam = (event: Event, cat: Category, team: RegTeam) => {
                     </div>
                 </div>
 
-                <div class="data-table-scroll">
+                <ScrollX>
                     <table v-if="isTeamReg(data, cat)" class="data-table data-table--teams">
                         <thead>
                             <tr>
@@ -302,7 +303,7 @@ const confirmRemoveTeam = (event: Event, cat: Category, team: RegTeam) => {
                             </template>
                         </tbody>
                     </table>
-                </div>
+                </ScrollX>
             </div>
         </div>
     </div>

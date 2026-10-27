@@ -4,6 +4,7 @@ import { announceRoundLabel, boLabel, playersPerTeam, roundLabel } from '@/tourn
 import type { Category, Match, TournamentData } from '@/tournament/types'
 import BracketMatch from './BracketMatch.vue'
 import PvpCorners from './PvpCorners.vue'
+import ScrollX from './ScrollX.vue'
 
 const props = defineProps<{
     data: TournamentData
@@ -37,6 +38,7 @@ const earlyRounds = computed(() =>
         </div>
     </div>
     <div v-else-if="bracket && finalMatch" class="bracket" :class="`bracket--size-${playersPerTeam(data, cat)}`">
+        <ScrollX>
         <div class="bracket__tree">
             <div v-for="(round, ri) in earlyRounds" :key="ri" class="bracket__col">
                 <div class="bracket__col-body">
@@ -65,6 +67,7 @@ const earlyRounds = computed(() =>
                 </div>
             </div>
         </div>
+        </ScrollX>
     </div>
     <div v-else class="empty-state">Сітка ще не сформована</div>
 </template>
