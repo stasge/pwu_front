@@ -24,21 +24,21 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 16px;
-    border: 1px solid rgba(255, 107, 107, 0.55);
-    border-radius: 99px;
-    background: rgba(15, 20, 32, 0.92);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 82, 82, 0.25);
-    color: #f8f8f8;
-    font-family: "Candara", sans-serif;
-    font-size: 16px;
+    padding: 12px 20px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, #17181d 0%, #1d1e22 32%, #0f1013 100%) padding-box,
+        linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%) border-box;
+    box-shadow: inset 0 1px 0 rgba(248, 248, 248, 0.08), 0 6px 24px rgba(0, 0, 0, 0.5);
+    font-family: "VollkornSC", sans-serif;
+    font-size: 18px;
     text-decoration: none;
-    backdrop-filter: blur(4px);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 82, 82, 0.4);
+        box-shadow: inset 0 1px 0 rgba(248, 248, 248, 0.12), 0 0 16px rgba(251, 210, 152, 0.3);
     }
 
     &__live {
@@ -56,6 +56,18 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
         border-radius: 50%;
         background: #ff5252;
         animation: tournament-widget-pulse 1.4s ease-in-out infinite;
+    }
+
+    &__text {
+        background: linear-gradient(180deg, #f8f8f8 0%, #fadfae 70%, #fbd298 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    &__live {
+        font-family: "Candara", sans-serif;
+        font-size: 14px;
     }
 
     i { color: #fbd298; }

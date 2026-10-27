@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/userStore'
 import { CATEGORIES, formatLabel, getEntryTeams, isTeamReg } from '@/tournament/logic'
 import type { Category } from '@/tournament/types'
 import CategoryBoard from '@/components/tournament/CategoryBoard.vue'
+import '@/tournament/theme.scss'
 
 const REFRESH_MS = 5000
 
@@ -36,142 +37,61 @@ const updatedLabel = computed(() => {
 })
 </script>
 <template>
-    <div class="tournament-live">
-        <div class="tournament-live__header">
-            <div>
-                <h1 class="tournament-live__title">PvP-турнір</h1>
-                <p v-if="data && status !== 'draft'" class="tournament-live__meta">
-                    <span v-if="status === 'live'" class="live-badge"><span class="live-badge__dot"></span>LIVE</span>
-                    <span v-else class="finished-badge">Завершено</span>
-                    <span v-if="updatedLabel">оновлено о {{ updatedLabel }}</span>
-                </p>
-            </div>
-            <router-link
-                v-if="userStore.isAdmin"
-                :to="{ name: 'admin-tournament' }"
-                class="fantasy-btn small thin px-3"
-            ><span>Керування</span></router-link>
+    <div class="pvp tournament-live">
+        <h1 class="pvp__title">PvP Турнір</h1>
+
+        <div v-if="data && status !== 'draft'" class="tournament-live__meta">
+            <span v-if="status === 'live'" class="live-badge"><span class="live-badge__dot"></span>LIVE</span>
+            <span v-else class="live-badge live-badge--finished">Завершено</span>
+            <span v-if="updatedLabel" class="tournament-live__updated">оновлено о {{ updatedLabel }}</span>
+            <router-link v-if="userStore.isAdmin" :to="{ name: 'admin-tournament' }" class="ghost-btn ghost-btn--accent">Керування</router-link>
         </div>
 
-        <p v-if="loaded && (!data || status === 'draft')" class="tournament-live__empty">
+        <div v-if="loaded && (!data || status === 'draft')" class="empty-state tournament-live__empty">
             Зараз турнірів немає. Слідкуй за новинами — анонс з'явиться на головній.
-        </p>
+        </div>
 
         <template v-else-if="data && cat">
-            <nav v-if="activeCategories.length > 1" class="tabs" aria-label="Категорії">
+            <nav v-if="activeCategories.length > 1" class="app-nav" aria-label="Категорії">
                 <button
                     v-for="c in activeCategories"
                     :key="c"
                     type="button"
+                    class="app-nav__btn"
                     :class="{ 'is-active': cat === c }"
                     @click="selected = c"
-                >{{ c }} <small>{{ formatLabel(data, c) }}</small></button>
+                >{{ c === '90-98' ? '90–98' : c }} <small>{{ formatLabel(data, c) }}</small></button>
             </nav>
             <CategoryBoard :key="cat" :data="data" :cat="cat" />
         </template>
 
-        <p v-else-if="data" class="tournament-live__empty">Реєстрація триває — команди скоро з'являться.</p>
+        <div v-else-if="data" class="empty-state tournament-live__empty">Реєстрація триває — команди скоро з'являться.</div>
     </div>
 </template>
 <style scoped lang="scss">
 .tournament-live {
     width: 100%;
-    max-width: 1400px;
-    color: #f8f8f8;
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-
-    &__title {
-        margin: 0;
-        font-size: clamp(32px, 4vw, 64px);
-        font-weight: 400;
-        letter-spacing: -0.07em;
-    }
+    max-width: 1200px;
 
     &__meta {
         display: flex;
+        justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
         gap: 12px;
-        margin: 8px 0 0;
-        font-family: "Candara", sans-serif;
-        font-size: 14px;
+        margin: -4px 0 20px;
+    }
+
+    &__updated {
+        font-family: 'Candara', sans-serif;
+        font-size: 13px;
         color: rgba(248, 248, 248, 0.55);
     }
 
     &__empty {
-        margin: 40px 0;
-        font-family: "Candara", sans-serif;
-        font-size: 18px;
-        text-align: center;
-        color: rgba(248, 248, 248, 0.65);
-    }
-}
-
-.live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    background: rgba(255, 82, 82, 0.15);
-    color: #ff6b6b;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-
-    &__dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #ff5252;
-        animation: live-pulse 1.4s ease-in-out infinite;
-    }
-}
-
-.finished-badge {
-    padding: 3px 10px;
-    border-radius: 99px;
-    background: rgba(251, 210, 152, 0.15);
-    color: #fbd298;
-}
-
-@keyframes live-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
-    50% { box-shadow: 0 0 0 6px rgba(255, 82, 82, 0); }
-}
-
-.tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 22px;
-    border-bottom: 1px solid rgba(93, 119, 144, 0.3);
-
-    button {
-        padding: 10px 18px;
-        border: none;
-        border-bottom: 2px solid transparent;
-        background: none;
-        color: rgba(248, 248, 248, 0.6);
-        font-family: "VollkornSC", sans-serif;
-        font-size: 20px;
-
-        small {
-            font-family: "Candara", sans-serif;
-            font-size: 13px;
-            opacity: 0.7;
-        }
-
-        &.is-active {
-            border-bottom-color: #fbd298;
-            color: #fbd298;
-        }
+        margin: 40px auto;
+        max-width: 560px;
+        font-size: 16px;
     }
 }
 </style>

@@ -23,8 +23,9 @@ import {
     teamInTournament,
     type PlayerInput,
 } from '@/tournament/logic'
-import type { Category, RegTeam, TournamentData } from '@/tournament/types'
+import type { Category, Player, RegTeam, TournamentData } from '@/tournament/types'
 import { useTournamentAction } from '@/composables/useTournamentAction'
+import PvpCorners from './PvpCorners.vue'
 
 const props = defineProps<{ data: TournamentData }>()
 
@@ -61,6 +62,11 @@ const submit = () => {
         : run(() => addSoloPlayer(props.data, cat, inputs.value[0]), `Додано в ${cat}`)
     if (ok !== undefined) resetInputs()
 }
+
+/** Рядки таблиці з порожніми слотами, як у pvp-teams */
+const teamSlots = (cat: Category) => Array.from({ length: TEAM_SLOTS }, (_, i) => props.data.teams[cat][i] ?? null)
+const soloSlots = (cat: Category) =>
+    Array.from({ length: slotCount(props.data, cat) }, (_, i): Player | null => props.data.players[cat][i] ?? null)
 
 /* ----- заміна гравця ----- */
 const sub = reactive({ cat: null as Category | null, teamId: '', outId: '', input: blankInput('90-98') })
@@ -100,351 +106,204 @@ const confirmRemoveTeam = (event: Event, cat: Category, team: RegTeam) => {
 }
 </script>
 <template>
-    <div class="registration">
+    <div>
         <form class="reg-form" @submit.prevent="submit">
-            <div class="reg-form__top">
-                <label class="field">
-                    <span>Категорія</span>
-                    <select v-model="formCat">
-                        <option v-if="bothSolo" value="auto">Авто (за рівнем)</option>
-                        <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}{{ isTeamReg(data, c) ? ' · командна' : '' }}</option>
-                    </select>
-                </label>
-                <p v-if="teamMode" class="reg-form__hint">
-                    Командна реєстрація <strong>{{ formatLabel(data, resolvedCat) }}</strong> — {{ formSize }} гравці одразу
-                </p>
-            </div>
-            <div v-for="(input, i) in inputs" :key="i" class="reg-form__row">
-                <span v-if="teamMode" class="reg-form__member">Гравець {{ i + 1 }}</span>
+            <template v-if="teamMode">
+                <div class="reg-form__top">
+                    <label class="field field--auto">
+                        <span class="field__label">Категорія</span>
+                        <select v-model="formCat" class="field__input">
+                            <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}{{ isTeamReg(data, c) ? ' · командна' : '' }}</option>
+                        </select>
+                    </label>
+                    <p class="reg-form__hint">
+                        Командна реєстрація <strong>{{ formatLabel(data, resolvedCat) }}</strong> — {{ formSize }} гравці одразу
+                    </p>
+                </div>
+                <div v-for="(input, i) in inputs" :key="i" class="reg-member">
+                    <div class="reg-member__label">Гравець {{ i + 1 }}</div>
+                    <div class="reg-form__row">
+                        <label class="field field--nick">
+                            <span class="field__label">Нік</span>
+                            <input v-model="input.nick" class="field__input" type="text" maxlength="32" autocomplete="off" required>
+                        </label>
+                        <label class="field field--class">
+                            <span class="field__label">Клас</span>
+                            <select v-model="input.class" class="field__input">
+                                <option v-for="c in CLASSES" :key="c" :value="c">{{ c }}</option>
+                            </select>
+                        </label>
+                        <label class="field field--level">
+                            <span class="field__label">Рівень</span>
+                            <input v-model.number="input.level" class="field__input" type="number" min="1" max="200" required>
+                        </label>
+                    </div>
+                </div>
+            </template>
+            <div v-else class="reg-form__row">
                 <label class="field field--nick">
-                    <span>Нік</span>
-                    <input v-model="input.nick" type="text" maxlength="32" autocomplete="off" required>
+                    <span class="field__label">Нік</span>
+                    <input v-model="inputs[0].nick" class="field__input" type="text" maxlength="32" autocomplete="off" required>
                 </label>
-                <label class="field">
-                    <span>Клас</span>
-                    <select v-model="input.class">
+                <label class="field field--class">
+                    <span class="field__label">Клас</span>
+                    <select v-model="inputs[0].class" class="field__input">
                         <option v-for="c in CLASSES" :key="c" :value="c">{{ c }}</option>
                     </select>
                 </label>
                 <label class="field field--level">
-                    <span>Рівень</span>
-                    <input v-model.number="input.level" type="number" min="1" max="200" required>
+                    <span class="field__label">Рівень</span>
+                    <input v-model.number="inputs[0].level" class="field__input" type="number" min="1" max="200" required>
+                </label>
+                <label class="field">
+                    <span class="field__label">Категорія</span>
+                    <select v-model="formCat" class="field__input">
+                        <option v-if="bothSolo" value="auto">Авто (за рівнем)</option>
+                        <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}{{ isTeamReg(data, c) ? ' · командна' : '' }}</option>
+                    </select>
                 </label>
             </div>
-            <button type="submit" class="fantasy-btn small thin reg-form__submit">
-                <span>{{ teamMode ? 'Додати команду' : 'Додати' }}</span>
-            </button>
+            <div class="reg-form__actions">
+                <button type="submit" class="pvp-btn pvp-btn--sm"><span>{{ teamMode ? 'Додати команду' : 'Додати' }}</span></button>
+            </div>
         </form>
 
-        <div class="reg-columns">
-            <section v-for="cat in CATEGORIES" :key="cat" class="reg-card">
-                <div class="reg-card__head">
-                    <h2 class="reg-card__title">
-                        <template v-if="isTeamReg(data, cat)">Команди {{ cat }} ({{ data.teams[cat].length }}/{{ TEAM_SLOTS }} · {{ formatLabel(data, cat) }})</template>
-                        <template v-else>Гравці {{ cat }} ({{ data.players[cat].length }}/{{ slotCount(data, cat) }})</template>
+        <div class="reg-columns__grid">
+            <div v-for="cat in CATEGORIES" :key="cat" class="panel-card">
+                <PvpCorners />
+                <div class="panel-card__head">
+                    <h2 class="panel-card__title">
+                        <template v-if="isTeamReg(data, cat)">Зареєстровані {{ cat }} ({{ data.teams[cat].length }}/{{ TEAM_SLOTS }} · {{ formatLabel(data, cat) }})</template>
+                        <template v-else>Зареєстровані гравці {{ cat }} ({{ data.players[cat].length }}/{{ slotCount(data, cat) }})</template>
                     </h2>
-                    <div class="reg-card__controls">
-                        <label class="reg-card__toggle">
+                    <div class="panel-card__actions">
+                        <label class="reg-toggle">
                             <input type="checkbox" :checked="isTeamReg(data, cat)" @change="setTeamRegistration(data, cat, ($event.target as HTMLInputElement).checked)">
                             <span>Командна</span>
                         </label>
-                        <select :value="data.formats[cat]" @change="setFormat(data, cat, Number(($event.target as HTMLSelectElement).value))">
-                            <option v-for="f in isTeamReg(data, cat) ? TEAM_FORMATS : FORMATS" :key="f.id" :value="f.id">
-                                {{ isTeamReg(data, cat) ? f.label : `${f.label} · ${TEAM_SLOTS * f.id} слотів` }}
-                            </option>
-                        </select>
+                        <label class="field field--auto">
+                            <span class="field__label">{{ isTeamReg(data, cat) ? 'Формат' : 'Формат (8 команд)' }}</span>
+                            <select class="field__input" :value="data.formats[cat]" @change="setFormat(data, cat, Number(($event.target as HTMLSelectElement).value))">
+                                <option v-for="f in isTeamReg(data, cat) ? TEAM_FORMATS : FORMATS" :key="f.id" :value="f.id">
+                                    {{ isTeamReg(data, cat) ? f.label : `${f.label} · ${TEAM_SLOTS * f.id} слотів` }}
+                                </option>
+                            </select>
+                        </label>
                     </div>
                 </div>
 
-                <div class="reg-card__table-wrap">
-                    <table class="reg-table">
+                <div class="data-table-scroll">
+                    <table v-if="isTeamReg(data, cat)" class="data-table data-table--teams">
                         <thead>
                             <tr>
-                                <th class="num">№</th>
-                                <th>{{ isTeamReg(data, cat) ? 'Ніки' : 'Нік' }}</th>
-                                <th>Клас</th>
-                                <th class="level">Рівень</th>
-                                <th class="check" title="Прийшов">✓</th>
-                                <th class="actions"></th>
+                                <th class="col-num">№</th>
+                                <th class="col-nick">ніки</th>
+                                <th class="col-class">клас</th>
+                                <th class="col-level">рівень</th>
+                                <th class="col-check" title="Прийшов">✓</th>
+                                <th class="col-actions"></th>
                             </tr>
                         </thead>
-                        <tbody v-if="isTeamReg(data, cat)">
-                            <template v-for="(team, i) in data.teams[cat]" :key="team.id">
-                                <tr>
-                                    <td class="num">{{ i + 1 }}</td>
-                                    <td>
-                                        <div v-for="m in team.members" :key="m.id">{{ m.nick }}</div>
-                                        <div v-for="(s, si) in team.substitutions ?? []" :key="si" class="reg-table__sub">заміна: {{ s.out.nick }} → {{ s.in.nick }}</div>
+                        <tbody>
+                            <template v-for="(team, i) in teamSlots(cat)" :key="team?.id ?? `empty-${i}`">
+                                <tr v-if="team">
+                                    <td class="col-num">{{ i + 1 }}</td>
+                                    <td class="col-nick">
+                                        <span class="team-cell">
+                                            <button type="button" class="team-copy-icon" title="Копіювати склад" @click="copyText(team.members.map((m) => m.nick).join('/'), 'Склад скопійовано')"><i class="pi pi-copy"></i></button>
+                                            <span class="team-cell__name">
+                                                <span class="team-stack"><span v-for="m in team.members" :key="m.id">{{ m.nick }}</span></span>
+                                                <span v-if="team.substitutions?.length" class="team-subs">
+                                                    <span v-for="(s, si) in team.substitutions" :key="si">заміна: {{ s.out.nick }} → {{ s.in.nick }}<br></span>
+                                                </span>
+                                            </span>
+                                        </span>
                                     </td>
-                                    <td><div v-for="m in team.members" :key="m.id">{{ m.class }}</div></td>
-                                    <td class="level"><div v-for="m in team.members" :key="m.id">{{ m.level }}</div></td>
-                                    <td class="check"><div v-for="m in team.members" :key="m.id"><input v-model="m.arrived" type="checkbox" title="Прийшов"></div></td>
-                                    <td class="actions">
+                                    <td class="col-class"><span class="team-stack"><span v-for="m in team.members" :key="m.id">{{ m.class }}</span></span></td>
+                                    <td class="col-level"><span class="team-stack"><span v-for="m in team.members" :key="m.id">{{ m.level }}</span></span></td>
+                                    <td class="col-check">
+                                        <div class="team-stack team-stack--check">
+                                            <div v-for="m in team.members" :key="m.id"><input v-model="m.arrived" class="reg-arrived" type="checkbox" title="Прийшов"></div>
+                                        </div>
+                                    </td>
+                                    <td class="col-actions">
                                         <div class="row-actions">
-                                            <button type="button" title="Копіювати склад" @click="copyText(team.members.map((m) => m.nick).join('/'), 'Склад скопійовано')"><i class="pi pi-copy"></i></button>
-                                            <button type="button" title="Заміна гравця" @click="openSub(cat, team)">⇄</button>
-                                            <button type="button" class="danger" title="Видалити команду" @click="confirmRemoveTeam($event, cat, team)"><i class="pi pi-trash"></i></button>
+                                            <button type="button" class="data-table__btn data-table__btn--sub" title="Заміна гравця" @click="openSub(cat, team)">⇄</button>
+                                            <button type="button" class="data-table__btn" title="Видалити команду" @click="confirmRemoveTeam($event, cat, team)">✕</button>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr v-if="sub.cat === cat && sub.teamId === team.id" class="reg-table__sub-row">
+                                <tr v-else class="data-table__slot-empty">
+                                    <td class="col-num">{{ i + 1 }}</td>
+                                    <td colspan="5">&nbsp;</td>
+                                </tr>
+                                <tr v-if="team && sub.cat === cat && sub.teamId === team.id" class="sub-editor-row">
                                     <td colspan="6">
                                         <div class="sub-form">
                                             <span class="sub-form__title">Заміна гравця</span>
                                             <label class="field">
-                                                <span>Виходить</span>
-                                                <select v-model="sub.outId" @change="onSubOutChange(team)">
+                                                <span class="field__label">Виходить</span>
+                                                <select v-model="sub.outId" class="field__input" @change="onSubOutChange(team)">
                                                     <option v-for="m in team.members" :key="m.id" :value="m.id">{{ m.nick }} ({{ m.class }}, {{ m.level }})</option>
                                                 </select>
                                             </label>
-                                            <label class="field field--nick">
-                                                <span>Новий нік</span>
-                                                <input v-model="sub.input.nick" type="text" maxlength="32" autocomplete="off">
+                                            <label class="field">
+                                                <span class="field__label">Новий нік</span>
+                                                <input v-model="sub.input.nick" class="field__input" type="text" maxlength="32" autocomplete="off">
                                             </label>
                                             <label class="field">
-                                                <span>Клас</span>
-                                                <select v-model="sub.input.class">
+                                                <span class="field__label">Клас</span>
+                                                <select v-model="sub.input.class" class="field__input">
                                                     <option v-for="c in CLASSES" :key="c" :value="c">{{ c }}</option>
                                                 </select>
                                             </label>
                                             <label class="field field--level">
-                                                <span>Рівень</span>
-                                                <input v-model.number="sub.input.level" type="number" min="1">
+                                                <span class="field__label">Рівень</span>
+                                                <input v-model.number="sub.input.level" class="field__input" type="number" min="1">
                                             </label>
                                             <div class="sub-form__actions">
-                                                <button type="button" class="fantasy-btn small thin" @click="applySub"><span>Замінити</span></button>
-                                                <button type="button" class="link-btn" @click="sub.cat = null">Скасувати</button>
+                                                <button type="button" class="ghost-btn ghost-btn--accent" @click="applySub">Замінити</button>
+                                                <button type="button" class="ghost-btn" @click="sub.cat = null">Скасувати</button>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             </template>
-                            <tr v-if="!data.teams[cat].length"><td colspan="6" class="reg-table__empty">Команд ще немає</td></tr>
                         </tbody>
-                        <tbody v-else>
-                            <tr v-for="(p, i) in data.players[cat]" :key="p.id">
-                                <td class="num">{{ i + 1 }}</td>
-                                <td>{{ p.nick }}</td>
-                                <td>{{ p.class }}</td>
-                                <td class="level">{{ p.level }}</td>
-                                <td class="check"><input v-model="p.arrived" type="checkbox" title="Прийшов"></td>
-                                <td class="actions">
-                                    <div class="row-actions">
-                                        <button type="button" class="danger" title="Видалити" @click="ask($event, `Видалити ${p.nick}?`, () => removePlayer(data, cat, p.id))"><i class="pi pi-trash"></i></button>
-                                    </div>
-                                </td>
+                    </table>
+
+                    <table v-else class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="col-num">№</th>
+                                <th class="col-nick">нік</th>
+                                <th class="col-class">клас</th>
+                                <th class="col-level">рівень</th>
+                                <th class="col-check" title="Прийшов">✓</th>
+                                <th class="col-actions"></th>
                             </tr>
-                            <tr v-if="!data.players[cat].length"><td colspan="6" class="reg-table__empty">Гравців ще немає</td></tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="(p, i) in soloSlots(cat)" :key="p?.id ?? `empty-${i}`">
+                                <tr v-if="p">
+                                    <td class="col-num">{{ i + 1 }}</td>
+                                    <td class="col-nick">{{ p.nick }}</td>
+                                    <td class="col-class">{{ p.class }}</td>
+                                    <td class="col-level">{{ p.level }}</td>
+                                    <td class="col-check"><input v-model="p.arrived" class="reg-arrived" type="checkbox" title="Прийшов"></td>
+                                    <td class="col-actions">
+                                        <button type="button" class="data-table__btn" title="Видалити" @click="ask($event, `Видалити ${p.nick}?`, () => removePlayer(data, cat, p.id))">✕</button>
+                                    </td>
+                                </tr>
+                                <tr v-else class="data-table__slot-empty">
+                                    <td class="col-num">{{ i + 1 }}</td>
+                                    <td colspan="5">&nbsp;</td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
-            </section>
+            </div>
         </div>
     </div>
 </template>
-<style scoped lang="scss">
-.registration {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    color: #f8f8f8;
-    font-family: "Candara", sans-serif;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 13px;
-    color: rgba(248, 248, 248, 0.6);
-
-    &--nick { flex: 1 1 180px; }
-    &--level { width: 90px; }
-}
-
-input[type="text"],
-input[type="number"],
-select {
-    padding: 8px 10px;
-    border: 1px solid rgba(248, 248, 248, 0.15);
-    border-radius: 5px;
-    background: rgba(0, 0, 0, 0.45);
-    color: #f8f8f8;
-    font-family: "Candara", sans-serif;
-    font-size: 15px;
-    outline: none;
-
-    &:focus { border-color: rgba(251, 210, 152, 0.6); }
-}
-
-option { background: #171d2b; }
-
-input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #fbd298;
-}
-
-.reg-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 18px;
-    border: 1px solid rgba(93, 119, 144, 0.25);
-    border-radius: 8px;
-    background: rgba(23, 29, 43, 0.7);
-
-    &__top {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-end;
-        gap: 16px;
-    }
-
-    &__hint {
-        margin: 0 0 8px;
-        font-size: 14px;
-        color: rgba(248, 248, 248, 0.7);
-    }
-
-    &__row {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-end;
-        gap: 12px;
-    }
-
-    &__member {
-        width: 100%;
-        font-size: 13px;
-        color: #fbd298;
-    }
-
-    &__submit { align-self: flex-start; margin-top: 4px; }
-}
-
-.reg-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
-    gap: 18px;
-}
-
-.reg-card {
-    min-width: 0;
-    padding: 18px;
-    border: 1px solid rgba(93, 119, 144, 0.25);
-    border-radius: 8px;
-    background: #171d2b;
-
-    &__head {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
-    }
-
-    &__title {
-        margin: 0;
-        font-family: "VollkornSC", sans-serif;
-        font-weight: 400;
-        font-size: 20px;
-    }
-
-    &__controls {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    &__toggle {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 14px;
-        cursor: pointer;
-    }
-
-    &__table-wrap { overflow-x: auto; }
-}
-
-.reg-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-
-    th, td {
-        padding: 8px 6px;
-        border-bottom: 1px solid rgba(93, 119, 144, 0.2);
-        text-align: left;
-        vertical-align: top;
-    }
-
-    th {
-        font-weight: 400;
-        color: rgba(248, 248, 248, 0.55);
-    }
-
-    td > div { min-height: 22px; }
-
-    .num { width: 32px; }
-    .level { width: 60px; }
-    .check { width: 32px; text-align: center; }
-    .actions { width: 1%; }
-
-    &__sub {
-        font-size: 12px;
-        color: #ffb74d;
-    }
-
-    &__sub-row td { background: rgba(0, 0, 0, 0.25); }
-
-    &__empty {
-        text-align: center !important;
-        color: rgba(248, 248, 248, 0.5);
-    }
-}
-
-.row-actions {
-    display: flex;
-    gap: 4px;
-
-    button {
-        width: 30px;
-        height: 30px;
-        border: 1px solid rgba(248, 248, 248, 0.15);
-        border-radius: 5px;
-        background: rgba(248, 248, 248, 0.05);
-        color: #fbd298;
-
-        &:hover { background: rgba(248, 248, 248, 0.12); }
-        &.danger { color: #ff8a8a; }
-    }
-}
-
-.sub-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 10px;
-
-    &__title {
-        width: 100%;
-        color: #fbd298;
-    }
-
-    &__actions {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-}
-
-.link-btn {
-    border: none;
-    background: none;
-    color: rgba(248, 248, 248, 0.6);
-    text-decoration: underline;
-}
-</style>
