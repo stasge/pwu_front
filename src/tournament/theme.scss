@@ -27,9 +27,9 @@ $text: #f8f8f8;
     &::before {
         content: '';
         position: absolute;
-        inset: -40px -15px auto;
-        height: 520px;
-        background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(251, 210, 152, 0.06) 0%, transparent 60%);
+        inset: -180px -15px auto;
+        height: 960px;
+        background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251, 210, 152, 0.08) 0%, transparent 70%);
         pointer-events: none;
         z-index: 0;
     }
