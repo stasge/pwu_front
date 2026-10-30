@@ -9,7 +9,7 @@ import { onMounted, onBeforeUnmount, ref, computed, watch } from 'vue';
 import { useAsyncCallWrapper } from '@/composables/useAsyncCallWrapper';
 import { fetchGet, fetchPost } from '@/utils/fetchApi';
 import type { IForumCategory, IForumSubCategory, IForumTheme } from '@/models/forum';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { useConfirmRemoval } from '@/composables/useConfirmRemoval';
 import forumSideCard1 from '@/assets/images/forum-side-card-1.png'
@@ -48,6 +48,35 @@ const sideCardsByCategoryId: Record<number, { image: string; title: string; desc
         title: 'Ігровий розділ',
         description: 'Все про занурення в гру: практичні знання, досвід, підказки і історії з живого світу Perfect World.'
     },
+}
+
+// Підрозділ "Новини і оновлення": частина тем веде на сторінки сайту замість обговорення
+const NEWS_SUB_CATEGORY_ID = 1
+const CLIENT_INFO_THEME_ID = 2
+const UPDATES_THEME_ID = -1
+
+const newsThemeLinks: Record<number, RouteLocationRaw> = {
+    [CLIENT_INFO_THEME_ID]: { name: 'about-server' },
+    [UPDATES_THEME_ID]: { name: 'all-news', query: { type: 'updates' } },
+}
+
+const themeLinks = computed(() =>
+    +route.params.sub_id === NEWS_SUB_CATEGORY_ID ? newsThemeLinks : {}
+)
+
+// Фейкова тема "Оновлення" — дати беремо з останньої новини-оновлення
+const loadUpdatesTheme = async (): Promise<IForumTheme> => {
+    const { data } = await fetchGet('getNews', { options: 'updates', limit: 1, page: 1 })
+    const date = data.news?.[0]?.created_at || new Date().toISOString()
+    return {
+        id: UPDATES_THEME_ID,
+        id_main: NEWS_SUB_CATEGORY_ID,
+        name: 'Оновлення',
+        created_at: date,
+        edited_at: date,
+        messages_count: 0,
+        views_count: 867,
+    } as IForumTheme
 }
 
 const currentSideCard = computed(() => {
@@ -162,6 +191,9 @@ const loadThemes = async (page = 1, rowsPerPage = 6) => {
     const { data: _subCategories } = await fetchPost('/forum/getSub', { id_main: +route.params.cat_id });
     const { data: _categories } = await fetchGet('/forum/getMain');
     themes.value = data.themes;
+    if (+route.params.sub_id === NEWS_SUB_CATEGORY_ID && page === 1) {
+        themes.value = [await loadUpdatesTheme(), ...data.themes];
+    }
     total.value = data.total;
     subCategory.value = _subCategories.find((s: IForumSubCategory) => s.id === +route.params.sub_id);
     category.value = _categories.find((cat: IForumCategory) => cat.id === +route.params.cat_id);
@@ -317,6 +349,7 @@ watch(mobileSideCards, () => {
                                 :cat-id="+route.params.cat_id"
                                 :is-admin="userStore.isAdmin"
                                 :current-user-id="userStore.user?.id"
+                                :theme-links="themeLinks"
                                 @edit="goToEditTheme"
                                 @delete="onDeleteTheme"
                             />

@@ -6,11 +6,12 @@ import type { News } from '@/models/news';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import CTA from '@/components/CTA.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { truncateText } from '@/utils/text';
 
 const { wrapAsyncCall } = useAsyncCallWrapper()
+const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const allNews = ref<News[]>([])
@@ -19,9 +20,26 @@ const totalCount = ref(0)
 type NewsFilter = 'news' | 'updates' | 'notification' | 'all'
 type FilterOptions = 'news' | 'updates' | 'notification'
 type FilterParams = { options?: FilterOptions; limit?: number; page?: number }
-const selectedFilter = ref<NewsFilter>('all')
+const filterValues: FilterOptions[] = ['news', 'updates', 'notification']
 const sortBy = ref('newest')
-const currentPage = ref(1)
+
+// Фільтр і сторінка зберігаються в URL (?type=updates&page=2), щоб на них можна було посилатися
+const updateQuery = (query: Record<string, string | undefined>) => {
+    router.replace({ query: { ...route.query, ...query } })
+}
+
+const selectedFilter = computed<NewsFilter>({
+    get: () => {
+        const type = route.query.type as FilterOptions
+        return filterValues.includes(type) ? type : 'all'
+    },
+    set: (value) => updateQuery({ type: value === 'all' ? undefined : value, page: undefined }),
+})
+
+const currentPage = computed<number>({
+    get: () => Math.max(1, Number(route.query.page) || 1),
+    set: (value) => updateQuery({ page: value > 1 ? String(value) : undefined }),
+})
 const itemsPerPage = 3
 const baseURL = import.meta.env.VITE_BASE_URL
 
@@ -170,7 +188,6 @@ const loadNewsData = async (limit = itemsPerPage, page = currentPage.value) => {
 const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
-        loadNewsData(itemsPerPage, page)
     }
 }
 
@@ -191,11 +208,10 @@ onMounted(() => {
     loadNewsData()
 })
 
-// Завантажуємо новини при зміні фільтру
-watch(selectedFilter, () => {
-    currentPage.value = 1
-    loadLatestNews()
-    loadNewsData(itemsPerPage, 1)
+// Завантажуємо новини при зміні фільтру або сторінки (в т.ч. через URL)
+watch([selectedFilter, currentPage], ([filter, page], [prevFilter]) => {
+    if (filter !== prevFilter) loadLatestNews()
+    loadNewsData(itemsPerPage, page)
 })
 // Видалення новини (для адміна)
 const deleteNews = async (id: number) => {
@@ -206,7 +222,6 @@ const deleteNews = async (id: number) => {
         // Якщо поточна сторінка стала більшою за доступну після видалення — зменшимо її
         if (currentPage.value > totalPages.value) {
             currentPage.value = Math.max(1, totalPages.value)
-            await loadNewsData(itemsPerPage, currentPage.value)
         }
     })
 }

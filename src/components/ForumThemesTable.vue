@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 import { format } from 'date-fns'
 import type { IForumTheme } from '@/models/forum'
 import themeIcon from '@/assets/icons/theme-icon.svg'
@@ -13,9 +14,14 @@ interface IProps {
     catId: number
     isAdmin: boolean
     currentUserId?: number
+    // Теми, які ведуть не на сторінку теми, а на інший розділ сайту (за id теми)
+    themeLinks?: Record<number, RouteLocationRaw>
 }
 
 const props = defineProps<IProps>()
+
+const getThemeLink = (theme: IForumTheme): RouteLocationRaw =>
+    props.themeLinks?.[theme.id] ?? { name: 'separate-theme', params: { theme_id: theme.id, cat_id: props.catId } }
 
 const emit = defineEmits<{
     edit: [themeIdMain: number, themeId: number]
@@ -24,7 +30,9 @@ const emit = defineEmits<{
 
 const openedActionMenuId = ref<number | null>(null)
 
-const canManageTheme = (theme: IForumTheme) => props.isAdmin || props.currentUserId === theme.user_id
+// Фейкові теми (id < 0) не існують на бекенді — редагувати/видаляти нічого
+const canManageTheme = (theme: IForumTheme) =>
+    theme.id > 0 && (props.isAdmin || props.currentUserId === theme.user_id)
 
 const showActionsColumn = computed(() => props.isAdmin || props.themes.some(canManageTheme))
 
@@ -99,7 +107,7 @@ onBeforeUnmount(() => {
 
                 <div class="forum-themes-table__col forum-themes-table__col--topic">
                     <RouterLink
-                        :to="{ name: 'separate-theme', params: { theme_id: theme.id, cat_id: catId } }"
+                        :to="getThemeLink(theme)"
                         class="forum-themes-table__theme-link"
                     >
                         {{ theme.name }}
