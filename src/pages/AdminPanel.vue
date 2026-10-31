@@ -115,7 +115,10 @@ onMounted(() => {
     <div class="users">
         <div class="users__inner">
             <div class="users__container">
-                <div class="flex justify-content-end mb-3">
+                <div class="flex justify-content-end flex-wrap gap-3 mb-3">
+                    <router-link :to="{ name: 'admin-tournament' }" class="fantasy-btn small thin px-3">
+                        <span>Керування турніром</span>
+                    </router-link>
                     <router-link :to="{ name: 'admin-polls' }" class="fantasy-btn small thin px-3">
                         <span>Керування опитуваннями</span>
                     </router-link>

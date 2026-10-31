@@ -28,6 +28,8 @@ import TopUpStats from "@/pages/TopUpStats.vue";
 import Polls from "@/pages/Polls.vue";
 import PollPage from "@/pages/PollPage.vue";
 import AdminPolls from "@/pages/AdminPolls.vue";
+import AdminTournament from "@/pages/AdminTournament.vue";
+import TournamentLive from "@/pages/TournamentLive.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -110,6 +112,17 @@ const router = createRouter({
           name: "admin-polls",
           meta: { requiresAuth: true, onlyAdmin: true },
           component: AdminPolls,
+        },
+        {
+          path: "/page/admin-tournament",
+          name: "admin-tournament",
+          meta: { requiresAuth: true, onlyAdmin: true },
+          component: AdminTournament,
+        },
+        {
+          path: "/tournament",
+          name: "tournament",
+          component: TournamentLive,
         },
         {
           path: "/page/polls",
