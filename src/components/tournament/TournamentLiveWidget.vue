@@ -5,7 +5,7 @@ import { useTournamentLive } from '@/composables/useTournamentLive'
 const REFRESH_MS = 30000
 const GAP_BELOW_HEADER = 4
 
-/** Липкий віджет на головній: видно, лише поки турнір триває. Стоїть по центру під хедером. */
+/** Липкий віджет на головній: видно, лише поки турнір триває. Стоїть зліва під хедером, на мобільних — квадратний. */
 const { status } = useTournamentLive(REFRESH_MS, { withState: false })
 
 // хедер фіксований і змінює висоту з шириною екрана — міряємо його
@@ -42,7 +42,7 @@ onBeforeUnmount(() => {
     <Transition name="tournament-widget">
         <router-link v-if="status === 'live'" :to="{ name: 'tournament' }" class="tournament-widget" :style="{ top: `${top}px` }">
             <span class="tournament-widget__live"><span class="tournament-widget__dot"></span>LIVE</span>
-            <span class="tournament-widget__text">Турнір триває</span>
+            <span class="tournament-widget__text">Турнір<span class="tournament-widget__extra"> триває</span></span>
             <i class="pi pi-angle-right"></i>
         </router-link>
     </Transition>
@@ -50,15 +50,12 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .tournament-widget {
     position: fixed;
-    left: 0;
-    right: 0;
+    left: 16px;
     // під хедером (z-index 100), щоб його випадаючі меню перекривали віджет
     z-index: 99;
     display: flex;
     align-items: center;
     gap: 10px;
-    width: max-content;
-    margin: 0 auto;
     padding: 10px 20px;
     border: 2px solid transparent;
     border-radius: 8px;
@@ -104,9 +101,21 @@ onBeforeUnmount(() => {
 
     i { color: #fbd298; }
 
+    // на мобільних — компактний квадрат: LIVE зверху, «Турнір» знизу
     @media (max-width: 768px) {
-        padding: 8px 14px;
+        left: 10px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        width: 76px;
+        height: 76px;
+        padding: 6px;
         font-size: 15px;
+
+        &__live { font-size: 12px; }
+        &__dot { width: 7px; height: 7px; }
+        &__extra,
+        i { display: none; }
     }
 }
 
