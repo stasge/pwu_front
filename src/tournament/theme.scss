@@ -1735,3 +1735,19 @@ $text: #f8f8f8;
     0%, 100% { transform: translate(0, -50%); }
     50% { transform: translate(4px, -50%); }
 }
+
+.pvp {
+    .reg-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .tour-section__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}

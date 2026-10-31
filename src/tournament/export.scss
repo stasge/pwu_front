@@ -1,0 +1,916 @@
+// Аркуші для «Копіювати картинкою» (styles.css pvp-teams, розділ export-*).
+// Рендеряться поза екраном у #pvp-export-root і знімаються html2canvas.
+
+.pvp-export-root {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    color: #f8f8f8;
+    font-family: 'Candara', sans-serif;
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .sep {
+        padding: 0 0.12em;
+        color: #fbd298;
+        font-weight: 600;
+        opacity: 0.9;
+    }
+
+    .team-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.25;
+    }
+
+    .team-stack__item { white-space: nowrap; }
+
+    .export-group__note {
+        margin-top: 6px;
+        font-size: 11px;
+        white-space: normal;
+    }
+
+    .export-sheet {
+      background: #0a0a0a;
+      color: #f8f8f8;
+      padding: 10px 12px;
+      font-family: 'Candara', sans-serif;
+      width: 1100px;
+      box-sizing: border-box;
+      border: 1px solid rgba(248, 248, 248, 0.2);
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(251, 210, 152, 0.06);
+    }
+
+    /* sheet placed inside the fixed-size image frame drawn on canvas */
+    .export-sheet.export-sheet--framed {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 4px;
+    }
+
+    .export-sheet__title {
+      margin: 0 0 8px;
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: -0.05em;
+      color: #fbd298;
+      line-height: 1.1;
+    }
+
+    .export-sheet--formed {
+      --formed-cols: 4;
+      width: max-content;
+      max-width: none;
+      min-width: 0;
+      padding: 16px 18px;
+    }
+
+    .export-sheet--formed .export-sheet__title {
+      margin: 0 0 16px;
+      font-size: 24px;
+      letter-spacing: -0.07em;
+      color: #fbd298;
+    }
+
+    .export-formed-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      align-items: stretch;
+      max-width: calc(var(--formed-cols) * 220px + (var(--formed-cols) - 1) * 16px);
+    }
+
+    .export-sheet--formed.export-sheet--cols-3 {
+      --formed-cols: 3;
+    }
+
+    .export-sheet--formed.export-sheet--cols-5 {
+      --formed-cols: 5;
+    }
+
+    .export-sheet--formed.export-sheet--cols-6 {
+      --formed-cols: 6;
+    }
+
+    .export-formed-card {
+      flex: 0 0 220px;
+      box-sizing: border-box;
+      background: rgba(250, 250, 250, 0.08);
+      border: 1px solid rgba(248, 248, 248, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .export-formed-card__head {
+      padding: 12px 16px;
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.05em;
+      color: #f8f8f8;
+      background: linear-gradient(180deg, rgba(251, 210, 152, 0.2) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(248, 248, 248, 0.15);
+    }
+
+    .export-formed-card__list {
+      list-style: none;
+      margin: 0;
+      padding: 12px 16px;
+    }
+
+    .export-formed-card__list li {
+      font-family: 'Candara', sans-serif;
+      font-size: 15px;
+      color: rgba(248, 248, 248, 0.95);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(248, 248, 248, 0.08);
+    }
+
+    .export-formed-card__list li:last-child {
+      border-bottom: none;
+    }
+
+    .export-sheet__grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .export-sheet--groups {
+      width: max-content;
+      max-width: none;
+      min-width: 0;
+    }
+
+    .export-sheet--groups .export-sheet__grid {
+      width: max-content;
+      align-items: flex-start;
+    }
+
+    .export-sheet--groups .export-group {
+      flex: 0 0 auto;
+      width: max-content;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .export-sheet--groups .export-table {
+      width: max-content;
+      min-width: 100%;
+      table-layout: auto;
+    }
+
+    .export-sheet--groups .export-table th,
+    .export-sheet--groups .export-table td {
+      overflow: visible;
+      text-overflow: unset;
+    }
+
+    .export-sheet--reg {
+      width: max-content;
+      max-width: none;
+      min-width: 0;
+      background: #0a0a0a;
+      box-shadow: none;
+      border: none;
+      padding: 12px 16px;
+    }
+
+    .export-sheet--reg .export-sheet__title {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: -0.04em;
+    }
+
+    .export-sheet--reg .export-sheet__grid {
+      width: max-content;
+      align-items: flex-start;
+      gap: 22px;
+    }
+
+    .export-sheet--reg .export-group {
+      flex: 0 0 auto;
+      width: max-content;
+      min-width: 0;
+      box-sizing: border-box;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+    }
+
+    /* category heading above each registration table */
+    .export-sheet--reg .export-group__head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 10px;
+      padding: 9px 14px;
+      border: 1px solid rgba(251, 210, 152, 0.3);
+      border-left: 4px solid #fbd298;
+      border-radius: 4px;
+      background: linear-gradient(90deg, rgba(251, 210, 152, 0.22) 0%, rgba(251, 210, 152, 0.05) 100%);
+    }
+
+    .export-sheet--reg .export-group__cat {
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: #fbd298;
+    }
+
+    .export-sheet--reg .export-group__format {
+      display: inline-block;
+      box-sizing: border-box;
+      height: 28px;
+      min-width: 52px;
+      /* fixed box + line-height keeps the label centered in html2canvas;
+         bottom padding offsets Candara's low-sitting digits */
+      line-height: 23px;
+      padding: 0 12px 3px;
+      text-align: center;
+      font-family: 'Candara', sans-serif;
+      font-size: 15px;
+      border: 1px solid rgba(251, 210, 152, 0.5);
+      border-radius: 999px;
+      background: rgba(251, 210, 152, 0.1);
+      color: #f8f8f8;
+    }
+
+    .export-group__tables {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .export-sheet--stretch .export-group__tables > .export-table {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .export-sheet--reg .export-group__meta {
+      margin-left: auto;
+      font-size: 14px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: rgba(248, 248, 248, 0.6);
+      white-space: nowrap;
+    }
+
+    .export-sheet--reg .export-table {
+      width: max-content;
+      min-width: 340px;
+      table-layout: auto;
+      /* separate + one-sided borders: html2canvas doubles collapsed borders */
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid rgba(248, 248, 248, 0.18);
+      font-size: 13px;
+      line-height: 1.25;
+      background: transparent;
+    }
+
+    .export-sheet--reg .export-table col.col-num {
+      width: 35px;
+    }
+
+    .export-sheet--reg .export-table col.col-nick {
+      width: 160px;
+      min-width: 160px;
+    }
+
+    .export-sheet--reg .export-table col.col-class {
+      width: 112px;
+    }
+
+    .export-sheet--reg .export-table col.col-class--team {
+      width: 136px;
+    }
+
+    .export-sheet--reg .export-table col.col-level {
+      width: 67px;
+    }
+
+    .export-sheet--reg .export-table col.col-level--team {
+      width: 88px;
+    }
+
+    .export-sheet--reg .export-table th,
+    .export-sheet--reg .export-table td {
+      overflow: visible;
+      text-overflow: unset;
+      padding: 7px 12px;
+      vertical-align: middle;
+      border: none;
+      border-right: 1px solid rgba(248, 248, 248, 0.18);
+      border-bottom: 1px solid rgba(248, 248, 248, 0.18);
+    }
+
+    .export-sheet--reg .export-table th:last-child,
+    .export-sheet--reg .export-table td:last-child {
+      border-right: none;
+    }
+
+    .export-sheet--reg .export-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .export-sheet--reg .export-table th {
+      background: #2a261f;
+      color: #fbd298;
+      font-family: 'VollkornSC', sans-serif;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+
+    .export-sheet--reg .export-table td {
+      background: #161616;
+      color: rgba(248, 248, 248, 0.95);
+      height: auto;
+    }
+
+    .export-sheet--reg .export-table tr.data-table__slot-empty td {
+      background: #161616;
+      color: transparent;
+    }
+
+    .export-sheet--reg .export-table tr.data-table__slot-empty td:first-child {
+      color: rgba(248, 248, 248, 0.35);
+    }
+
+    .export-sheet--reg .team-copy-icon {
+      display: none;
+    }
+
+    .export-sheet--reg .team-cell {
+      display: block;
+    }
+
+    .export-sheet--groups .export-table--pairs td.col-nick {
+      white-space: normal;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    .export-sheet--groups .export-table--pairs td.col-score {
+      height: auto;
+      vertical-align: middle;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fbd298;
+      line-height: 1.2;
+    }
+
+    .export-sheet--groups .export-table--pairs td.col-score .sep {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.85;
+      padding: 0 0.08em;
+    }
+
+    .export-sheet--groups .export-table td.col-stat {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fbd298;
+      line-height: 1.2;
+    }
+
+    .export-vs-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      padding: 3px 0;
+      line-height: 1.2;
+    }
+
+    .export-vs-stack__team {
+      white-space: nowrap;
+    }
+
+    .export-vs-stack__sep {
+      font-size: 10px;
+      line-height: 1.1;
+      padding: 1px 0;
+    }
+
+    .export-table {
+      border-collapse: collapse;
+      font-size: 11px;
+      line-height: 1.15;
+      background: transparent;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .export-table th,
+    .export-table td {
+      border: 1px solid rgba(248, 248, 248, 0.18);
+      padding: 2px 6px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+
+    .export-table th {
+      background: rgba(251, 210, 152, 0.12);
+      color: #fbd298;
+      font-family: 'VollkornSC', sans-serif;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      font-size: 11px;
+      padding: 3px 6px;
+    }
+
+    .export-table td {
+      color: rgba(248, 248, 248, 0.95);
+      background: rgba(0, 0, 0, 0.28);
+      height: 18px;
+    }
+
+    .export-table col.col-num {
+      width: 26px;
+    }
+
+    .export-table col.col-level {
+      width: 54px;
+    }
+
+    .export-table col.col-class {
+      width: 90px;
+    }
+
+    .export-table col.col-nick {
+      width: auto;
+    }
+
+    .export-table col.col-class--team {
+      width: 112px;
+    }
+
+    .export-table col.col-level--team {
+      width: 77px;
+    }
+
+    .export-table col.col-stat {
+      width: 48px;
+    }
+
+    .export-table col.col-score {
+      width: 67px;
+    }
+
+    .export-table .col-num,
+    .export-table .col-level,
+    .export-table .col-stat,
+    .export-table .col-score {
+      text-align: center;
+    }
+
+    .export-table th.col-score,
+    .export-table td.col-score {
+      padding-left: 3px;
+      padding-right: 3px;
+    }
+
+    .export-table--teams td.col-class,
+    .export-table--teams td.col-nick,
+    .export-table--teams td.col-level {
+      white-space: normal;
+      line-height: 1.2;
+      overflow: visible;
+      text-overflow: unset;
+      vertical-align: middle;
+      height: auto;
+    }
+
+    .export-table tr.data-table__slot-empty td {
+      color: transparent;
+    }
+
+    .export-table tr.data-table__slot-empty td:first-child {
+      color: rgba(248, 248, 248, 0.4);
+    }
+
+    .export-table__empty {
+      text-align: center;
+      color: rgba(248, 248, 248, 0.45);
+      font-style: italic;
+    }
+
+    .export-group {
+      background: rgba(250, 250, 250, 0.08);
+      border: 1px solid rgba(248, 248, 248, 0.18);
+      border-radius: 6px;
+      padding: 6px 8px;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .export-group__matches {
+      margin-top: 8px;
+    }
+
+    .export-group__tiebreak {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(248, 248, 248, 0.15);
+    }
+
+    .export-group__tiebreak .export-table--pairs {
+      margin-top: 6px;
+    }
+
+    /* wide layout: standings | match results (tiebreaks under results) */
+    .export-sheet--wide .export-group__body {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: start;
+      gap: 0 10px;
+    }
+
+    .export-sheet--wide .export-group__matches {
+      margin-top: 0;
+    }
+
+    .export-sheet--wide .export-group__tiebreaks {
+      grid-column: 2;
+    }
+
+    /* wide3 layout: standings | match results | tiebreaks */
+    .export-sheet--wide3 .export-group__body {
+      grid-template-columns: max-content minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .export-sheet--wide3 .export-group__tiebreaks {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .export-sheet--wide3 .export-group__tiebreak:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    /* many groups: two per row */
+    .export-sheet--grid2 .export-sheet__grid {
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+    }
+
+    .export-group__name {
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      color: #fbd298;
+      margin: 0 0 4px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .export-bracket {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: max-content;
+      min-height: 320px;
+      padding-top: 16px;
+    }
+
+    .export-bracket__col {
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 auto;
+      width: max-content;
+      min-width: 0;
+    }
+
+    .export-bracket__col--finals {
+      flex: 0 0 auto;
+      margin-left: 4px;
+      width: max-content;
+    }
+
+    .export-bracket__label {
+      font-family: 'Candara', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      text-align: center;
+      margin: 0 0 4px;
+      color: rgba(248, 248, 248, 0.5);
+      line-height: 1.1;
+    }
+
+    .export-bracket__label--accent {
+      color: #fbd298;
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 11px;
+      letter-spacing: -0.03em;
+    }
+
+    .export-bracket__col-body {
+      flex: 1;
+      display: inline-flex;
+      flex-direction: column;
+      min-height: 280px;
+      overflow: visible;
+      width: max-content;
+      vertical-align: top;
+    }
+
+    .export-bracket__col-body--finals {
+      position: relative;
+      display: block;
+      padding: 0;
+      width: max-content;
+      min-width: 0;
+      min-height: 280px;
+    }
+
+    .export-bracket__finals-sizer {
+      visibility: hidden;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      width: max-content;
+      min-height: 280px;
+      justify-content: space-between;
+      padding: 24px 0 8px;
+      box-sizing: border-box;
+    }
+
+    .export-bracket__finals-sizer .export-match {
+      align-self: stretch;
+    }
+
+    .export-bracket__final-block {
+      position: absolute;
+      left: 2px;
+      right: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      width: calc(100% - 2px);
+    }
+
+    .export-bracket__final-block .export-bracket__label--accent {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      margin: 0 0 4px;
+    }
+
+    .export-bracket__third-block {
+      position: absolute;
+      left: 2px;
+      right: auto;
+      bottom: 2%;
+      width: calc(100% - 2px);
+    }
+
+    .export-bracket__pair {
+      position: relative;
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 6px;
+      padding: 4px 28px 4px 0;
+      min-height: 0;
+      overflow: visible;
+      align-self: stretch;
+      width: auto;
+      box-sizing: border-box;
+    }
+
+    .export-bracket__pair--solo {
+      padding-right: 6px;
+    }
+
+    .export-bracket__slot {
+      position: relative;
+      z-index: 1;
+      width: auto;
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .export-bracket__slot--titled .export-bracket__label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 100%;
+      margin: 0 0 4px;
+      z-index: 2;
+    }
+
+    .export-bracket__stem {
+      position: absolute;
+      right: 10px;
+      top: 25%;
+      bottom: 25%;
+      width: 12px;
+      border-top: 1px solid rgba(251, 210, 152, 0.45);
+      border-right: 1px solid rgba(251, 210, 152, 0.45);
+      border-bottom: 1px solid rgba(251, 210, 152, 0.45);
+      border-left: none;
+    }
+
+    .export-bracket__stem::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      height: 1px;
+      background: rgba(251, 210, 152, 0.45);
+      transform: translateY(-50%);
+    }
+
+    .export-bracket__arrow {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 0;
+      height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid rgba(251, 210, 152, 0.55);
+      transform: translateY(-50%);
+    }
+
+    .export-match {
+      display: table;
+      border-collapse: collapse;
+      border: 1px solid rgba(251, 210, 152, 0.28);
+      border-radius: 3px;
+      width: max-content;
+      min-width: 140px;
+      align-self: stretch;
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      table-layout: auto;
+    }
+
+    .export-match__row {
+      display: table-row;
+    }
+
+    .export-match__row--win .export-match__name {
+      color: #fbd298;
+    }
+
+    .export-match__row--win .export-match__score {
+      font-weight: 700;
+      background: rgba(251, 210, 152, 0.18);
+    }
+
+    .export-match__row:first-child .export-match__name,
+    .export-match__row:first-child .export-match__score {
+      border-bottom: 1px solid rgba(248, 248, 248, 0.1);
+    }
+
+    .export-match__name {
+      display: table-cell;
+      padding: 3px 8px;
+      font-size: 11px;
+      line-height: 1.15;
+      color: rgba(248, 248, 248, 0.95);
+      white-space: nowrap;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .export-match__score {
+      display: table-cell;
+      width: 26px;
+      min-width: 26px;
+      max-width: 26px;
+      padding: 3px 2px;
+      text-align: center;
+      border-left: 1px solid rgba(251, 210, 152, 0.22);
+      font-size: 11px;
+      line-height: 1.15;
+      color: #fbd298;
+      background: rgba(251, 210, 152, 0.08);
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+
+    .export-finals {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .export-sheet--bracket {
+      width: max-content;
+      max-width: none;
+      min-width: 0;
+    }
+
+
+    /* sheet widened to use spare frame width */
+    .export-sheet--stretch .export-sheet__grid {
+      width: 100%;
+    }
+
+    .export-sheet--stretch .export-sheet__grid > .export-group {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .export-sheet--stretch.export-sheet--grid2 .export-sheet__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .export-sheet--stretch .export-table {
+      width: 100%;
+    }
+
+    /* bracket with only final + 3rd place */
+    .export-podium {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 6px;
+    }
+
+    .export-sheet--podium-row .export-podium {
+      flex-direction: row;
+      gap: 36px;
+    }
+
+    .export-podium__block {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+
+    .export-podium__label {
+      font-family: 'VollkornSC', sans-serif;
+      font-size: 14px;
+      letter-spacing: -0.03em;
+      text-align: center;
+      color: rgba(248, 248, 248, 0.6);
+      line-height: 1.1;
+    }
+
+    .export-podium__block--final .export-podium__label {
+      font-size: 17px;
+      color: #fbd298;
+    }
+
+    .export-podium .export-match {
+      min-width: 220px;
+      border-radius: 5px;
+    }
+
+    .export-podium .export-match__name {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .export-podium .export-match__score {
+      width: 32px;
+      min-width: 32px;
+      max-width: 32px;
+      font-size: 13px;
+    }
+
+    .export-podium__block--final .export-match {
+      border-color: rgba(251, 210, 152, 0.6);
+      box-shadow: 0 0 18px rgba(251, 210, 152, 0.18);
+    }
+}

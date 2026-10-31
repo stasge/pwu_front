@@ -25,7 +25,7 @@ const props = defineProps<{
     editable?: boolean
 }>()
 
-const { run, ask } = useTournamentAction()
+const { run, ask, copyImage, imageBusy } = useTournamentAction()
 
 const tour = computed(() => props.data.tournaments[props.cat])
 const started = computed(() => tour.value.groups.length > 0 || !!tour.value.bracket)
@@ -115,6 +115,7 @@ const setup = (event: Event) => {
         <section v-if="tour.groups.length || editable" class="tour-section">
             <div class="tour-section__head">
                 <h2 class="tour-section__title">Групи {{ cat }}</h2>
+                <button v-if="editable" type="button" class="ghost-btn" :disabled="imageBusy || !tour.groups.length" @click="copyImage((e) => e.groupsExport(data, cat))">Копіювати картинкою</button>
             </div>
             <div v-if="tour.groups.length" class="groups-grid">
                 <GroupCard v-for="(g, gi) in tour.groups" :key="g.name" :data="data" :cat="cat" :group-index="gi" :editable="editable" />
@@ -125,6 +126,7 @@ const setup = (event: Event) => {
         <section v-if="tour.bracket || editable" class="tour-section">
             <div class="tour-section__head">
                 <h2 class="tour-section__title">Сітка {{ cat }}</h2>
+                <button v-if="editable" type="button" class="ghost-btn" :disabled="imageBusy || !tour.bracket" @click="copyImage((e) => e.bracketExport(data, cat))">Копіювати картинкою</button>
             </div>
             <BracketBoard :data="data" :cat="cat" :editable="editable" />
         </section>

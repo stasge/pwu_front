@@ -30,7 +30,7 @@ import ScrollX from './ScrollX.vue'
 
 const props = defineProps<{ data: TournamentData }>()
 
-const { run, ask, copyText } = useTournamentAction()
+const { run, ask, copyText, copyImage, imageBusy } = useTournamentAction()
 
 /* ----- форма реєстрації ----- */
 const bothSolo = computed(() => CATEGORIES.every((c) => !isTeamReg(props.data, c)))
@@ -169,6 +169,11 @@ const confirmRemoveTeam = (event: Event, cat: Category, team: RegTeam) => {
             </div>
         </form>
 
+        <div class="reg-toolbar">
+            <button type="button" class="ghost-btn ghost-btn--accent" :disabled="imageBusy" @click="copyImage((e) => e.registrationExport(data))">
+                Копіювати обидві категорії картинкою
+            </button>
+        </div>
         <div class="reg-columns__grid">
             <div v-for="cat in CATEGORIES" :key="cat" class="panel-card">
                 <PvpCorners />

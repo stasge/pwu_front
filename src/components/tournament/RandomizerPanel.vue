@@ -19,7 +19,7 @@ import PvpCorners from './PvpCorners.vue'
 
 const props = defineProps<{ data: TournamentData }>()
 
-const { run, ask, copyText } = useTournamentAction()
+const { run, ask, copyText, copyImage, imageBusy } = useTournamentAction()
 
 const importCat = ref<Category>('90-98')
 const animating = ref(false)
@@ -139,7 +139,10 @@ const copyFormed = () =>
         <section v-if="randomizer.formedTeams.length" class="tour-section">
             <div class="tour-section__head">
                 <h2 class="tour-section__title">Сформовані команди</h2>
-                <button type="button" class="ghost-btn" @click="copyFormed">Копіювати текстом</button>
+                <div class="tour-section__actions">
+                    <button type="button" class="ghost-btn" @click="copyFormed">Копіювати текстом</button>
+                    <button type="button" class="ghost-btn ghost-btn--accent" :disabled="imageBusy" @click="copyImage((e) => e.formedTeamsExport(data))">Копіювати картинкою</button>
+                </div>
             </div>
             <div class="teams-grid">
                 <div v-for="(team, index) in randomizer.formedTeams" :key="team.join('|')" class="team-card">

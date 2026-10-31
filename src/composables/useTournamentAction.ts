@@ -1,8 +1,14 @@
+import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useConfirm } from 'primevue/useconfirm'
 import { TournamentError } from '@/tournament/logic'
 
-/** Дії адмінки турніру: показ помилок логіки, підтвердження, копіювання тексту */
+type ExportModule = typeof import('@/tournament/exportImage')
+
+/** Спільний для всіх кнопок прапорець: одночасно рендериться лише одна картинка */
+const imageBusy = ref(false)
+
+/** Дії адмінки турніру: показ помилок логіки, підтвердження, копіювання тексту й картинок */
 export function useTournamentAction() {
     const toast = useToast()
     const confirm = useConfirm()
@@ -47,5 +53,29 @@ export function useTournamentAction() {
         }
     }
 
-    return { run, ask, copyText }
+    /** Рендер аркуша в PNG і копіювання в буфер (модуль із html2canvas вантажиться лише тут) */
+    const copyImage = async (build: (exporter: ExportModule) => string | string[]) => {
+        if (imageBusy.value) return
+        imageBusy.value = true
+        const pending = toast.info('Готую картинку…', { timeout: false })
+        try {
+            const exporter = await import('@/tournament/exportImage')
+            const html = build(exporter)
+            if (!html || (Array.isArray(html) && !html.length)) {
+                toast.error('Немає що копіювати')
+                return
+            }
+            const result = await exporter.copyHtmlAsImage(html)
+            if (result === 'copied') toast.success('Картинку скопійовано в буфер')
+            else if (result === 'downloaded') toast.success('Збережено як PNG')
+        } catch (e) {
+            console.error(e)
+            toast.error('Не вдалося скопіювати картинку (дозвіл буфера?)')
+        } finally {
+            toast.dismiss(pending)
+            imageBusy.value = false
+        }
+    }
+
+    return { run, ask, copyText, copyImage, imageBusy }
 }
