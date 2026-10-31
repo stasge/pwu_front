@@ -30,7 +30,8 @@ const { run, ask, copyImage, imageBusy } = useTournamentAction()
 const tour = computed(() => props.data.tournaments[props.cat])
 const started = computed(() => tour.value.groups.length > 0 || !!tour.value.bracket)
 const nextEntries = computed(() => getEntryTeams(props.data, props.cat))
-const teams = computed(() => (started.value ? tour.value.entries : nextEntries.value))
+/** Глядачам — лише команди сформованого турніру */
+const teams = computed(() => (started.value ? tour.value.entries : []))
 const sourceLabel = computed(() => {
     const source = nextEntries.value[0]?.source
     if (source === 'registration') return 'з реєстрації'

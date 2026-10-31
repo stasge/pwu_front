@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useTournamentLive } from '@/composables/useTournamentLive'
 import { useUserStore } from '@/stores/userStore'
-import { CATEGORIES, categoryFinished, formatLabel, getEntryTeams, isTeamReg } from '@/tournament/logic'
+import { CATEGORIES, categoryFinished, formatLabel } from '@/tournament/logic'
 import type { Category } from '@/tournament/types'
 import CategoryBoard from '@/components/tournament/CategoryBoard.vue'
 import '@/tournament/theme.scss'
@@ -13,15 +13,13 @@ const userStore = useUserStore()
 const { status, data, updatedAt, loaded } = useTournamentLive(REFRESH_MS)
 
 /**
- * Категорії, де є що показати: турнір уже сформовано або є команди з командної реєстрації.
- * Команди рандомайзера не прив'язані до категорії, тож до старту їх не показуємо.
+ * Глядачам показуємо лише категорії зі сформованим турніром. Реєстрація до формування —
+ * чернетка адміна (там можуть лишатись склади з минулого турніру).
  */
 const activeCategories = computed(() =>
     CATEGORIES.filter((c) => {
-        if (!data.value) return false
-        const tour = data.value.tournaments[c]
-        if (tour.groups.length > 0 || tour.bracket) return true
-        return isTeamReg(data.value, c) && getEntryTeams(data.value, c).length > 0
+        const tour = data.value?.tournaments[c]
+        return !!tour && (tour.groups.length > 0 || !!tour.bracket)
     })
 )
 
@@ -67,7 +65,7 @@ const updatedLabel = computed(() => {
             <CategoryBoard :key="cat" :data="data" :cat="cat" />
         </template>
 
-        <div v-else-if="data" class="empty-state tournament-live__empty">Реєстрація триває — команди скоро з'являться.</div>
+        <div v-else-if="data" class="empty-state tournament-live__empty">Реєстрація триває — турнір скоро почнеться.</div>
     </div>
 </template>
 <style scoped lang="scss">
