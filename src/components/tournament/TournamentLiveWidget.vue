@@ -1,14 +1,46 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useTournamentLive } from '@/composables/useTournamentLive'
 
 const REFRESH_MS = 30000
+const GAP_BELOW_HEADER = 4
 
-/** Липкий віджет на головній: видно, лише поки турнір триває */
+/** Липкий віджет на головній: видно, лише поки турнір триває. Стоїть по центру під хедером. */
 const { status } = useTournamentLive(REFRESH_MS, { withState: false })
+
+// хедер фіксований і змінює висоту з шириною екрана — міряємо його
+const top = ref(80)
+let observer: ResizeObserver | undefined
+
+// під хедером ще висить декоративна «рвана» смуга (.header-mask) — стаємо нижче неї
+const measure = () => {
+    const header = document.querySelector<HTMLElement>('.header')
+    if (!header) return
+    const mask = header.querySelector<HTMLElement>('.header-mask')
+    const bottom = Math.max(header.getBoundingClientRect().bottom, mask?.getBoundingClientRect().bottom ?? 0)
+    top.value = Math.round(bottom) + GAP_BELOW_HEADER
+}
+
+onMounted(() => {
+    measure()
+    window.addEventListener('resize', measure)
+    const header = document.querySelector<HTMLElement>('.header')
+    if (header) {
+        observer = new ResizeObserver(measure)
+        observer.observe(header)
+        const mask = header.querySelector<HTMLElement>('.header-mask')
+        if (mask) observer.observe(mask)
+    }
+})
+
+onBeforeUnmount(() => {
+    observer?.disconnect()
+    window.removeEventListener('resize', measure)
+})
 </script>
 <template>
     <Transition name="tournament-widget">
-        <router-link v-if="status === 'live'" :to="{ name: 'tournament' }" class="tournament-widget">
+        <router-link v-if="status === 'live'" :to="{ name: 'tournament' }" class="tournament-widget" :style="{ top: `${top}px` }">
             <span class="tournament-widget__live"><span class="tournament-widget__dot"></span>LIVE</span>
             <span class="tournament-widget__text">Турнір триває</span>
             <i class="pi pi-angle-right"></i>
@@ -18,13 +50,16 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
 <style scoped lang="scss">
 .tournament-widget {
     position: fixed;
-    left: 20px;
-    bottom: 24px;
-    z-index: 9998;
+    left: 0;
+    right: 0;
+    // під хедером (z-index 100), щоб його випадаючі меню перекривали віджет
+    z-index: 99;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 20px;
+    width: max-content;
+    margin: 0 auto;
+    padding: 10px 20px;
     border: 2px solid transparent;
     border-radius: 8px;
     background:
@@ -34,10 +69,10 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
     font-family: "VollkornSC", sans-serif;
     font-size: 18px;
     text-decoration: none;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, top 0.2s ease;
 
     &:hover {
-        transform: translateY(-2px);
+        transform: translateY(2px);
         box-shadow: inset 0 1px 0 rgba(248, 248, 248, 0.12), 0 0 16px rgba(251, 210, 152, 0.3);
     }
 
@@ -46,6 +81,8 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
         align-items: center;
         gap: 6px;
         color: #ff6b6b;
+        font-family: "Candara", sans-serif;
+        font-size: 14px;
         font-weight: 700;
         letter-spacing: 0.08em;
     }
@@ -65,18 +102,11 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
         -webkit-text-fill-color: transparent;
     }
 
-    &__live {
-        font-family: "Candara", sans-serif;
-        font-size: 14px;
-    }
-
     i { color: #fbd298; }
 
     @media (max-width: 768px) {
-        left: 12px;
-        bottom: 16px;
-        padding: 10px 14px;
-        font-size: 14px;
+        padding: 8px 14px;
+        font-size: 15px;
     }
 }
 
@@ -93,6 +123,6 @@ const { status } = useTournamentLive(REFRESH_MS, { withState: false })
 .tournament-widget-enter-from,
 .tournament-widget-leave-to {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(-12px);
 }
 </style>
