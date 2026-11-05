@@ -97,22 +97,25 @@ const openRole = (role: ActivityRole, accountName: string) => {
                         :class="`role-card--${statusOf(role, summary)}`"
                         @click="openRole(role, acc.name)"
                     >
-                        <span class="role-card__ring">
-                            <svg viewBox="0 0 52 52" width="52" height="52">
-                                <circle class="role-card__ring-bg" cx="26" cy="26" :r="RING_RADIUS" />
-                                <circle
-                                    class="role-card__ring-fill"
-                                    cx="26" cy="26" :r="RING_RADIUS"
-                                    :stroke-dasharray="RING_LENGTH"
-                                    :stroke-dashoffset="RING_LENGTH * (1 - summary.percent / 100)"
-                                />
-                            </svg>
-                            <span class="role-card__ring-text">
-                                <i v-if="statusOf(role, summary) === 'reward'" class="pi pi-gift"></i>
-                                <i v-else-if="statusOf(role, summary) === 'done'" class="pi pi-check"></i>
-                                <template v-else-if="summary.total">{{ summary.percent }}%</template>
-                                <i v-else class="pi pi-lock"></i>
+                        <span class="role-card__score">
+                            <span class="role-card__ring">
+                                <svg viewBox="0 0 52 52" width="52" height="52">
+                                    <circle class="role-card__ring-bg" cx="26" cy="26" :r="RING_RADIUS" />
+                                    <circle
+                                        class="role-card__ring-fill"
+                                        cx="26" cy="26" :r="RING_RADIUS"
+                                        :stroke-dasharray="RING_LENGTH"
+                                        :stroke-dashoffset="RING_LENGTH * (1 - summary.percent / 100)"
+                                    />
+                                </svg>
+                                <span class="role-card__ring-text">
+                                    <i v-if="statusOf(role, summary) === 'reward'" class="pi pi-gift"></i>
+                                    <i v-else-if="statusOf(role, summary) === 'done'" class="pi pi-check"></i>
+                                    <template v-else-if="summary.total">{{ summary.percent }}%</template>
+                                    <i v-else class="pi pi-lock"></i>
+                                </span>
                             </span>
+                            <span v-if="summary.maxPoints" class="role-card__points">{{ summary.points }}/{{ summary.maxPoints }} оч.</span>
                         </span>
                         <span class="role-card__info">
                             <span class="role-card__name">{{ role.name }}</span>
@@ -283,13 +286,29 @@ const openRole = (role: ActivityRole, accountName: string) => {
     }
 
     &--skeleton {
-        height: 78px;
+        height: 94px;
         cursor: default;
         background: linear-gradient(90deg, rgba(0, 0, 0, 0.4) 0%, rgba(250, 250, 250, 0.06) 50%, rgba(0, 0, 0, 0.4) 100%);
         background-size: 200% 100%;
         animation: activity-shimmer 1.4s ease-in-out infinite;
 
         &:hover { transform: none; border-color: rgba(250, 250, 250, 0.08); }
+    }
+
+    &__score {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__points {
+        font-family: "Candara", sans-serif;
+        font-size: 12px;
+        line-height: 1;
+        color: var(--accent);
+        white-space: nowrap;
     }
 
     &__ring {

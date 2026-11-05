@@ -137,23 +137,26 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                     </button>
 
                     <div class="ra__head">
-                        <span class="ra__ring">
-                            <svg viewBox="0 0 80 80" width="80" height="80">
-                                <circle class="ra__ring-bg" cx="40" cy="40" :r="RING_RADIUS" />
-                                <circle
-                                    class="ra__ring-fill"
-                                    cx="40" cy="40" :r="RING_RADIUS"
-                                    :stroke-dasharray="RING_LENGTH"
-                                    :stroke-dashoffset="RING_LENGTH * (1 - summary.percent / 100)"
-                                />
-                            </svg>
-                            <span class="ra__ring-text">
-                                <i v-if="status === 'reward'" class="pi pi-gift"></i>
-                                <i v-else-if="status === 'done'" class="pi pi-check"></i>
-                                <i v-else-if="status === 'empty'" class="pi pi-lock"></i>
-                                <template v-else>{{ summary.percent }}%</template>
+                        <div class="ra__score">
+                            <span class="ra__ring">
+                                <svg viewBox="0 0 80 80" width="80" height="80">
+                                    <circle class="ra__ring-bg" cx="40" cy="40" :r="RING_RADIUS" />
+                                    <circle
+                                        class="ra__ring-fill"
+                                        cx="40" cy="40" :r="RING_RADIUS"
+                                        :stroke-dasharray="RING_LENGTH"
+                                        :stroke-dashoffset="RING_LENGTH * (1 - summary.percent / 100)"
+                                    />
+                                </svg>
+                                <span class="ra__ring-text">
+                                    <i v-if="status === 'reward'" class="pi pi-gift"></i>
+                                    <i v-else-if="status === 'done'" class="pi pi-check"></i>
+                                    <i v-else-if="status === 'empty'" class="pi pi-lock"></i>
+                                    <template v-else>{{ summary.percent }}%</template>
+                                </span>
                             </span>
-                        </span>
+                            <span v-if="summary.maxPoints" class="ra__points">{{ summary.points }}/{{ summary.maxPoints }} оч.</span>
+                        </div>
                         <div class="ra__head-info">
                             <h2 class="ra__name">{{ role.name }}</h2>
                             <p class="ra__sub">
@@ -242,12 +245,13 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                     <div class="ra-item__body">
                                         <div class="ra-item__top">
                                             <span class="ra-item__name">{{ item.name }}</span>
-                                            <span class="ra-item__count">{{ item.completed }}/{{ item.required }}</span>
+                                            <span v-if="item.required > 1" class="ra-item__count">{{ item.completed }}/{{ item.required }}</span>
                                         </div>
-                                        <div class="ra-bar">
+                                        <div v-if="item.required > 1" class="ra-bar">
                                             <span class="ra-bar__fill" :style="{ width: percent(item) + '%' }"></span>
                                         </div>
                                     </div>
+                                    <span class="ra-item__points">+{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -260,9 +264,10 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                     <div class="ra-item__body">
                                         <div class="ra-item__top">
                                             <span class="ra-item__name">{{ item.name }}</span>
-                                            <span class="ra-item__count">{{ item.completed }}/{{ item.required }}</span>
+                                            <span v-if="item.required > 1" class="ra-item__count">{{ item.completed }}/{{ item.required }}</span>
                                         </div>
                                     </div>
+                                    <span class="ra-item__points">+{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -276,6 +281,7 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
                                         <span class="ra-item__name">{{ item.name }}</span>
                                         <span class="ra-item__hint">Доступно з {{ item.minLevel }} рівня</span>
                                     </div>
+                                    <span class="ra-item__points">+{{ item.maxPoints }} оч.</span>
                                 </li>
                             </ul>
                         </section>
@@ -376,6 +382,21 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         @media (max-width: 767px) {
             gap: 12px;
         }
+    }
+
+    &__score {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__points {
+        font-family: "Candara", sans-serif;
+        font-size: 13px;
+        color: var(--accent);
+        white-space: nowrap;
     }
 
     &__ring {
@@ -629,6 +650,18 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         color: rgba(248, 248, 248, 0.5);
     }
 
+    &__points {
+        flex-shrink: 0;
+        font-family: "Candara", sans-serif;
+        font-size: 13px;
+        color: #fbd298;
+        white-space: nowrap;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: rgba(251, 210, 152, 0.1);
+        border: 1px solid rgba(251, 210, 152, 0.3);
+    }
+
     &--done {
         background: rgba(174, 233, 97, 0.05);
         border-left-color: #AEE961;
@@ -641,6 +674,11 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
         }
 
         .ra-item__name { color: rgba(248, 248, 248, 0.75); }
+        .ra-item__points {
+            color: #AEE961;
+            background: rgba(174, 233, 97, 0.1);
+            border-color: rgba(174, 233, 97, 0.3);
+        }
     }
 
     &--locked {
@@ -651,6 +689,12 @@ const percent = (p: ActivityProgress) => p.required > 0 ? Math.min(100, Math.rou
             border: none;
             background: rgba(248, 248, 248, 0.1);
             color: rgba(248, 248, 248, 0.7);
+        }
+
+        .ra-item__points {
+            color: rgba(248, 248, 248, 0.6);
+            background: rgba(248, 248, 248, 0.05);
+            border-color: rgba(248, 248, 248, 0.15);
         }
     }
 }
